@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="com.windhoverlabs.e4.rcp.commands.category"
+            name="Sample Category">
+      </category>
+      <command
+            categoryId="com.windhoverlabs.e4.rcp.commands.category"
+            name="Sample Command"
+            id="com.windhoverlabs.e4.rcp.commands.sampleCommand">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="com.windhoverlabs.e4.rcp.handlers.NewCFSHandler"
+            commandId="com.windhoverlabs.e4.rcp.commands.sampleCommand">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="com.windhoverlabs.e4.rcp.commands.sampleCommand"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            contextId="org.eclipse.ui.contexts.window"
+            sequence="M1+6">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               id="com.windhoverlabs.e4.rcp.menus.sampleMenu"
+               label="Sample Menu"
+               mnemonic="M">
+            <command
+                  commandId="com.windhoverlabs.e4.rcp.commands.sampleCommand"
+                  id="com.windhoverlabs.e4.rcp.menus.sampleCommand"
+                  mnemonic="S">
+            </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="com.windhoverlabs.e4.rcp.toolbars.sampleToolbar">
+            <command
+                  id="com.windhoverlabs.e4.rcp.toolbars.sampleCommand"
+                  commandId="com.windhoverlabs.e4.rcp.commands.sampleCommand"
+                  icon="icons/sample.png"
+                  tooltip="Say hello world">
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            id="com.windhoverlabs.e4.rcp.editors.CFSMultiPageEditor"
+            name="CFS Multi-page Editor"
+            icon="icons/sample.png"
+            extensions="xml"
+            class="com.windhoverlabs.e4.rcp.editors.CFSMultiPageEditor"
+            contributorClass="com.windhoverlabs.e4.rcp.editors.CFSMultiPageEditorContributor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            name="New CFS Wizards"
+            id="com.windhoverlabs.e4.rcp">
+      </category>
+      <wizard
+            id="com.windhoverlabs.e4.rcp.wizards.CFSNewWizard"
+            name="CFS Multi-page Editor file"
+            icon="icons/sample.png"
+            class="com.windhoverlabs.e4.rcp.wizards.CFSNewWizard"
+            category="com.windhoverlabs.e4.rcp">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            id="com.windhoverlabs.e4.rcp.preferences.CFSPreferencePage"
+            name="CFS"
+            class="com.windhoverlabs.e4.rcp.preferences.CFSPreferencePage">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.windhoverlabs.e4.rcp.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
+
+</plugin>

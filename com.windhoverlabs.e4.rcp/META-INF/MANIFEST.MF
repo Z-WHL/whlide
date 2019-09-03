@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Rcp
+Bundle-SymbolicName: com.windhoverlabs.e4.rcp;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.windhoverlabs.e4.rcp.Activator
+Bundle-Vendor: WINDHOVERLABS
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jface.text,
+ org.eclipse.core.resources,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.ide
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: com.windhoverlabs.e4.rcp
+Bundle-ActivationPolicy: lazy
