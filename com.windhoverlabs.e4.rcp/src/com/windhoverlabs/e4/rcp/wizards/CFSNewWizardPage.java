@@ -1,5 +1,6 @@
 package com.windhoverlabs.e4.rcp.wizards;
 
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -41,6 +42,7 @@ public class CFSNewWizardPage extends WizardPage {
 		setTitle("Multi-page Editor File");
 		setDescription("This wizard creates a new file with *.xml extension that can be opened by a multi-page editor.");
 		this.selection = selection;
+		
 	}
 
 	@Override

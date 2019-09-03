@@ -13,6 +13,16 @@
             name="Sample Command"
             id="com.windhoverlabs.e4.rcp.commands.sampleCommand">
       </command>
+      <category
+            id="com.windhoverlabs.e4.rcp.sampleNature.category"
+            name="Sample Project Nature commands">
+      </category>
+      <command
+            categoryId="com.windhoverlabs.e4.rcp.sampleNature.category"
+            defaultHandler="com.windhoverlabs.e4.rcp.builder.AddRemoveSampleNatureHandler"
+            id="com.windhoverlabs.e4.rcp.addRemoveSampleNature"
+            name="Add/RemoveSample Project Nature">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -57,6 +67,57 @@
             </command>
          </toolbar>
       </menuContribution>
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
+         <command
+               commandId="com.windhoverlabs.e4.rcp.addRemoveSampleNature"
+               label="Disable Sample builder"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate>
+                     <adapt
+                           type="org.eclipse.core.resources.IProject">
+                        <test
+                              property="org.eclipse.core.resources.projectNature"
+                              value="com.windhoverlabs.e4.rcp.sampleNature">
+                        </test>
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.windhoverlabs.e4.rcp.addRemoveSampleNature"
+               label="Enable Sample builder"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate>
+                     <adapt
+                           type="org.eclipse.core.resources.IProject">
+                        <not>
+                           <test
+                                 property="org.eclipse.core.resources.projectNature"
+                                 value="com.windhoverlabs.e4.rcp.sampleNature">
+                           </test>
+                        </not>
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
@@ -82,6 +143,7 @@
             class="com.windhoverlabs.e4.rcp.wizards.CFSNewWizard"
             category="com.windhoverlabs.e4.rcp">
       </wizard>
+      <Generic></Generic>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
@@ -97,5 +159,77 @@
             class="com.windhoverlabs.e4.rcp.preferences.PreferenceInitializer">
       </initializer>
    </extension>
-
+   <extension
+         point="org.eclipse.ui.newWizards">
+   	  <category
+      		name="CFS Project"
+      		id="com.windhoverlabs.e4.rcp.category.wizards">
+      </category>
+      <wizard
+      		id="com.windhoverlabs.e4.rcp.wizard.new.cfsproject"
+      		project="true"
+      		name="CFS Project"
+      		icon="icons/sample.png"
+      		class="com.windhoverlabs.e4.rcp.wizards.CFSProjectNewWizard"
+      		category="com.windhoverlabs.e4.rcp.category.wizards">
+      		<description>
+      			Create a New CFS Project and set some empty files
+      		</description>
+     		 <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+      <Generic></Generic>
+   </extension>
+   <extension
+   		point="org.eclipse.ui.perspectiveExtensions">
+   		<perspectiveExtension
+   			targetID="org.eclipse.cdt.ui.CPerspective">
+   			<newWizardShortcut id="com.windhoverlabs.e4.rcp.wizard.new.cfsproject"/>
+   		</perspectiveExtension>
+   	</extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="org.eclipse.ui.navigator.CommonNavigator"
+            icon="icons/sample.png"
+            id="com.windloverlabs.e4.rcp.navigator"
+            name="CFS Navigator">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerActionBinding
+            viewerId="com.windloverlabs.e4.rcp.navigator">
+         <includes>
+            <actionExtension
+                  pattern="org.eclipse.ui.navigator.resources.*">
+            </actionExtension>
+         </includes>
+      </viewerActionBinding>
+      <viewerContentBinding
+            viewerId="com.windloverlabs.e4.rcp.navigator">
+         <includes>
+            <contentExtension
+                  pattern="org.eclipse.ui.navigator.resourceContent">
+            </contentExtension>
+            <contentExtension
+                  pattern="org.eclipse.ui.navigator.resources.filters.*">
+            </contentExtension>
+            <contentExtension
+                  pattern="org.eclipse.ui.navigator.resources.linkHelper">
+            </contentExtension>
+            <contentExtension
+                  pattern="org.eclipse.ui.navigator.resources.workingSets">
+            </contentExtension>
+         </includes>
+      </viewerContentBinding>
+   </extension>
+   <extension
+         id="com.windhoverlabs.e4.rcp.projectNature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="com.windhoverlabs.e4.rcp.natures.ProjectNature">
+         </run>
+      </runtime>
+   </extension>	
 </plugin>
