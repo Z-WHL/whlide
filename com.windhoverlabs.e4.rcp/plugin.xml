@@ -10,7 +10,7 @@
       </category>
       <command
             categoryId="com.windhoverlabs.e4.rcp.commands.category"
-            name="Sample Command"
+            name="Add CFS XML..."
             id="com.windhoverlabs.e4.rcp.commands.sampleCommand">
       </command>
       <category
@@ -46,7 +46,7 @@
             locationURI="menu:org.eclipse.ui.main.menu?after=additions">
          <menu
                id="com.windhoverlabs.e4.rcp.menus.sampleMenu"
-               label="Sample Menu"
+               label="CFS Related"
                mnemonic="M">
             <command
                   commandId="com.windhoverlabs.e4.rcp.commands.sampleCommand"
@@ -63,7 +63,7 @@
                   id="com.windhoverlabs.e4.rcp.toolbars.sampleCommand"
                   commandId="com.windhoverlabs.e4.rcp.commands.sampleCommand"
                   icon="icons/sample.png"
-                  tooltip="Say hello world">
+                  tooltip="Add CFS XML ...">
             </command>
          </toolbar>
       </menuContribution>

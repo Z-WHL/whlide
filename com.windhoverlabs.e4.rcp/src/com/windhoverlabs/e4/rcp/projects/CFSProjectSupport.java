@@ -1,10 +1,19 @@
 package com.windhoverlabs.e4.rcp.projects;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URI;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -15,36 +24,29 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
  
 import com.windhoverlabs.e4.rcp.natures.ProjectNature;
+import com.windhoverlabs.e4.rcp.Activator;
 
 public class CFSProjectSupport {
-
-    /* For this marvelous project we need to:
-    * - create the default Eclipse project
-    * - add the custom project nature
-    * - create the folder structure
-    *
-    * @param projectName
-    * @param location
-    * @param natureId
-    * @return
-    */
+	
+	private static String pname;
+	
    public static IProject createProject(String projectName, URI location) {
-
-
+	   
        IProject project = createBaseProject(projectName, location);
        try {
            addNature(project);
 
-           String[] paths = { "/parent/child1-1/child2", "/parent/child1-2/child2/child3" }; //$NON-NLS-1$ //$NON-NLS-2$
+           String[] paths = { "/parent/child1-1/child2", "/parent/child1-2/child2/child3" };
            addToProjectStructure(project, paths);
        } catch (CoreException e) {
            e.printStackTrace();
            project = null;
        }
-
+       
        return project;
    }
 
@@ -61,7 +63,7 @@ public class CFSProjectSupport {
        if (!newProject.exists()) {
            URI projectLocation = location;
            IProjectDescription desc = newProject.getWorkspace().newProjectDescription(newProject.getName());
-          
+           
            desc.setLocationURI(projectLocation);
            try {
                newProject.create(desc, null);
@@ -73,6 +75,7 @@ public class CFSProjectSupport {
            }
        }
 
+       setCFSXMLs(newProject);
        return newProject;
    }
 
@@ -133,5 +136,41 @@ public class CFSProjectSupport {
        }
    }
 
+   private static void setCFSXMLs(IProject project) {
+		IFile file = project.getFile("cfsXML.txt");
+		
+		if (!file.exists()) {
+			byte[] bytes = "".getBytes();
+		    InputStream source = new ByteArrayInputStream(bytes);
+		    try {
+		    	file.create(source, IResource.NONE, null);
+		    } catch (CoreException e) {
+		    	e.printStackTrace();
+		    }
+		}
+		try {
+			Reader reader = new InputStreamReader(file.getContents(), file.getCharset());
+			BufferedReader br = new BufferedReader(reader);
+			Stream<String> str = br.lines();
+			Iterator it = str.iterator();
+			while(it.hasNext()) {
+				String temp = (String) it.next();
+				Activator.setcfsXML(temp);
+			}
+			str.close();
+			br.close();
+			reader.close();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (CoreException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+   
+
+   
 }
 

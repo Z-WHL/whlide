@@ -32,6 +32,7 @@ public class ProjectNature implements IProjectNature {
 
 	@Override
 	public void setProject(IProject project) {
+		
 	}
 
 }
