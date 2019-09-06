@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+<!-- COMMAND EXTENSIONS -->
+	<extension
+		point="org.eclipse.ui.commands">
+		<category
+			id="com.windhoverlabs.cfside.commands.cfs"
+			name="CFS Category">
+		</category>
+		<command
+			categoryId="com.windhoverlabs.cfside.commands.cfs"
+			name="Add CFS XML..."
+			id="com.windhoverlabs.cfside.commands.addCFSFile">
+		</command>
+		<category
+			id="com.windhoverlabs.cfside.cfsNature.category"
+			name="CFS Project Nature commands">
+		</category>
+		<command
+			categoryId="com.windhoverlabs.cfside.cfsNature.category"
+			defaultHandler="com.windhoverlabs.cfside.builder.AddRemoveCFSNatureHandler"
+			id="com.windhoverlabs.cfside.addRemoveCFSNature"
+			name="Add/Remove CFS Project Nature">
+		</command>
+	</extension>
+	<extension
+		point="org.eclipse.ui.bindings">
+			<key
+				commandId="com.windhoverlabs.cfside.commands.addCFSFile"
+				schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+				contextId="org.eclipse.ui.contexts.window"
+				sequence="M1+6">
+			</key>
+	</extension>
+
+<!-- HANDLER EXTENSIONS -->
+	<extension
+		point="org.eclipse.ui.handlers">
+		<handler
+			class="com.windhoverlabs.cfside.ui.handlers.CFSOpenHandler"
+			commandId="com.windhoverlabs.cfside.commands.addCFSFile">
+		</handler>
+	</extension>
+	
+
+<!-- Nature EXTENSIONS -->
+	<extension
+        id="com.windhoverlabs.cfside.natures.projectNature"
+        point="org.eclipse.core.resources.natures">
+     	<runtime>
+        	<run
+            	class="com.windhoverlabs.cfside.natures.ProjectNature">
+         	</run>
+      	</runtime>
+   	</extension>	
+
+<!-- MENU CONTRIBUTION EXTENSIONS -->
+	<extension
+		point="org.eclipse.ui.menus">
+		<menuContribution
+			locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+			<menu
+				id="com.windhoverlabs.cfside.ui.menus.cfsMenu"
+				label="CFS Related"
+				mnemonic="M">
+				<command
+					commandId="com.windhoverlabs.cfside.commands.addCFSFile"
+					id="com.windhoverlabs.cfside.ui.menus.addCFSFile"
+					mneomnic="S">
+				</command>
+			</menu>
+		</menuContribution>
+		
+		<menuContribution
+			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+			<toolbar
+				id="com.windhoverlabs.cfside.toolbars.cfsFileToolbar">
+				<command
+					id="com.windhoverlabs.cfside.toolbars.addCFSFile"
+					commandId="com.windhoverlabs.cfside.commands.addCFSFile"
+					tooltip="Add CFS XML...">
+				</command>
+			</toolbar>
+		</menuContribution>
+		
+		<menuContribution
+            locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
+         <command
+               commandId="com.windhoverlabs.cfside.addRemoveCFSNature"
+               label="Disable CFS builder"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate>
+                     <adapt
+                           type="org.eclipse.core.resources.IProject">
+                        <test
+                              property="org.eclipse.core.resources.projectNature"
+                              value="com.windhoverlabs.cfside.natures.projectNature">
+                        </test>
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="com.windhoverlabs.cfside.addRemoveCFSNature"
+               label="Enable CFS builder"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate>
+                     <adapt
+                           type="org.eclipse.core.resources.IProject">
+                        <not>
+                           <test
+                                 property="org.eclipse.core.resources.projectNature"
+                                 value="com.windhoverlabs.cfside.natures.projectNature">
+                           </test>
+                        </not>
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+    
+	</extension>
+	
+					
+   
+<!-- Wizards EXTENSIONS -->
+   	<extension
+   		point="org.eclipse.ui.newWizards">
+        <category
+      		name="CFS Project"
+      		id="com.windhoverlabs.cfside.ui.categories.wizards">
+      	</category>
+      	<wizard
+      		id="com.windhoverlabs.cfside.ui.wizard.new.cfsproject"
+      		project="true"
+      		name="New CFS Project"
+      		class="com.windhoverlabs.cfside.ui.wizards.CFSProjectNewWizard"
+      		category="com.windhoverlabs.cfside.ui.categories.wizards">
+      		<description>
+      			Create a New CFS Project and set some empty files
+      		</description>
+     			<selection class="org.eclipse.core.resources.IResource"/>
+      	</wizard>
+   	</extension>
+
+<!-- PERSPECTIVE EXTENSIONS EXTENSIONS -->   
+   	<extension
+   		point="org.eclipse.ui.perspectiveExtensions">
+   		<perspectiveExtension
+   			targetID="org.eclipse.cdt.ui.CPerspective">
+   			<newWizardShortcut id="com.windhoverlabs.cfside.ui.wizard.new.cfsproject"/>
+   		</perspectiveExtension>
+   	</extension>
+
+<!-- PREFERENCE EXTENSIONS -->   	
+   	<extension
+        point="org.eclipse.ui.preferencePages">
+      	<page
+        	id="com.windhoverlabs.cfside.preferences.CFSPreferencePage"
+            name="CFS"
+            class="com.windhoverlabs.cfside.preferences.CFSPreferencePage">
+      	</page>
+   	</extension>
+
+<!-- PREFERENCE INITIALIZER EXTENSIONS -->   
+   	<extension
+        point="org.eclipse.core.runtime.preferences">
+      	<initializer
+            class="com.windhoverlabs.cfside.preferences.PreferenceInitializer">
+      	</initializer>
+   	</extension>
+
+
+<!-- NAVIGATOR EXTENSIONS  
+  	<extension
+        point="org.eclipse.ui.views">
+        
+      	<view
+            class="org.eclipse.ui.navigator.CommonNavigator"
+            icon="icons/sample.png"
+            id="com.windloverlabs.cfside.navigator"
+            name="CFS Project Navigator">
+      	</view>
+   	</extension>
+   	<extension
+        point="org.eclipse.ui.navigator.viewer">
+      	<viewerActionBinding
+            viewerId="com.windloverlabs.cfside.navigator">
+        	<includes>
+            	<actionExtension
+                	pattern="org.eclipse.ui.navigator.resources.*">
+            	</actionExtension>
+         	</includes>
+      	</viewerActionBinding>
+      	<viewerContentBinding
+        	viewerId="com.windloverlabs.cfside.navigator">
+         	<includes>
+            	<contentExtension
+                	pattern="org.eclipse.ui.navigator.resourceContent">
+            	</contentExtension>
+            	<contentExtension
+                  	pattern="org.eclipse.ui.navigator.resources.filters.*">
+            	</contentExtension>
+            	<contentExtension
+                  	pattern="org.eclipse.ui.navigator.resources.linkHelper">
+            	</contentExtension>
+            	<contentExtension
+                  	pattern="org.eclipse.ui.navigator.resources.workingSets">
+            	</contentExtension>
+         	</includes>
+      	</viewerContentBinding>
+   	</extension>
+
+   
+   	
+   	<extension
+   		point="org.eclipse.core.expressions.definitions">
+   		<definition id="com.windhoverlabs.cfside.cnf.cfsFileSelected">
+   			<with variable="fileSelection">
+   				<iterate ifEmpty="false" operator="or">
+   					<instanceof value="com.windhoverlabs.cfside.cnf.data.ConfigFile" />
+   				</iterate>
+   			</with>
+   		</definition>
+   	</extension>
+   	-->
+   	
+   
+</plugin>
