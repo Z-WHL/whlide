@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
+
+
 <plugin>
 
    <extension
@@ -143,7 +145,7 @@
             class="com.windhoverlabs.e4.rcp.wizards.CFSNewWizard"
             category="com.windhoverlabs.e4.rcp">
       </wizard>
-      <Generic></Generic>
+      
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
@@ -177,7 +179,7 @@
       		</description>
      		 <selection class="org.eclipse.core.resources.IResource"/>
       </wizard>
-      <Generic></Generic>
+      
    </extension>
    <extension
    		point="org.eclipse.ui.perspectiveExtensions">
