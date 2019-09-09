@@ -136,11 +136,8 @@
             </visibleWhen>
          </command>
       </menuContribution>
-    
 	</extension>
 	
-					
-   
 <!-- Wizards EXTENSIONS -->
    	<extension
    		point="org.eclipse.ui.newWizards">
@@ -161,6 +158,18 @@
       	</wizard>
    	</extension>
 
+<!-- EDITOR EXTENSIONS -->
+	<extension
+		point="org.eclipse.ui.editors">
+		<editor
+			id="com.windhoverlabs.cfside.editors.CFSMultiPageEditor"
+			name="CFS Multi-page Editor"
+			extensions="xml"
+			class="com.windhoverlabs.cfside.ui.editors.CFSMultiPageEditor"
+			contributorClass="com.windhoverlabs.cfside.ui.editors.CFSMultiPageEditorContributor">
+		</editor>
+	</extension>
+	
 <!-- PERSPECTIVE EXTENSIONS EXTENSIONS -->   
    	<extension
    		point="org.eclipse.ui.perspectiveExtensions">

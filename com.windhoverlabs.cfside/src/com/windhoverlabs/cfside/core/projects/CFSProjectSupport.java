@@ -26,7 +26,13 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
- 
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+
 import com.windhoverlabs.cfside.natures.ProjectNature;
 import com.windhoverlabs.cfside.core.ContextManager;;
 
@@ -174,6 +180,40 @@ public class CFSProjectSupport {
 		
 	}
    
+   public static IProject getCurrentEditorProject() {
+	   IWorkbench workbench = PlatformUI.getWorkbench();
+	   IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+	   IWorkbenchPage activePage = window.getActivePage();
+	   IEditorPart activeEditor = activePage.getActiveEditor();
+	   if(activeEditor != null) {
+		   IEditorInput input = activeEditor.getEditorInput();
+		   IProject project = input.getAdapter(IProject.class);
+		   if(project == null) {
+			   IResource resource = input.getAdapter(IResource.class);
+			   if(resource != null) {
+				   project = resource.getProject();
+			   }
+		   }
+		   return project;
+	   } else {
+		   return null;
+	   }  
+   	}
+   
+   public static String getCurrentFileName() {
+	   IWorkbench workbench = PlatformUI.getWorkbench();
+	   IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+	   IWorkbenchPage activePage = window.getActivePage();
+	   IEditorPart activeEditor = activePage.getActiveEditor();
+	   if(activeEditor != null) {
+		   IEditorInput input = activeEditor.getEditorInput();
+		   String fileName = input.getName();
+				   
+		   return fileName;
+	   } else {
+		   return null;
+	   } 
+   }
 
    
 }
