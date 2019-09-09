@@ -8,6 +8,7 @@ import java.text.Collator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IContainer;
@@ -31,6 +32,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.*;
@@ -56,7 +58,8 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 
 	/** The text editor used in page 0. */
 	private TextEditor editor;
-	
+	HashMap<String, Group> messageIDWidgets = new HashMap<String, Group>();
+
 	/** The Fields Set in page 1. */
 	private Text appNameInput;
 	private String appNameInputString;
@@ -95,18 +98,51 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 */
 	private void createPage1() {
 
-		Composite composite = new Composite(getContainer(), SWT.NONE);
+		Composite composite = new Composite(getContainer(), SWT.FILL);
 		GridLayout layout = new GridLayout();
 		composite.setLayout(layout);
-		layout.numColumns = 3;
+		layout.numColumns = 12;
 
-		Label appName = new Label(composite, SWT.NONE);
-		appName.setText("Application Name");
-		
-		appNameInput = new Text(composite, SWT.BORDER);
+		Label id = new Label(composite, SWT.FILL);
+		id.setText("Identifier");
 		GridData gridData = new GridData();
 		gridData.horizontalSpan = 2;
-		appNameInput.setLayoutData(gridData);
+		gridData.horizontalAlignment = GridData.FILL;
+		id.setLayoutData(gridData);
+		
+		Label name = new Label(composite, SWT.FILL);
+		name.setText("Name");
+		gridData = new GridData();
+		gridData.horizontalSpan = 4;
+		gridData.horizontalAlignment = GridData.FILL;
+
+		name.setLayoutData(gridData);
+		
+		Label msgid = new Label(composite, SWT.FILL);
+		msgid.setText("MsgID");
+		gridData = new GridData();
+		gridData.horizontalSpan = 1;
+		gridData.horizontalAlignment = GridData.FILL;
+
+		msgid.setLayoutData(gridData);
+		
+		Label types = new Label(composite, SWT.FILL);
+		types.setText("Type");
+		gridData = new GridData();
+		gridData.horizontalSpan = 1;
+		gridData.horizontalAlignment = GridData.FILL;
+
+		types.setLayoutData(gridData);
+		
+		Label descrip = new Label(composite, SWT.FILL);
+		descrip.setText("Description");
+		gridData = new GridData();
+		gridData.horizontalSpan = 4;
+		gridData.horizontalAlignment = GridData.FILL;
+
+		descrip.setLayoutData(gridData);
+		
+		/*
 		
 		appNameInput.addModifyListener(e -> {
 			Text src = (Text) e.getSource();
@@ -125,6 +161,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 			String temp = src.getText();
 			pathDirectoryInputString = temp;
 		});
+		*/
 		
 		Button fontButton = new Button(composite, SWT.NONE);
 		GridData gd = new GridData(GridData.BEGINNING);
@@ -244,7 +281,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	protected void pageChange(int newPageIndex) {
 		super.pageChange(newPageIndex);
 		if (newPageIndex == 2) {
-			sortWords();
+			saveInfo("hi", "ok");
 		}
 	}
 	/**
@@ -277,27 +314,40 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		System.out.println(str);
 		FileUtils.writeToRoot("someinfo.txt", str);
 	}
-	/**
-	 * Sorts the words in page 0, and shows them in page 2.
-	 */
-	private void sortWords() {
-
-		String editorText =	editor.getDocumentProvider().getDocument(editor.getEditorInput()).get();
-
-
-		StringTokenizer tokenizer =
-			new StringTokenizer(editorText, " \t\n\r\f!@#\u0024%^&*()-_=+`~[]{};:'\",.<>/?|\\");
-		List<String> editorWords = new ArrayList<>();
-		while (tokenizer.hasMoreTokens()) {
-			editorWords.add(tokenizer.nextToken());
-		}
-
-		Collections.sort(editorWords, Collator.getInstance());
-		StringWriter displayText = new StringWriter();
-		for (int i = 0; i < editorWords.size(); i++) {
-			displayText.write(((String) editorWords.get(i)));
-			displayText.write(System.getProperty("line.separator"));
-		}
-		text.setText(displayText.toString());
+	
+	private Group createGroup(Composite parent, String identifier, String name, String msgId, int type, String desc) {
+		Group message = new Group(parent, SWT.BORDER);
+		Text id = new Text(message, SWT.BORDER);
+		id.setText(identifier);
+		GridData gridData = new GridData(GridData.BEGINNING);
+		gridData.horizontalSpan = 2;
+		id.setLayoutData(gridData);
+		
+		Text nam = new Text(message, SWT.BORDER);
+		nam.setText(name);
+		gridData = new GridData(GridData.BEGINNING);
+		gridData.horizontalSpan = 4;
+		nam.setLayoutData(gridData);
+		
+		Text msgID = new Text(message, SWT.BORDER);
+		msgID.setText(msgId);
+		gridData = new GridData(GridData.BEGINNING);
+		gridData.horizontalSpan = 1;
+		msgID.setLayoutData(gridData);
+		
+		Text typ = new Text(message, SWT.BORDER);
+		typ.setText(msgId);
+		gridData = new GridData(GridData.BEGINNING);
+		gridData.horizontalSpan = 1;
+		typ.setLayoutData(gridData);
+		
+		Text descr = new Text(message, SWT.BORDER);
+		descr.setText(name);
+		gridData = new GridData(GridData.BEGINNING);
+		gridData.horizontalSpan = 4;
+		descr.setLayoutData(gridData);
+		
+		return message;
+		
 	}
 }

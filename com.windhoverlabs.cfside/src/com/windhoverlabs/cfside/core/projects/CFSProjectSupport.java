@@ -33,7 +33,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
-import com.windhoverlabs.cfside.natures.ProjectNature;
+import com.windhoverlabs.cfside.natures.CFSProjectCoreNature;
 import com.windhoverlabs.cfside.core.ContextManager;;
 
 public class CFSProjectSupport {
@@ -133,12 +133,12 @@ public class CFSProjectSupport {
    }
 
    private static void addNature(IProject project) throws CoreException {
-       if (!project.hasNature(ProjectNature.NATURE_ID)) {
+       if (!project.hasNature(CFSProjectCoreNature.NATURE_ID)) {
            IProjectDescription description = project.getDescription();
            String[] prevNatures = description.getNatureIds();
            String[] newNatures = new String[prevNatures.length + 1];
            System.arraycopy(prevNatures, 0, newNatures, 0, prevNatures.length);
-           newNatures[prevNatures.length] = ProjectNature.NATURE_ID;
+           newNatures[prevNatures.length] = CFSProjectCoreNature.NATURE_ID;
            description.setNatureIds(newNatures);
 
            IProgressMonitor monitor = null;

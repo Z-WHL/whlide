@@ -1,5 +1,8 @@
 package com.windhoverlabs.cfside.core;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -13,16 +16,22 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import com.windhoverlabs.cfside.model.CFSProject;
+import com.windhoverlabs.cfside.model.CFSProperties;
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchesListener2;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import com.windhoverlabs.cfside.model.CFSProperties.CFSProperties;
-
+import com.thoughtworks.xstream.XStream;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -32,9 +41,11 @@ public class ContextManager extends AbstractUIPlugin implements IDebugEventSetLi
 	
 	private Hashtable<String, CFSProperties> CFSModelMap;
 	private static HashSet<String> cfsXML;
+	private XStream _xStream;
+	
 	public static final String PLUGIN_ID = "com.windhoverlabs.cfside";
 	// The shared instance
-	private static ContextManager PLUGIN;
+	public static ContextManager PLUGIN;
 	private ResourceBundle _coreResourcesBundle;
 	private boolean _isSuspended;
 	
@@ -80,13 +91,67 @@ public class ContextManager extends AbstractUIPlugin implements IDebugEventSetLi
 		return PLUGIN;
 	}
 	
-	/**
-	 * Retrieve the IProject of the current project workspace. 
-	 * Editor must be opened and selected.
-	 */
+	public CFSProperties getCFSProperties(String projectName, boolean forceload) {
+		CFSProperties properties = CFSModelMap.get(projectName);
+		if (properties != null && !forceload) {
+			return properties;
+		}
+		IWorkspace eclipseWS = ResourcesPlugin.getWorkspace();
+		IWorkspaceRoot eclipseWSRoot = eclipseWS.getRoot();
+		IProject project = eclipseWSRoot.getProject(projectName);
+		IFile propertiesFile = project.getFile(CFSProject.METAFILE);
+		if (propertiesFile.exists()) {
+			properties = loadModelFromStore(propertiesFile.getLocation().toFile());
+			if (properties != null) {
+				CFSModelMap.put(projectName, properties);
+			}
+		} else {
+			properties = new CFSProperties();
+			properties.setValidOutputFileName(project.getName());
+		}
+		
+		return properties;
+		
+	}
 	
+	public CFSProperties loadModelFromStore(File file) {
+		CFSProperties cfsProperties = null;
+		
+		if (file == null || !file.exists() || !file.isFile()) {
+			return null;
+		}
+		
+		FileInputStream fileInputStream = null;
+		try {
+			fileInputStream = new FileInputStream(file);
+			if (0 < fileInputStream.available()) {
+				XStream xStream = getXStream();
+				cfsProperties = (CFSProperties) xStream.fromXML(fileInputStream);
+			} else {
+				cfsProperties = new CFSProperties();
+			}
+		} catch (Throwable t) {
+			t.printStackTrace();
+		} finally {
+			if (fileInputStream != null) {
+				try {
+					fileInputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return cfsProperties;
+	} 
 
 	
+	public XStream getXStream() {
+		if (_xStream == null) {
+			_xStream = new XStream();
+			
+		}
+		return _xStream;
+	}
 	public static void setcfsXML(String temp) {
 		cfsXML.add(temp);
 		

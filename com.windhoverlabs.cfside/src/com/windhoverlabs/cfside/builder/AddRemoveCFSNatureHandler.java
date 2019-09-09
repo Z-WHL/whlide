@@ -10,7 +10,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import com.windhoverlabs.cfside.natures.ProjectNature;
+import com.windhoverlabs.cfside.natures.CFSProjectCoreNature;
 
 public class AddRemoveCFSNatureHandler extends AbstractHandler{
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -52,7 +52,7 @@ public class AddRemoveCFSNatureHandler extends AbstractHandler{
 		String[] natures = description.getNatureIds();
 
 		for (int i = 0; i < natures.length; ++i) {
-			if (ProjectNature.NATURE_ID.equals(natures[i])) {
+			if (CFSProjectCoreNature.NATURE_ID.equals(natures[i])) {
 				// Remove the nature
 				String[] newNatures = new String[natures.length - 1];
 				System.arraycopy(natures, 0, newNatures, 0, i);
@@ -66,7 +66,7 @@ public class AddRemoveCFSNatureHandler extends AbstractHandler{
 		// Add the nature
 		String[] newNatures = new String[natures.length + 1];
 		System.arraycopy(natures, 0, newNatures, 0, natures.length);
-		newNatures[natures.length] = ProjectNature.NATURE_ID;
+		newNatures[natures.length] = CFSProjectCoreNature.NATURE_ID;
 		description.setNatureIds(newNatures);
 		project.setDescription(description, null);
 	}

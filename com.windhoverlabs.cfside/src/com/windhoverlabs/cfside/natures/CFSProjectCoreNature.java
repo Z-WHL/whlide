@@ -8,7 +8,7 @@ import org.eclipse.core.runtime.CoreException;
 
 import com.windhoverlabs.cfside.builder.CFSProjectBuilder;
 
-public class ProjectNature implements IProjectNature {
+public class CFSProjectCoreNature implements IProjectNature {
 
 	/**
 	 * ID of this project nature

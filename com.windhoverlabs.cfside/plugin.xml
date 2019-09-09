@@ -14,6 +14,11 @@
 			name="Add CFS XML..."
 			id="com.windhoverlabs.cfside.commands.addCFSFile">
 		</command>
+		<command
+			categoryId="com.windhoverlabs.cfside.commands.cfs"
+			name="Add Message ID"
+			id="com.windhoverlabs.cfside.commands.addMessageID">
+		</command>
 		<category
 			id="com.windhoverlabs.cfside.cfsNature.category"
 			name="CFS Project Nature commands">
@@ -42,7 +47,12 @@
 			class="com.windhoverlabs.cfside.ui.handlers.CFSOpenHandler"
 			commandId="com.windhoverlabs.cfside.commands.addCFSFile">
 		</handler>
+		<handler
+			class="com.windhoverlabs.cfside.ui.handlers.AddMessageIDHandler"
+			commandId="com.windhoverlabs.cfside.commands.addMessageID">
+		</handler>
 	</extension>
+	
 	
 
 <!-- Nature EXTENSIONS -->
@@ -51,7 +61,7 @@
         point="org.eclipse.core.resources.natures">
      	<runtime>
         	<run
-            	class="com.windhoverlabs.cfside.natures.ProjectNature">
+            	class="com.windhoverlabs.cfside.natures.CFSProjectCoreNature">
          	</run>
       	</runtime>
    	</extension>	
@@ -70,6 +80,11 @@
 					id="com.windhoverlabs.cfside.ui.menus.addCFSFile"
 					mneomnic="S">
 				</command>
+				<command
+					commandId="com.windhoverlabs.cfside.commands.addMessageID"
+					id="com.windhoverlabs.cfside.ui.menus.addMessageID"
+					mneomnic="A">
+				</command>
 			</menu>
 		</menuContribution>
 		
@@ -81,6 +96,11 @@
 					id="com.windhoverlabs.cfside.toolbars.addCFSFile"
 					commandId="com.windhoverlabs.cfside.commands.addCFSFile"
 					tooltip="Add CFS XML...">
+				</command>
+				<command
+					id="com.windhoverlabs.cfside.toolbars.addMessageID"
+					commandId="com.windhoverlabs.cfside.commands.addMessageID"
+					tooltip="Add Message ID...">
 				</command>
 			</toolbar>
 		</menuContribution>

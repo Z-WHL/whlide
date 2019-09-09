@@ -1,7 +1,11 @@
 package com.windhoverlabs.cfside.ui.editors;
 
+import java.util.HashMap;
+import java.util.HashSet;
+
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchActionConstants;
