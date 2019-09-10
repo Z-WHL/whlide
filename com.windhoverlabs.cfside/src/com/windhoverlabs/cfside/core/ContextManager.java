@@ -31,7 +31,6 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchesListener2;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import com.thoughtworks.xstream.XStream;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -41,7 +40,7 @@ public class ContextManager extends AbstractUIPlugin implements IDebugEventSetLi
 	
 	private Hashtable<String, CFSProperties> CFSModelMap;
 	private static HashSet<String> cfsXML;
-	private XStream _xStream;
+	//private XStream _xStream;
 	
 	public static final String PLUGIN_ID = "com.windhoverlabs.cfside";
 	// The shared instance
@@ -125,8 +124,8 @@ public class ContextManager extends AbstractUIPlugin implements IDebugEventSetLi
 		try {
 			fileInputStream = new FileInputStream(file);
 			if (0 < fileInputStream.available()) {
-				XStream xStream = getXStream();
-				cfsProperties = (CFSProperties) xStream.fromXML(fileInputStream);
+				//XStream xStream = getXStream();
+				//cfsProperties = (CFSProperties) xStream.fromXML(fileInputStream);
 			} else {
 				cfsProperties = new CFSProperties();
 			}
@@ -144,7 +143,7 @@ public class ContextManager extends AbstractUIPlugin implements IDebugEventSetLi
 		return cfsProperties;
 	} 
 
-	
+	/*
 	public XStream getXStream() {
 		if (_xStream == null) {
 			_xStream = new XStream();
@@ -152,6 +151,8 @@ public class ContextManager extends AbstractUIPlugin implements IDebugEventSetLi
 		}
 		return _xStream;
 	}
+	*/
+	
 	public static void setcfsXML(String temp) {
 		cfsXML.add(temp);
 		

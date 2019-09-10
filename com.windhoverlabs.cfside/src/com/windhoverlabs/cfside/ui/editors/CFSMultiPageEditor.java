@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.Collator;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,11 +23,32 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.nebula.widgets.nattable.NatTable;
+import org.eclipse.nebula.widgets.nattable.data.IColumnPropertyAccessor;
+import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
+import org.eclipse.nebula.widgets.nattable.data.ListDataProvider;
+import org.eclipse.nebula.widgets.nattable.data.ReflectiveColumnPropertyAccessor;
+import org.eclipse.nebula.widgets.nattable.grid.data.DefaultColumnHeaderDataProvider;
+import org.eclipse.nebula.widgets.nattable.grid.data.DefaultCornerDataProvider;
+import org.eclipse.nebula.widgets.nattable.grid.data.DefaultRowHeaderDataProvider;
+import org.eclipse.nebula.widgets.nattable.grid.layer.ColumnHeaderLayer;
+import org.eclipse.nebula.widgets.nattable.grid.layer.CornerLayer;
+import org.eclipse.nebula.widgets.nattable.grid.layer.GridLayer;
+import org.eclipse.nebula.widgets.nattable.grid.layer.RowHeaderLayer;
+import org.eclipse.nebula.widgets.nattable.hideshow.ColumnHideShowLayer;
+import org.eclipse.nebula.widgets.nattable.layer.AbstractLayerTransform;
+import org.eclipse.nebula.widgets.nattable.layer.DataLayer;
+import org.eclipse.nebula.widgets.nattable.reorder.ColumnReorderLayer;
+import org.eclipse.nebula.widgets.nattable.selection.SelectionLayer;
+import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -37,13 +59,19 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.*;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.ide.IDE;
 
 import com.windhoverlabs.cfside.core.projects.CFSProjectSupport;
+import com.windhoverlabs.cfside.model.Message;
 import com.windhoverlabs.cfside.utils.ProjectUtils;
 import com.windhoverlabs.cfside.utils.FileUtils;
+import com.windhoverlabs.cfside.utils.MessageService;
+import com.windhoverlabs.cfside.model.ColumnHeaderLayerStack;
+import com.windhoverlabs.cfside.model.RowHeaderLayerStack;
+import com.windhoverlabs.cfside.model.BodyLayerStack;
 
 /**
  * An example showing how to create a multi-page editor.
@@ -60,6 +88,11 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	private TextEditor editor;
 	HashMap<String, Group> messageIDWidgets = new HashMap<String, Group>();
 
+	private IDataProvider bodyDataProvider;
+	private BodyLayerStack bodyLayer;
+	private String[] propertyNames;
+	private Map<String, String> propertyToLabels;
+	
 	/** The Fields Set in page 1. */
 	private Text appNameInput;
 	private String appNameInputString;
@@ -99,51 +132,33 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	private void createPage1() {
 
 		Composite composite = new Composite(getContainer(), SWT.FILL);
-		GridLayout layout = new GridLayout();
-		composite.setLayout(layout);
-		layout.numColumns = 12;
-
-		Label id = new Label(composite, SWT.FILL);
-		id.setText("Identifier");
-		GridData gridData = new GridData();
-		gridData.horizontalSpan = 2;
-		gridData.horizontalAlignment = GridData.FILL;
-		id.setLayoutData(gridData);
-		
-		Label name = new Label(composite, SWT.FILL);
-		name.setText("Name");
-		gridData = new GridData();
-		gridData.horizontalSpan = 4;
-		gridData.horizontalAlignment = GridData.FILL;
-
-		name.setLayoutData(gridData);
-		
-		Label msgid = new Label(composite, SWT.FILL);
-		msgid.setText("MsgID");
-		gridData = new GridData();
-		gridData.horizontalSpan = 1;
-		gridData.horizontalAlignment = GridData.FILL;
-
-		msgid.setLayoutData(gridData);
-		
-		Label types = new Label(composite, SWT.FILL);
-		types.setText("Type");
-		gridData = new GridData();
-		gridData.horizontalSpan = 1;
-		gridData.horizontalAlignment = GridData.FILL;
-
-		types.setLayoutData(gridData);
-		
-		Label descrip = new Label(composite, SWT.FILL);
-		descrip.setText("Description");
-		gridData = new GridData();
-		gridData.horizontalSpan = 4;
-		gridData.horizontalAlignment = GridData.FILL;
-
-		descrip.setLayoutData(gridData);
-		
+		GridLayout fl = new GridLayout();
+		composite.setLayout(fl);
+		String[] propertyNames = { "mmid", "identifier", "description"};
 		/*
+		List<Message> list = new ArrayList<Message>();
+		list.add(new Message(1, "SCH_CMD_MID", "SCH Ground Commands Message ID"));
+		list.add(new Message(2, "SCH_UNUSED_MID", "SCH MDT Unused Message Messag ID"));
+		list.add(new Message(3, "SCH_SEND_HK_MID", "SCH Send Houskeeping Message ID"));
+		list.add(new Message(4, "SCH_HK_TLM_MID", "SCH Houskeeping Telemetry Message ID"));
+		list.add(new Message(5, "SCH_DIAG_TLM_MID", "SCH Diagnostic Telemetry Message ID"));
 		
+		System.out.println("Testing if the message list is valid");
+        System.out.println(list.toString());
+        IColumnPropertyAccessor<Message> columnPropertyAccessor = new ReflectiveColumnPropertyAccessor<Message>(propertyNames);
+        IDataProvider bodyDataProvider = new ListDataProvider<Message>(list, columnPropertyAccessor);
+        
+        final DataLayer bodyDataLayer = new DataLayer(bodyDataProvider);
+        final NatTable natTable = new NatTable(
+        		composite,
+        		SWT.NO_REDRAW_RESIZE | SWT.DOUBLE_BUFFERED | SWT.BORDER,
+        		bodyDataLayer);
+        
+        GridDataFactory.fillDefaults().grab(true, true).applyTo(natTable);
+ 
+		
+		        final DataLayer bodyDataLayer = new DataLayer(bodyDataProvider);
+
 		appNameInput.addModifyListener(e -> {
 			Text src = (Text) e.getSource();
 			String temp = src.getText();
@@ -162,7 +177,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 			pathDirectoryInputString = temp;
 		});
 		*/
-		
+			
 		Button fontButton = new Button(composite, SWT.NONE);
 		GridData gd = new GridData(GridData.BEGINNING);
 		gd.horizontalSpan = 2;
@@ -209,12 +224,29 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 * which shows the sorted text.
 	 */
 	private void createPage2() {
-		Composite composite = new Composite(getContainer(), SWT.NONE);
-		FillLayout layout = new FillLayout();
-		composite.setLayout(layout);
-		text = new StyledText(composite, SWT.H_SCROLL | SWT.V_SCROLL);
-		text.setEditable(false);
+		Composite composite = new Composite(getContainer(), SWT.BORDER);
+		FormLayout fl = new FormLayout();
+		composite.getParent().setLayout(fl);
+		composite.setLayout(fl);
+		
+		this.bodyDataProvider = setupBodyDataProvider();
 
+		DefaultColumnHeaderDataProvider colHeaderDataProvider = new DefaultColumnHeaderDataProvider(this.propertyNames, this.propertyToLabels);
+		DefaultRowHeaderDataProvider rowHeaderDataProvider = new DefaultRowHeaderDataProvider(this.bodyDataProvider);
+		this.bodyLayer = new BodyLayerStack(this.bodyDataProvider);
+		ColumnHeaderLayerStack columnHeaderLayer = new ColumnHeaderLayerStack(colHeaderDataProvider);
+		RowHeaderLayerStack rowHeaderLayer = new RowHeaderLayerStack(rowHeaderDataProvider);
+		
+		DefaultCornerDataProvider cornerDataProvider = new DefaultCornerDataProvider(colHeaderDataProvider, rowHeaderDataProvider);
+		CornerLayer cornerLayer = new CornerLayer(new DataLayer(cornerDataProvider), rowHeaderLayer, columnHeaderLayer);
+		GridLayer gridLayer = new GridLayer(this.bodyLayer, columnHeaderLayer, rowHeaderLayer, cornerLayer);
+		NatTable natTable = new NatTable(composite, SWT.BORDER, gridLayer);
+		
+		FormData formData = new FormData(800, 600);
+		
+		
+		natTable.setLayoutData(formData);
+		
 		int index = addPage(composite);
 		setPageText(index, "Preview");
 	}
@@ -350,4 +382,56 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		return message;
 		
 	}
+	
+	private IDataProvider setupBodyDataProvider() {
+		final List<Message> list = new ArrayList<Message>();
+		list.add(new Message(1, "SCH_CMD_MID", "SCH Ground Commands Message ID"));
+		list.add(new Message(2, "SCH_UNUSED_MID", "SCH MDT Unused Message Messag ID"));
+		list.add(new Message(3, "SCH_SEND_HK_MID", "SCH Send Houskeeping Message ID"));
+		list.add(new Message(4, "SCH_HK_TLM_MID", "SCH Houskeeping Telemetry Message ID"));
+		list.add(new Message(5, "SCH_DIAG_TLM_MID", "SCH Diagnostic Telemetry Message ID"));
+		
+		this.propertyToLabels = new HashMap<>();
+		this.propertyToLabels.put("miid", "MIID");
+		this.propertyToLabels.put("identifier", "Identifier");
+		this.propertyToLabels.put("description", "Description");
+		
+		this.propertyNames = new String[] { "miid", "identifier", "description" };
+		return new ListDataProvider<>(list, new ReflectiveColumnPropertyAccessor<Message>(this.propertyNames));
+	}
+	
+	public class BodyLayerStack extends AbstractLayerTransform {
+		private SelectionLayer selectionLayer;
+		
+		public BodyLayerStack(IDataProvider dataProvider) {
+			DataLayer bodyDataLayer = new DataLayer(dataProvider);
+			ColumnReorderLayer columnReorderLayer = new ColumnReorderLayer(bodyDataLayer);
+			ColumnHideShowLayer columnHideShowLayer = new ColumnHideShowLayer(columnReorderLayer);
+			this.selectionLayer = new SelectionLayer (columnHideShowLayer);
+			ViewportLayer viewportlayer = new ViewportLayer(this.selectionLayer);
+			setUnderlyingLayer(viewportlayer);
+		}
+		
+		public SelectionLayer getSelectionLayer() {
+			return this.selectionLayer;
+		}
+	}
+	
+	public class ColumnHeaderLayerStack extends AbstractLayerTransform {
+		public ColumnHeaderLayerStack(IDataProvider dataProvider) {
+			DataLayer dataLayer = new DataLayer(dataProvider);
+			ColumnHeaderLayer colHeaderLayer = new ColumnHeaderLayer(dataLayer, CFSMultiPageEditor.this.bodyLayer, CFSMultiPageEditor.this.bodyLayer.getSelectionLayer());
+			setUnderlyingLayer(colHeaderLayer);
+		}
+	}
+	
+	public class RowHeaderLayerStack extends AbstractLayerTransform {
+		public RowHeaderLayerStack(IDataProvider dataProvider) {
+			DataLayer dataLayer = new DataLayer(dataProvider, 50, 20);
+			RowHeaderLayer rowHeaderLayer = new RowHeaderLayer(dataLayer, CFSMultiPageEditor.this.bodyLayer, bodyLayer.getSelectionLayer());
+			setUnderlyingLayer(rowHeaderLayer);
+		}
+	}
+
+	
 }
