@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.URI;
 import java.text.Collator;
 import java.util.List;
 import java.util.Map;
@@ -21,12 +22,16 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.nebula.widgets.nattable.NatTable;
 import org.eclipse.nebula.widgets.nattable.data.IColumnPropertyAccessor;
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
@@ -100,7 +105,8 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 
 	private String[] propertyNames;
 	private Map<String, String> propertyToLabels;
-	
+	private IProject project;
+	private File file;
 	/** The Fields Set in page 1. */
 	private Text appNameInput;
 	private String appNameInputString;
@@ -115,6 +121,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	public CFSMultiPageEditor() {
 		super();
 		setUpPropertyLabels();
+		project = ProjectUtils.getProjectSelection();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 	}
 	/**
@@ -125,6 +132,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		try {
 			editor = new TextEditor();
 			int index = addPage(editor, getEditorInput());
+		
 			setPageText(index, editor.getTitle());
 		} catch (PartInitException e) {
 			ErrorDialog.openError(
@@ -175,24 +183,37 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		Composite composite = new Composite(getContainer(), SWT.FILL);
 		GridLayout fl = new GridLayout();
 		composite.setLayout(fl);
-		/**
-		this.bodyDataProvider2 = setUpBodyDataProviderWithFile();
-		DefaultColumnHeaderDataProvider colHeaderDataProvider = new DefaultColumnHeaderDataProvider(this.propertyNames, this.propertyToLabels);
-		DefaultRowHeaderDataProvider rowHeaderDataProvider = new DefaultRowHeaderDataProvider(this.bodyDataProvider2);
-		this.bodyLayer2 = new BodyLayerStack(this.bodyDataProvider2);
-		ColumnHeaderLayerStack2 columnHeaderLayer = new ColumnHeaderLayerStack2(colHeaderDataProvider);
-		RowHeaderLayerStack2 rowHeaderLayer = new RowHeaderLayerStack2(rowHeaderDataProvider);
-
-		DefaultCornerDataProvider cornerDataProvider = new DefaultCornerDataProvider(colHeaderDataProvider, rowHeaderDataProvider);
-		CornerLayer cornerLayer = new CornerLayer(new DataLayer(cornerDataProvider), rowHeaderLayer, columnHeaderLayer);
-		GridLayer gridLayer = new GridLayer(this.bodyLayer2, columnHeaderLayer, rowHeaderLayer, cornerLayer);
 		
-		NatTable natTable = new NatTable(composite, SWT.BORDER, gridLayer);
+		ISelectionService service = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
+		ISelection selection = service.getSelection();
+		if (selection instanceof IStructuredSelection) {
+			Object selected = ((IStructuredSelection)selection).getFirstElement();
+			IFile file = (IFile)Platform.getAdapterManager().getAdapter(selected, IFile.class);
 
-		FormData formData = new FormData(800, 600);
-		natTable.setLayoutData(formData);
-
-		**/
+			IPath path = file.getFullPath();
+			File messageConfigFile = path.toFile();
+			MessageConfigs currentMessageConfigs = new MessageConfigs(messageConfigFile);
+			
+			List<Message> list = currentMessageConfigs.getMessageList();
+			
+			this.bodyDataProvider2 = new ListDataProvider<>(list, new ReflectiveColumnPropertyAccessor<Message>(this.propertyNames));
+		
+			DefaultColumnHeaderDataProvider colHeaderDataProvider = new DefaultColumnHeaderDataProvider(this.propertyNames, this.propertyToLabels);
+			DefaultRowHeaderDataProvider rowHeaderDataProvider = new DefaultRowHeaderDataProvider(this.bodyDataProvider2);
+			this.bodyLayer2 = new BodyLayerStack(this.bodyDataProvider2);
+			ColumnHeaderLayerStack2 columnHeaderLayer = new ColumnHeaderLayerStack2(colHeaderDataProvider);
+			RowHeaderLayerStack2 rowHeaderLayer = new RowHeaderLayerStack2(rowHeaderDataProvider);
+	
+			DefaultCornerDataProvider cornerDataProvider = new DefaultCornerDataProvider(colHeaderDataProvider, rowHeaderDataProvider);
+			CornerLayer cornerLayer = new CornerLayer(new DataLayer(cornerDataProvider), rowHeaderLayer, columnHeaderLayer);
+			GridLayer gridLayer = new GridLayer(this.bodyLayer2, columnHeaderLayer, rowHeaderLayer, cornerLayer);
+			
+			NatTable natTable = new NatTable(composite, SWT.BORDER, gridLayer);
+	
+			FormData formData = new FormData(800, 600);
+			natTable.setLayoutData(formData);
+		}
+		
 		int index = addPage(composite);
 		setPageText(index, "Table2");
 	}
@@ -203,6 +224,10 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		createPage0();
 		createPage1();
 		createPage2();
+		populate2();
+	}
+	private void populate2() {
+		
 	}
 	/**
 	 * The <code>MultiPageEditorPart</code> implementation of this 
@@ -301,13 +326,11 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	}
 	
 	private IDataProvider setUpBodyDataProviderWithFile() {
-		//IPath filePathActive = ProjectUtils.getPathFromActiveFile();
 		IProject project = ProjectUtils.getProjectSelection();
-		IFolder folder = ResourcesPlugin.getWorkspace().getRoot().getFolder(project.getLocation());
-		IFolder pFolder = folder.getFolder("parent");
-		IFile file = pFolder.getFile("exampleMessageConfig.xml");
-		IPath path = file.getFullPath();
-		File messageConfigFile = path.toFile();
+		IFolder folder = project.getFolder("parent");
+		IFile file = folder.getFile("exampleMessageConfig.xml");
+		URI rui = file.getLocationURI();
+		File messageConfigFile = new File(rui.getPath());
 		MessageConfigs currentMessageConfigs = new MessageConfigs(messageConfigFile);
 		
 		final List<Message> list = currentMessageConfigs.getMessageList();

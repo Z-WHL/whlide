@@ -98,3 +98,13 @@ Build Plugin :
         Under Destination choose Directory.
         Browse and choose the whlplugin git repo or anywhere else.
         Optional : Push whlplugin git repo
+
+Required Plugins : 
+NatTable
+    Help --> Install New Software...
+    Add site  http://download.eclipse.org/nattable/releases/1.5.0/repository/ (1.5 or newest)
+
+Gson jar 
+https://repo1.maven.org/maven2/com/google/code/gson/gson/2.8.5/
+Download and add jar to build path.
+Right click project --> build path --> configure --> add library --> choose jar

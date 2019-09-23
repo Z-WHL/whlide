@@ -111,7 +111,7 @@ public class MessageService {
 		if (messages.containsKey(miid)) {
 			return null;
 		}
-		Message mes = new Message(miid, "identifier", "description");
+		Message mes = new Message(miid, "identifier", "name", "type", "description");
 		messages.put(miid, mes);
 		fireMessageChanged(PROP_ADD, null, mes);
 		
@@ -121,16 +121,6 @@ public class MessageService {
 	public void dispose() {
 		listeners.clear();
 	}
-}
-
-if (!file.exists()) {
-	byte[] bytes = "".getBytes();
-    InputStream source = new ByteArrayInputStream(bytes);
-    try {
-    	file.create(source, IResource.NONE, null);
-    } catch (CoreException e) {
-    	e.printStackTrace();
-    }
 }
 
 

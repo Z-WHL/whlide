@@ -12,7 +12,8 @@ import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.Path;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+
 
 public class MessageConfigs {
 	private List<String> parentMessagesString;

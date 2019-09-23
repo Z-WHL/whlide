@@ -7,6 +7,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -114,5 +115,10 @@ public class ProjectUtils {
 			}
 		}
 		return path;
+	}
+	
+	public static String getProjectName() {
+		IProject project = getProjectSelection();
+		return project.getName();
 	}
 }
