@@ -1,5 +1,7 @@
 package com.windhoverlabs.cfside.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.util.Assert;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -38,7 +42,7 @@ public class MessageService {
 		int counter = MI;
 		for (int i = 0; i < datafill.length; i += 2) {
 			int miid = counter++;
-			Message mes = new Message(counter, datafill[i], datafill[i+1]);
+			Message mes = new Message(counter, datafill[i], datafill[i+1], null, null);
 			messages.put(miid, mes);
 		}
 	}
@@ -118,3 +122,15 @@ public class MessageService {
 		listeners.clear();
 	}
 }
+
+if (!file.exists()) {
+	byte[] bytes = "".getBytes();
+    InputStream source = new ByteArrayInputStream(bytes);
+    try {
+    	file.create(source, IResource.NONE, null);
+    } catch (CoreException e) {
+    	e.printStackTrace();
+    }
+}
+
+

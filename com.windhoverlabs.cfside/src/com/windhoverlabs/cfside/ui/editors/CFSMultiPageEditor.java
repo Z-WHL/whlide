@@ -2,6 +2,7 @@ package com.windhoverlabs.cfside.ui.editors;
 
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.Collator;
@@ -14,6 +15,7 @@ import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -21,6 +23,7 @@ import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -66,11 +69,12 @@ import org.eclipse.ui.ide.IDE;
 
 import com.windhoverlabs.cfside.core.projects.CFSProjectSupport;
 import com.windhoverlabs.cfside.model.Message;
+import com.windhoverlabs.cfside.model.MessageConfigs;
+import com.windhoverlabs.cfside.ui.editors.CFSMultiPageEditor.ColumnHeaderLayerStack;
+import com.windhoverlabs.cfside.ui.editors.CFSMultiPageEditor.RowHeaderLayerStack;
 import com.windhoverlabs.cfside.utils.ProjectUtils;
 import com.windhoverlabs.cfside.utils.FileUtils;
 import com.windhoverlabs.cfside.utils.MessageService;
-import com.windhoverlabs.cfside.model.ColumnHeaderLayerStack;
-import com.windhoverlabs.cfside.model.RowHeaderLayerStack;
 import com.windhoverlabs.cfside.model.BodyLayerStack;
 
 /**
@@ -88,8 +92,12 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	private TextEditor editor;
 	HashMap<String, Group> messageIDWidgets = new HashMap<String, Group>();
 
-	private IDataProvider bodyDataProvider;
-	private BodyLayerStack bodyLayer;
+	private IDataProvider bodyDataProvider1;
+	private IDataProvider bodyDataProvider2;
+
+	private BodyLayerStack bodyLayer1;
+	private BodyLayerStack bodyLayer2;
+
 	private String[] propertyNames;
 	private Map<String, String> propertyToLabels;
 	
@@ -106,6 +114,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 */
 	public CFSMultiPageEditor() {
 		super();
+		setUpPropertyLabels();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 	}
 	/**
@@ -130,116 +139,22 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 * which allows you to change the font used in page 2.
 	 */
 	private void createPage1() {
-
-		Composite composite = new Composite(getContainer(), SWT.FILL);
-		GridLayout fl = new GridLayout();
-		composite.setLayout(fl);
-		String[] propertyNames = { "mmid", "identifier", "description"};
-		/*
-		List<Message> list = new ArrayList<Message>();
-		list.add(new Message(1, "SCH_CMD_MID", "SCH Ground Commands Message ID"));
-		list.add(new Message(2, "SCH_UNUSED_MID", "SCH MDT Unused Message Messag ID"));
-		list.add(new Message(3, "SCH_SEND_HK_MID", "SCH Send Houskeeping Message ID"));
-		list.add(new Message(4, "SCH_HK_TLM_MID", "SCH Houskeeping Telemetry Message ID"));
-		list.add(new Message(5, "SCH_DIAG_TLM_MID", "SCH Diagnostic Telemetry Message ID"));
-		
-		System.out.println("Testing if the message list is valid");
-        System.out.println(list.toString());
-        IColumnPropertyAccessor<Message> columnPropertyAccessor = new ReflectiveColumnPropertyAccessor<Message>(propertyNames);
-        IDataProvider bodyDataProvider = new ListDataProvider<Message>(list, columnPropertyAccessor);
-        
-        final DataLayer bodyDataLayer = new DataLayer(bodyDataProvider);
-        final NatTable natTable = new NatTable(
-        		composite,
-        		SWT.NO_REDRAW_RESIZE | SWT.DOUBLE_BUFFERED | SWT.BORDER,
-        		bodyDataLayer);
-        
-        GridDataFactory.fillDefaults().grab(true, true).applyTo(natTable);
- 
-		
-		        final DataLayer bodyDataLayer = new DataLayer(bodyDataProvider);
-
-		appNameInput.addModifyListener(e -> {
-			Text src = (Text) e.getSource();
-			String temp = src.getText();
-			appNameInputString = temp;
-		});
-		
-		Label pathDirectory = new Label(composite, SWT.NONE);
-		pathDirectory.setText("Some Path");
-	
-		Text pathDirectoryInput = new Text(composite, SWT.BORDER);
-		pathDirectoryInput.setLayoutData(gridData);
-		
-		pathDirectoryInput.addModifyListener(e -> {
-			Text src = (Text) e.getSource();
-			String temp = src.getText();
-			pathDirectoryInputString = temp;
-		});
-		*/
-			
-		Button fontButton = new Button(composite, SWT.NONE);
-		GridData gd = new GridData(GridData.BEGINNING);
-		gd.horizontalSpan = 2;
-		fontButton.setLayoutData(gd);
-		fontButton.setText("Set");
-		
-		fontButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent event) {
-				saveInfo(appNameInputString, pathDirectoryInputString);
-				/*
-				String data = "";
-				data.concat("Application Name : " + appNameInputString);
-				data.concat("\r\n");
-				data.concat("Path Name : " + pathDirectoryInput.getText());
-				data.concat("\r\n");
-				
-				IContainer con = (IContainer) event;
-				IProject project = con.getProject();
-				if(project == null) {
-				   IResource resource = con.getAdapter(IResource.class);
-				   if(resource != null) {
-					   project = resource.getProject();
-				   }
-				}
-				
-				IFile f = project.getFile("someinfo.txt");
-				
-				byte[] bytes = data.getBytes();
-				InputStream source = new ByteArrayInputStream(bytes);
-			    try {
-			    	f.appendContents(source, IResource.NONE, null);
-			    } catch (CoreException e) {
-			    	e.printStackTrace();
-			    }
-			*/	
-			}
-		});
-
-		int index = addPage(composite);
-		setPageText(index, "Properties");
-	}
-	/**
-	 * Creates page 2 of the multi-page editor,
-	 * which shows the sorted text.
-	 */
-	private void createPage2() {
 		Composite composite = new Composite(getContainer(), SWT.BORDER);
 		FormLayout fl = new FormLayout();
 		composite.getParent().setLayout(fl);
 		composite.setLayout(fl);
 		
-		this.bodyDataProvider = setupBodyDataProvider();
+		this.bodyDataProvider1 = setupBodyDataProvider();
 
 		DefaultColumnHeaderDataProvider colHeaderDataProvider = new DefaultColumnHeaderDataProvider(this.propertyNames, this.propertyToLabels);
-		DefaultRowHeaderDataProvider rowHeaderDataProvider = new DefaultRowHeaderDataProvider(this.bodyDataProvider);
-		this.bodyLayer = new BodyLayerStack(this.bodyDataProvider);
+		DefaultRowHeaderDataProvider rowHeaderDataProvider = new DefaultRowHeaderDataProvider(this.bodyDataProvider1);
+		this.bodyLayer1 = new BodyLayerStack(this.bodyDataProvider1);
 		ColumnHeaderLayerStack columnHeaderLayer = new ColumnHeaderLayerStack(colHeaderDataProvider);
 		RowHeaderLayerStack rowHeaderLayer = new RowHeaderLayerStack(rowHeaderDataProvider);
 		
 		DefaultCornerDataProvider cornerDataProvider = new DefaultCornerDataProvider(colHeaderDataProvider, rowHeaderDataProvider);
 		CornerLayer cornerLayer = new CornerLayer(new DataLayer(cornerDataProvider), rowHeaderLayer, columnHeaderLayer);
-		GridLayer gridLayer = new GridLayer(this.bodyLayer, columnHeaderLayer, rowHeaderLayer, cornerLayer);
+		GridLayer gridLayer = new GridLayer(this.bodyLayer1, columnHeaderLayer, rowHeaderLayer, cornerLayer);
 		NatTable natTable = new NatTable(composite, SWT.BORDER, gridLayer);
 		
 		FormData formData = new FormData(800, 600);
@@ -248,7 +163,38 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		natTable.setLayoutData(formData);
 		
 		int index = addPage(composite);
-		setPageText(index, "Preview");
+		setPageText(index, "Table1");
+		
+		
+	}
+	/**
+	 * Creates page 2 of the multi-page editor,
+	 * which shows the sorted text.
+	 */
+	private void createPage2() {
+		Composite composite = new Composite(getContainer(), SWT.FILL);
+		GridLayout fl = new GridLayout();
+		composite.setLayout(fl);
+		/**
+		this.bodyDataProvider2 = setUpBodyDataProviderWithFile();
+		DefaultColumnHeaderDataProvider colHeaderDataProvider = new DefaultColumnHeaderDataProvider(this.propertyNames, this.propertyToLabels);
+		DefaultRowHeaderDataProvider rowHeaderDataProvider = new DefaultRowHeaderDataProvider(this.bodyDataProvider2);
+		this.bodyLayer2 = new BodyLayerStack(this.bodyDataProvider2);
+		ColumnHeaderLayerStack2 columnHeaderLayer = new ColumnHeaderLayerStack2(colHeaderDataProvider);
+		RowHeaderLayerStack2 rowHeaderLayer = new RowHeaderLayerStack2(rowHeaderDataProvider);
+
+		DefaultCornerDataProvider cornerDataProvider = new DefaultCornerDataProvider(colHeaderDataProvider, rowHeaderDataProvider);
+		CornerLayer cornerLayer = new CornerLayer(new DataLayer(cornerDataProvider), rowHeaderLayer, columnHeaderLayer);
+		GridLayer gridLayer = new GridLayer(this.bodyLayer2, columnHeaderLayer, rowHeaderLayer, cornerLayer);
+		
+		NatTable natTable = new NatTable(composite, SWT.BORDER, gridLayer);
+
+		FormData formData = new FormData(800, 600);
+		natTable.setLayoutData(formData);
+
+		**/
+		int index = addPage(composite);
+		setPageText(index, "Table2");
 	}
 	/**
 	 * Creates the pages of the multi-page editor.
@@ -346,58 +292,49 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		System.out.println(str);
 		FileUtils.writeToRoot("someinfo.txt", str);
 	}
-	
-	private Group createGroup(Composite parent, String identifier, String name, String msgId, int type, String desc) {
-		Group message = new Group(parent, SWT.BORDER);
-		Text id = new Text(message, SWT.BORDER);
-		id.setText(identifier);
-		GridData gridData = new GridData(GridData.BEGINNING);
-		gridData.horizontalSpan = 2;
-		id.setLayoutData(gridData);
 		
-		Text nam = new Text(message, SWT.BORDER);
-		nam.setText(name);
-		gridData = new GridData(GridData.BEGINNING);
-		gridData.horizontalSpan = 4;
-		nam.setLayoutData(gridData);
+	private IDataProvider setupBodyDataProvider() {
 		
-		Text msgID = new Text(message, SWT.BORDER);
-		msgID.setText(msgId);
-		gridData = new GridData(GridData.BEGINNING);
-		gridData.horizontalSpan = 1;
-		msgID.setLayoutData(gridData);
+		final List<Message> list = setUpTestMessagesList();
 		
-		Text typ = new Text(message, SWT.BORDER);
-		typ.setText(msgId);
-		gridData = new GridData(GridData.BEGINNING);
-		gridData.horizontalSpan = 1;
-		typ.setLayoutData(gridData);
-		
-		Text descr = new Text(message, SWT.BORDER);
-		descr.setText(name);
-		gridData = new GridData(GridData.BEGINNING);
-		gridData.horizontalSpan = 4;
-		descr.setLayoutData(gridData);
-		
-		return message;
-		
+		return new ListDataProvider<>(list, new ReflectiveColumnPropertyAccessor<Message>(this.propertyNames));
 	}
 	
-	private IDataProvider setupBodyDataProvider() {
-		final List<Message> list = new ArrayList<Message>();
-		list.add(new Message(1, "SCH_CMD_MID", "SCH Ground Commands Message ID"));
-		list.add(new Message(2, "SCH_UNUSED_MID", "SCH MDT Unused Message Messag ID"));
-		list.add(new Message(3, "SCH_SEND_HK_MID", "SCH Send Houskeeping Message ID"));
-		list.add(new Message(4, "SCH_HK_TLM_MID", "SCH Houskeeping Telemetry Message ID"));
-		list.add(new Message(5, "SCH_DIAG_TLM_MID", "SCH Diagnostic Telemetry Message ID"));
+	private IDataProvider setUpBodyDataProviderWithFile() {
+		//IPath filePathActive = ProjectUtils.getPathFromActiveFile();
+		IProject project = ProjectUtils.getProjectSelection();
+		IFolder folder = ResourcesPlugin.getWorkspace().getRoot().getFolder(project.getLocation());
+		IFolder pFolder = folder.getFolder("parent");
+		IFile file = pFolder.getFile("exampleMessageConfig.xml");
+		IPath path = file.getFullPath();
+		File messageConfigFile = path.toFile();
+		MessageConfigs currentMessageConfigs = new MessageConfigs(messageConfigFile);
 		
+		final List<Message> list = currentMessageConfigs.getMessageList();
+		
+		return new ListDataProvider<>(list, new ReflectiveColumnPropertyAccessor<Message>(this.propertyNames));
+	}
+	
+	private List<Message> setUpTestMessagesList() {
+		List<Message> list = new ArrayList<Message>();
+		list.add(new Message(1, "SCH_CMD_MID", "MessageTest1", "CMD", "SCH Ground Commands Message ID"));
+		list.add(new Message(2, "SCH_UNUSED_MID", "MessageTest2", "CMD", "SCH MDT Unused Message Message ID"));
+		list.add(new Message(3, "SCH_SEND_HK_MID", "MessageTest3", "CMD", "SCH Send Houskeeping Message ID"));
+		list.add(new Message(4, "SCH_HK_TLM_MID", "MessageTest4", "TLM", "SCH Houskeeping Telemetry Message ID"));
+		list.add(new Message(5, "SCH_DIAG_TLM_MID", "MessageTest5", "TLM", "SCH Diagnostic Telemetry Message ID"));
+		
+		return list;
+	}
+	
+	private void setUpPropertyLabels() {
 		this.propertyToLabels = new HashMap<>();
 		this.propertyToLabels.put("miid", "MIID");
 		this.propertyToLabels.put("identifier", "Identifier");
+		this.propertyToLabels.put("name", "Name");
+		this.propertyToLabels.put("type", "Type");
 		this.propertyToLabels.put("description", "Description");
 		
-		this.propertyNames = new String[] { "miid", "identifier", "description" };
-		return new ListDataProvider<>(list, new ReflectiveColumnPropertyAccessor<Message>(this.propertyNames));
+		this.propertyNames = new String[] { "miid", "identifier", "name", "type", "description" };
 	}
 	
 	public class BodyLayerStack extends AbstractLayerTransform {
@@ -420,7 +357,15 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	public class ColumnHeaderLayerStack extends AbstractLayerTransform {
 		public ColumnHeaderLayerStack(IDataProvider dataProvider) {
 			DataLayer dataLayer = new DataLayer(dataProvider);
-			ColumnHeaderLayer colHeaderLayer = new ColumnHeaderLayer(dataLayer, CFSMultiPageEditor.this.bodyLayer, CFSMultiPageEditor.this.bodyLayer.getSelectionLayer());
+			ColumnHeaderLayer colHeaderLayer = new ColumnHeaderLayer(dataLayer, CFSMultiPageEditor.this.bodyLayer1, CFSMultiPageEditor.this.bodyLayer1.getSelectionLayer());
+			setUnderlyingLayer(colHeaderLayer);
+		}
+	}
+	
+	public class ColumnHeaderLayerStack2 extends AbstractLayerTransform {
+		public ColumnHeaderLayerStack2(IDataProvider dataProvider) {
+			DataLayer dataLayer = new DataLayer(dataProvider);
+			ColumnHeaderLayer colHeaderLayer = new ColumnHeaderLayer(dataLayer, CFSMultiPageEditor.this.bodyLayer2, CFSMultiPageEditor.this.bodyLayer2.getSelectionLayer());
 			setUnderlyingLayer(colHeaderLayer);
 		}
 	}
@@ -428,7 +373,15 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	public class RowHeaderLayerStack extends AbstractLayerTransform {
 		public RowHeaderLayerStack(IDataProvider dataProvider) {
 			DataLayer dataLayer = new DataLayer(dataProvider, 50, 20);
-			RowHeaderLayer rowHeaderLayer = new RowHeaderLayer(dataLayer, CFSMultiPageEditor.this.bodyLayer, bodyLayer.getSelectionLayer());
+			RowHeaderLayer rowHeaderLayer = new RowHeaderLayer(dataLayer, CFSMultiPageEditor.this.bodyLayer1, bodyLayer1.getSelectionLayer());
+			setUnderlyingLayer(rowHeaderLayer);
+		}
+	}
+	
+	public class RowHeaderLayerStack2 extends AbstractLayerTransform {
+		public RowHeaderLayerStack2(IDataProvider dataProvider) {
+			DataLayer dataLayer = new DataLayer(dataProvider, 50, 20);
+			RowHeaderLayer rowHeaderLayer = new RowHeaderLayer(dataLayer, CFSMultiPageEditor.this.bodyLayer2, bodyLayer2.getSelectionLayer());
 			setUnderlyingLayer(rowHeaderLayer);
 		}
 	}

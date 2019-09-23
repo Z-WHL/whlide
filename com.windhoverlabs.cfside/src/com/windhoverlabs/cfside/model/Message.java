@@ -3,11 +3,16 @@ package com.windhoverlabs.cfside.model;
 public class Message {
 	private int miid;
 	private String identifier;
+	private String name;
+	private String type;
 	private String description;
 	
-	public Message(Integer miid, String identifier, String description) {
+	public Message(Integer miid, String identifier, String name, String type, String description) {
 		this.miid = miid;
 		this.identifier = identifier;
+		this.name = name;
+		this.type = type;
+		//TODO CHECK TYPE IS VALID
 		this.description = description;
 	}
 	
@@ -27,6 +32,27 @@ public class Message {
 		this.identifier = identifier;
 	}
 	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public void setType(String type) {
+		if (!type.equalsIgnoreCase("cmd") && !type.equalsIgnoreCase("tlm")) {
+			System.out.println("The type is not valid");
+			return;
+			//TODO Do something meaningful.
+		}
+		this.type = type;
+	}
+	
+	public String getType() {
+		return this.type;
+	}
+	
 	public String getDescription() {
 		return description;
 	}
@@ -36,11 +62,17 @@ public class Message {
 	}
 	
 	public Message copy() {
-		return new Message(miid, identifier, description);
+		return new Message(miid, identifier, name, type, description);
 	}
 	
 	public String toString() {
-		return (this.miid + " " + this.identifier + " " + this.description);
+		String tostring = "{'miid':" + Integer.toString(this.miid) + 
+				",'identifier':'" + this.identifier +
+				"','name':'" + this.name +
+				"','type':'" + this.type +
+				"','description':'" + this.description + "'}";
+				
+		return tostring;
 	}
 	
 	public boolean equals(Object o) {
@@ -51,3 +83,8 @@ public class Message {
 		return false;
 	}
 }
+
+
+
+
+

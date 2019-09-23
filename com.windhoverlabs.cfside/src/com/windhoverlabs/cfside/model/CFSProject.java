@@ -77,6 +77,13 @@ public final class CFSProject implements ICFSProject, IAdaptable {
 		}
 	}
 
+	
+	
+	
+	
+	
+	
+	
 	@Override
 	public IClasspathEntry decodeClasspathEntry(final String encodedEntry) {
         return _eclipseJavaProject.decodeClasspathEntry( encodedEntry );

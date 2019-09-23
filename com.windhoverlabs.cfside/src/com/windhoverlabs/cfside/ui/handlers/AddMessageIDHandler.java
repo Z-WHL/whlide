@@ -1,6 +1,7 @@
 package com.windhoverlabs.cfside.ui.handlers;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -21,7 +22,9 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.windhoverlabs.cfside.ui.dialogs.AddMessageIDDialog;
 import com.windhoverlabs.cfside.ui.dialogs.CFSDialog;
+import com.windhoverlabs.cfside.utils.ProjectUtils;
 import com.windhoverlabs.cfside.core.projects.CFSProjectSupport;
+import com.windhoverlabs.cfside.model.Message;
 
 public class AddMessageIDHandler extends AbstractHandler{
 	private IWorkbenchWindow window;
@@ -53,9 +56,49 @@ public class AddMessageIDHandler extends AbstractHandler{
 		
 		
 		writeToCFS(window, filename);
-		
+		createConfigFile();
+		createExampleMessageConfigFile();
 				
 		return null;
+	}
+	
+	private void createConfigFile() {
+		IFile file = ProjectUtils.getProjectSelection().getFile("/parent/exampleMessageConfig.xml");
+		if (!file.exists()) {
+			byte[] bytes = "".getBytes();
+		    InputStream source = new ByteArrayInputStream(bytes);
+		    try {
+		    	file.create(source, IResource.NONE, null);
+		    } catch (CoreException e) {
+		    	e.printStackTrace();
+		    }
+		}
+	}
+	
+	private void createExampleMessageConfigFile() {
+		IProject project = ProjectUtils.getProjectSelection();
+		
+		IFile f = project.getFile("/parent/exampleMessageConfig.xml");
+		int numberOfExamples = 5;
+		
+		for (int i = 0; i < 5; i++) {
+			String temp = Integer.toString(i);		
+			String testIdentifier = "TestIdentifier".concat(temp);
+			String testName = "TestName".concat(temp);
+			String testType = i+1 % 2 == 1 ? "CMD" : "TLM";
+			String testDescription = "TestDescription".concat(temp);
+			Message messageTemp = new Message(i, testIdentifier, testName, testType, testDescription);
+			
+			String mess = messageTemp.toString().concat("\r\n");
+			byte[] bytes = mess.getBytes();
+			InputStream source = new ByteArrayInputStream(bytes);
+			try {
+				f.appendContents(source, IResource.NONE, null);
+				source.close();
+			} catch (CoreException | IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	private void writeToCFS(IWorkbenchWindow window, String filename) {
@@ -74,7 +117,9 @@ public class AddMessageIDHandler extends AbstractHandler{
 			
 			IFile f = project.getFile("messageids.txt");
 			filename = filename.concat("\r\n");
-			
+			if (!f.exists()) {
+				createMessageIDFile();
+			}
 			byte[] bytes = filename.getBytes();
 		    InputStream source = new ByteArrayInputStream(bytes);
 		    try {
@@ -83,5 +128,17 @@ public class AddMessageIDHandler extends AbstractHandler{
 		    	e.printStackTrace();
 		    }
 		}
+	}
+	
+	private void createMessageIDFile() {
+		IFile file = ProjectUtils.getProjectSelection().getFile("messageids.txt");
+
+		byte[] bytes = "".getBytes();
+	    InputStream source = new ByteArrayInputStream(bytes);
+	    try {
+	    	file.create(source, IResource.NONE, null);
+	    } catch (CoreException e) {
+	    	e.printStackTrace();
+	    }
 	}
 }

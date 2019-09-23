@@ -2,6 +2,7 @@ package com.windhoverlabs.cfside.utils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorInput;
@@ -9,6 +10,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.FileEditorInput;
 
 /** 
  * 
@@ -20,7 +22,7 @@ public class ProjectUtils {
 
 	/**
 	 * Finds and returns the given project for a selected portion
-	 * 
+	 * @return IProject
 	 */
 	public static IProject getProjectSelection() {
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -37,7 +39,7 @@ public class ProjectUtils {
 	/**
 	 * Checks if the current selection is a structured selection
 	 * @param window
-	 * @return
+	 * @return boolean
 	 */
 	private static boolean isStructuredSelection(IWorkbenchWindow window) {
 		ISelection iselection = window.getSelectionService().getSelection();
@@ -50,7 +52,7 @@ public class ProjectUtils {
 	/**
 	 * Get the project based off of the current active selection.
 	 * @param window
-	 * @return
+	 * @return IProject
 	 */
 	
 	private static IProject getProjectFromSelection(IWorkbenchWindow window) {
@@ -73,7 +75,7 @@ public class ProjectUtils {
 	/**
 	 * Get the project based off of the current file that is opened by the editor.
 	 * @param window
-	 * @return
+	 * @return IProject
 	 */
 	private static IProject getProjectFromEditor(IWorkbenchWindow window) {
 		IProject project = null;
@@ -90,5 +92,27 @@ public class ProjectUtils {
 			}
 		}
 		return project;
+	}
+	
+	/**
+	 * Helper method to help retrieve the path of the currently open file.
+	 * @param window
+	 * @return IPath
+	 */
+	public static IPath getPathFromActiveFile() {
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		IPath path = null;
+		if ( window != null ) {
+			IWorkbenchPage page = window.getActivePage();
+			IEditorPart editor = page.getActiveEditor();
+			if (editor != null) {
+				IEditorInput input = editor.getEditorInput();
+				path = input instanceof FileEditorInput 
+						? ( (FileEditorInput) input).getPath()
+						: null;
+				return path;
+			}
+		}
+		return path;
 	}
 }
