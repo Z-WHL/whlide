@@ -1,8 +1,34 @@
 package com.windhoverlabs.cfside.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorInput;
@@ -13,6 +39,13 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.windhoverlabs.cfside.model.GsonTools;
+import com.windhoverlabs.cfside.model.GsonTools.ConflictStrategy;
+import com.windhoverlabs.cfside.model.GsonTools.JsonObjectExtensionConflictExeception;
 /** 
  * 
  * Helper class for projects
@@ -20,7 +53,79 @@ import org.eclipse.ui.part.FileEditorInput;
  */
 
 public class ProjectUtils {
+	private final static String PATH_OBJECT_A = "/home/vagrant/development/airliner/config/config.json";
+	private final static String PATH_OBJECT_B = "/home/vagrant/development/airliner/apps/sch/fsw/for_build/design.json";
+	private final static String PATH_OBJECT_C = "/home/vagrant/development/airliner/config/bebop2/sitl/target/prebuild.json";
+	
+	public static void doDeepMerge() {
+		deepMerge("sch");
+	}
+	
+	public static void deepMerge(String module) {
+		JsonObject base = createSkeletonConfig(module);
+		JsonObject objA = createJsonObjectFromFile(PATH_OBJECT_A);
+		System.out.println(objA.toString());
+		writeToFile("/home/vagrant/development/testA.json", objA);
+		JsonObject objB = createJsonObjectFromFile(PATH_OBJECT_B);
+		writeToFile("/home/vagrant/development/testB.json", objB);
+		System.out.println(objB.toString());
+		
+		JsonObject module1 = objA.get("modules").getAsJsonObject();
+		JsonObject moduleObj = module1.get(module).getAsJsonObject();
+		
+		try {
+			GsonTools.extendJsonObject(objB, ConflictStrategy.PREFER_SECOND_OBJECT, moduleObj);
+		} catch (JsonObjectExtensionConflictExeception e) {
+			e.printStackTrace();
+		}
+		base.add(module, objB);
+		JsonObject ret = new JsonObject();
+		ret.add("modules", base);
+		System.out.println(ret.toString());
+		writeToFile("/home/vagrant/development/testC.json", ret);
 
+	}
+	
+	private static void writeToFile(String path, JsonObject obj) {
+		File file = new File(path);
+		if (!file.exists()) {
+			try {
+				file.createNewFile();
+				FileOutputStream fos = new FileOutputStream(file, false);
+				byte[] strToBytes = obj.toString().getBytes();
+				fos.write(strToBytes);
+				fos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
+	}
+	
+	private static JsonObject createSkeletonConfig(String module) {
+		JsonObject skeleton = new JsonObject();
+		skeleton.add(module, new JsonObject());
+		return skeleton;
+	}
+	
+	private static JsonObject createJsonObjectFromFile(String filePath) {
+		//file parameter is not being used, using hard coded static paths for testing.
+		JsonObject jsonObj = null;
+		
+		try {
+			String jsonString = Files.readString(Paths.get(filePath), StandardCharsets.US_ASCII);
+			JsonParser jp = new JsonParser();
+			JsonElement je = jp.parse(jsonString);
+			JsonObject jo = je.getAsJsonObject();
+			
+			return jo;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return jsonObj;
+	}
 	/**
 	 * Finds and returns the given project for a selected portion
 	 * @return IProject
@@ -35,6 +140,21 @@ public class ProjectUtils {
 			}
 		}
 		return null;
+	}
+	
+	public static IProject getProjectWithName(String projectName) {
+		IProject projects[] = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		for (IProject project : projects) {
+			if (project.getName().equalsIgnoreCase(projectName)) {
+				return project;
+			}
+		}
+		return null;
+	}
+	
+	public static String getProjectName() {
+		IProject project = getProjectSelection();
+		return project.getName();
 	}
 	
 	/**
@@ -117,8 +237,107 @@ public class ProjectUtils {
 		return path;
 	}
 	
-	public static String getProjectName() {
-		IProject project = getProjectSelection();
-		return project.getName();
+	public static IPackageFragmentRoot[] getProjectSourceFolders(IProject project) {
+		IJavaProject iJavaProject = JavaCore.create(project);
+		ArrayList<IPackageFragmentRoot> sourceRoots = new ArrayList<IPackageFragmentRoot>();
+		if (iJavaProject.exists() && iJavaProject.isOpen()) {
+			try {
+				IPackageFragmentRoot[] roots = iJavaProject.getAllPackageFragmentRoots();
+				for (IPackageFragmentRoot root : roots) {
+					if (IPackageFragmentRoot.K_SOURCE == root.getKind()) {
+						sourceRoots.add(root);
+					}
+				}
+			} catch (JavaModelException e) {
+				e.printStackTrace();
+				return new IPackageFragmentRoot[0];
+			}
+		}
+		return sourceRoots.toArray(new IPackageFragmentRoot[sourceRoots.size()]);
 	}
+	
+	public static IFile getProjectIFile(IProject project, String fileName) {
+		IFile file = null;
+		
+		IPackageFragmentRoot roots[] = getProjectSourceFolders(project);
+		
+		for (IPackageFragmentRoot root : roots) {
+			try {
+				IJavaElement elements[] = root.getChildren();
+				for (IJavaElement element : elements) {
+					if (element.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
+						IPackageFragment packageFragment = (IPackageFragment) element;
+						Object packageChildren[] = packageFragment.getNonJavaResources();
+						for (Object child : packageChildren) {
+							if (child instanceof IFile) {
+								IFile childFile = (IFile) child;
+								if (childFile.getName().equals(fileName)) {
+									return childFile;
+								}
+							}
+						}
+					}
+				}
+			} catch (JavaModelException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return file;
+	}
+	
+	public static IResource getResource(IProject project, File file) {
+		IJavaProject javaProject = JavaCore.create(project);
+		IPath filePath = new Path(file.getAbsolutePath());
+		try {
+			IClasspathEntry[] classPathEntries = javaProject.getResolvedClasspath(true);
+			IFile input = null;
+			for (IClasspathEntry classPathEntry : classPathEntries) {
+				if (classPathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+					IWorkspaceRoot workspaceRoot = project.getWorkspace().getRoot();
+					IResource resource = workspaceRoot.findMember(classPathEntry.getPath());
+					if (resource instanceof IContainer) {
+						IContainer sourceContainer = (IContainer) resource;
+						File sourceContainerFile = resource.getLocation().toFile();
+						IPath sourceFolderPath = new Path(sourceContainerFile.getAbsolutePath());
+						
+						if (sourceFolderPath.isPrefixOf(filePath)) {
+							int segmentCount = sourceFolderPath.segmentCount();
+							IPath relativePath = filePath.removeFirstSegments(segmentCount);
+							input = sourceContainer.getFile(relativePath);
+							break;
+						}
+					}
+				}
+			}
+			return input;
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static boolean containsProject() {
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		return projects.length > 0;
+	}
+	
+	public static File createFile(File file) {
+		if (!file.exists()) {
+			File parent = file.getParentFile();
+			if (!parent.exists()) {
+				parent.mkdirs();
+			}
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if (!file.exists()) {
+			return null;
+		}
+		return file;
+	}
+
 }

@@ -184,35 +184,29 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		GridLayout fl = new GridLayout();
 		composite.setLayout(fl);
 		
-		ISelectionService service = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
-		ISelection selection = service.getSelection();
-		if (selection instanceof IStructuredSelection) {
-			Object selected = ((IStructuredSelection)selection).getFirstElement();
-			IFile file = (IFile)Platform.getAdapterManager().getAdapter(selected, IFile.class);
-
-			IPath path = file.getFullPath();
-			File messageConfigFile = path.toFile();
-			MessageConfigs currentMessageConfigs = new MessageConfigs(messageConfigFile);
-			
-			List<Message> list = currentMessageConfigs.getMessageList();
-			
-			this.bodyDataProvider2 = new ListDataProvider<>(list, new ReflectiveColumnPropertyAccessor<Message>(this.propertyNames));
 		
-			DefaultColumnHeaderDataProvider colHeaderDataProvider = new DefaultColumnHeaderDataProvider(this.propertyNames, this.propertyToLabels);
-			DefaultRowHeaderDataProvider rowHeaderDataProvider = new DefaultRowHeaderDataProvider(this.bodyDataProvider2);
-			this.bodyLayer2 = new BodyLayerStack(this.bodyDataProvider2);
-			ColumnHeaderLayerStack2 columnHeaderLayer = new ColumnHeaderLayerStack2(colHeaderDataProvider);
-			RowHeaderLayerStack2 rowHeaderLayer = new RowHeaderLayerStack2(rowHeaderDataProvider);
+		
+		MessageConfigs currentMessageConfigs = new MessageConfigs();
+		
+		List<Message> list = currentMessageConfigs.getMessageList();
+		
+		this.bodyDataProvider2 = new ListDataProvider<>(list, new ReflectiveColumnPropertyAccessor<Message>(this.propertyNames));
 	
-			DefaultCornerDataProvider cornerDataProvider = new DefaultCornerDataProvider(colHeaderDataProvider, rowHeaderDataProvider);
-			CornerLayer cornerLayer = new CornerLayer(new DataLayer(cornerDataProvider), rowHeaderLayer, columnHeaderLayer);
-			GridLayer gridLayer = new GridLayer(this.bodyLayer2, columnHeaderLayer, rowHeaderLayer, cornerLayer);
-			
-			NatTable natTable = new NatTable(composite, SWT.BORDER, gridLayer);
-	
-			FormData formData = new FormData(800, 600);
-			natTable.setLayoutData(formData);
-		}
+		DefaultColumnHeaderDataProvider colHeaderDataProvider = new DefaultColumnHeaderDataProvider(this.propertyNames, this.propertyToLabels);
+		DefaultRowHeaderDataProvider rowHeaderDataProvider = new DefaultRowHeaderDataProvider(this.bodyDataProvider2);
+		this.bodyLayer2 = new BodyLayerStack(this.bodyDataProvider2);
+		ColumnHeaderLayerStack2 columnHeaderLayer = new ColumnHeaderLayerStack2(colHeaderDataProvider);
+		RowHeaderLayerStack2 rowHeaderLayer = new RowHeaderLayerStack2(rowHeaderDataProvider);
+
+		DefaultCornerDataProvider cornerDataProvider = new DefaultCornerDataProvider(colHeaderDataProvider, rowHeaderDataProvider);
+		CornerLayer cornerLayer = new CornerLayer(new DataLayer(cornerDataProvider), rowHeaderLayer, columnHeaderLayer);
+		GridLayer gridLayer = new GridLayer(this.bodyLayer2, columnHeaderLayer, rowHeaderLayer, cornerLayer);
+		
+		NatTable natTable = new NatTable(composite, SWT.BORDER, gridLayer);
+
+		FormData formData = new FormData(800, 600);
+		natTable.setLayoutData(formData);
+		
 		
 		int index = addPage(composite);
 		setPageText(index, "Table2");

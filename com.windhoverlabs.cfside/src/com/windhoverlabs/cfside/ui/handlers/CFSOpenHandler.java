@@ -21,6 +21,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.windhoverlabs.cfside.ui.dialogs.CFSDialog;
 import com.windhoverlabs.cfside.core.projects.CFSProjectSupport;
+import com.windhoverlabs.cfside.model.GsonTools;
+import com.windhoverlabs.cfside.utils.ProjectUtils;
 
 public class CFSOpenHandler extends AbstractHandler{
 	private IWorkbenchWindow window;
@@ -55,7 +57,8 @@ public class CFSOpenHandler extends AbstractHandler{
 		} else {
 			writeToCFS(window, filename);
 		}
-				
+		ProjectUtils.doDeepMerge();
+			
 		return null;
 	}
 	
