@@ -30,7 +30,20 @@ public class MessageConfigs {
 	 */
 	public MessageConfigs(File parentConfig) {
 		this.parentMessagesString = fileToStringList(parentConfig);
-		this.parentMessagesString.forEach(message -> addToConfigs(message));
+		System.out.println(this.parentMessagesString.toString());
+		String json = null;
+		try {
+			json = Files.readString(Paths.get(parentConfig.toURI()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Message[] mes = gson.fromJson(json, Message[].class);
+		for (Message message : mes) {
+			int identifier = message.getMiid();
+			String sIdentifier = Integer.toString(identifier);
+			configs.put(sIdentifier, message);
+		}
+		//this.parentMessagesString.forEach(message -> addToConfigs(message));
 	}
 	
 	/**
@@ -45,9 +58,14 @@ public class MessageConfigs {
 	public MessageConfigs(File parentConfig, File childConfig) {
 		this.parentMessagesString = fileToStringList(parentConfig);
 		this.childMessageString = fileToStringList(childConfig);
-		
-		this.parentMessagesString.forEach(message -> addToConfigs(message));
-		this.childMessageString.forEach(message -> addToConfigs(message));
+		Message[] mes = gson.fromJson(fileToStringArray(parentConfig), Message[].class);
+		for (Message message : mes) {
+			int identifier = message.getMiid();
+			String sIdentifier = Integer.toString(identifier);
+			configs.put(sIdentifier, message);
+		}
+		//this.parentMessagesString.forEach(message -> addToConfigs(message));
+		//this.childMessageString.forEach(message -> addToConfigs(message));
 	}
 	
 	public List<Message> getMessageList() {
@@ -57,6 +75,7 @@ public class MessageConfigs {
 		return list;
 	}
 	private void addToConfigs(String message) {
+	
 		Message singleMessage = gson.fromJson(message, Message.class);
 		int identifier = singleMessage.getMiid();
 		String sIdentifier = Integer.toString(identifier);
@@ -97,6 +116,5 @@ public class MessageConfigs {
 		});
 		
 		return contentBuilder.toString();
-		
 	}
 }

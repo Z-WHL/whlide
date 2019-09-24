@@ -14,9 +14,14 @@ import org.eclipse.swt.widgets.Text;
 
 
 public class CFSDialog extends Dialog {
-	private Text cfsXML;
-	public String cfsXMLName;
-	
+	private Text pathOne;
+	private Text pathTwo;
+	private Text pathSaved;
+		
+	public String pathOneName;
+	public String pathTwoName;
+	public String pathSavedName;
+
 	public CFSDialog(Shell parentShell) {
 		super(parentShell);
 	}
@@ -29,17 +34,43 @@ public class CFSDialog extends Dialog {
         layout.marginLeft = 10;
         container.setLayout(layout);
 
-        Label cfsLabel = new Label(container, SWT.NONE);
-        cfsLabel.setText("CFS XML File:");
+        Label pathOneLabel = new Label(container, SWT.NONE);
+        pathOneLabel.setText("Path for File 1:");
         
-        cfsXML = new Text(container, SWT.BORDER);
-        cfsXML.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+        pathOne = new Text(container, SWT.BORDER);
+        pathOne.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
                 1, 1));
         
-        cfsXML.addModifyListener(e -> {
+        pathOne.addModifyListener(e -> {
         	Text textWidget = (Text) e.getSource();
         	String text = textWidget.getText();
-        	cfsXMLName = text;
+        	pathOneName = text;
+        });
+        
+        Label pathTwoLabel = new Label(container, SWT.NONE);
+        pathTwoLabel.setText("Path for File 2:");
+        
+        pathTwo = new Text(container, SWT.BORDER);
+        pathTwo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+                1, 1));
+        
+        pathTwo.addModifyListener(e -> {
+        	Text textWidget = (Text) e.getSource();
+        	String text = textWidget.getText();
+        	pathTwoName = text;
+        });
+        
+        Label pathSavedLabel = new Label(container, SWT.NONE);
+        pathSavedLabel.setText("Path for Saved Merge:");
+        
+        pathSaved = new Text(container, SWT.BORDER);
+        pathSaved.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+                1, 1));
+        
+        pathSaved.addModifyListener(e -> {
+        	Text textWidget = (Text) e.getSource();
+        	String text = textWidget.getText();
+        	pathSavedName = text;
         });
 
         return container;        
@@ -47,27 +78,45 @@ public class CFSDialog extends Dialog {
 	
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		createButton(parent, IDialogConstants.OK_ID, "Add XML", true);
+		createButton(parent, IDialogConstants.OK_ID, "Merge", true);
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
 	}
 	
 	@Override
 	protected Point getInitialSize() {
-		return new Point(450, 125);
+		return new Point(450, 200);
 	}
 	
 	@Override
 	protected void okPressed() {
-		cfsXMLName = cfsXML.getText();
+		pathOneName = pathOne.getText();
+		pathTwoName = pathTwo.getText();
+		pathSavedName = pathSaved.getText();
 		super.okPressed();
 	}
 	
-	public String getcfsXML() {
-		return cfsXMLName;
+	public String pathOne() {
+		return pathOneName;
 	}
 	
-	public void setcfsXML(String xml) {
-		this.cfsXMLName = xml;
+	public String pathTwo() {
+		return pathTwoName;
+	}
+	
+	public String pathSaved() {
+		return pathSavedName;
+	}
+	
+	public void setpathOne(String path) {
+		this.pathOneName = path;
+	}
+	
+	public void setpathTwo(String path) {
+		this.pathTwoName = path;
+	}
+	
+	public void setpathSaved(String path) {
+		this.pathSavedName = path;
 	}
 		
 }

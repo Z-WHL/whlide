@@ -20,11 +20,11 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.windhoverlabs.cfside.ui.dialogs.CFSDialog;
+import com.windhoverlabs.cfside.utils.JsonObjectsUtil;
 import com.windhoverlabs.cfside.core.projects.CFSProjectSupport;
 import com.windhoverlabs.cfside.model.GsonTools;
-import com.windhoverlabs.cfside.utils.ProjectUtils;
 
-public class CFSOpenHandler extends AbstractHandler{
+public class MergeCFSFiles extends AbstractHandler{
 	private IWorkbenchWindow window;
 	private IWorkbenchPage activePage;
 	
@@ -36,7 +36,7 @@ public class CFSOpenHandler extends AbstractHandler{
 	private String projectName;
 	private String fileName;
 	
-	public CFSOpenHandler() {
+	public MergeCFSFiles() {
 		
 	}
 	
@@ -47,17 +47,28 @@ public class CFSOpenHandler extends AbstractHandler{
 		Shell shell = window.getShell();
 		
 		CFSDialog dia = new CFSDialog(shell);
-		String filename = null;
+		String pathA = null;
+		String pathB = null;
+		String pathSaved = null;
+
 		if(dia.open() == Window.OK) {
-			filename = dia.getcfsXML();
+			pathA = dia.pathOne();
+			pathB = dia.pathTwo();
+			pathSaved = dia.pathSaved();
 		}
 		
-		if(!checkValidity(filename)) {
-			MessageDialog.openError(this.window.getShell(), "Error", "File was not an XML");
+	
+		if (JsonObjectsUtil.deepMerge(pathA, pathB, pathSaved)) {
+			MessageDialog.openInformation(
+					window.getShell(),
+					"Success",
+					"Your file has been merged");
 		} else {
-			writeToCFS(window, filename);
+			MessageDialog.openInformation(
+					window.getShell(),
+					"Failure",
+					"An error occured. Your files were not merged");
 		}
-		ProjectUtils.doDeepMerge();
 			
 		return null;
 	}

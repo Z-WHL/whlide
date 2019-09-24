@@ -3,6 +3,8 @@ package com.windhoverlabs.cfside.ui.handlers;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -23,6 +25,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import com.windhoverlabs.cfside.ui.dialogs.AddMessageIDDialog;
 import com.windhoverlabs.cfside.ui.dialogs.CFSDialog;
 import com.windhoverlabs.cfside.utils.ProjectUtils;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.windhoverlabs.cfside.core.projects.CFSProjectSupport;
 import com.windhoverlabs.cfside.model.Message;
 
@@ -79,7 +83,8 @@ public class AddMessageIDHandler extends AbstractHandler{
 		IProject project = ProjectUtils.getProjectSelection();
 		
 		IFile f = project.getFile("/parent/exampleMessageConfig.xml");
-		int numberOfExamples = 5;
+		
+		List<Message> msg = new ArrayList<Message>();
 		
 		for (int i = 0; i < 5; i++) {
 			String temp = Integer.toString(i);		
@@ -89,15 +94,18 @@ public class AddMessageIDHandler extends AbstractHandler{
 			String testDescription = "TestDescription".concat(temp);
 			Message messageTemp = new Message(i, testIdentifier, testName, testType, testDescription);
 			
-			String mess = messageTemp.toString().concat("\r\n");
-			byte[] bytes = mess.getBytes();
-			InputStream source = new ByteArrayInputStream(bytes);
-			try {
-				f.appendContents(source, IResource.NONE, null);
-				source.close();
-			} catch (CoreException | IOException e) {
-				e.printStackTrace();
-			}
+			msg.add(messageTemp);		
+		}
+		String json = new Gson().toJson(msg);
+		
+		byte[] bytes = json.getBytes();
+		InputStream is = new ByteArrayInputStream(bytes);
+
+		try {
+			f.appendContents(is, IResource.NONE, null);
+			is.close();
+		} catch (CoreException | IOException e) {
+			e.printStackTrace();
 		}
 	}
 	

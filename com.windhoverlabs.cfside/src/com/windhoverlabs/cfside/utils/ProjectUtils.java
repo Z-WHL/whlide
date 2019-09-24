@@ -3,14 +3,10 @@ package com.windhoverlabs.cfside.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
@@ -40,12 +36,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.windhoverlabs.cfside.model.GsonTools;
-import com.windhoverlabs.cfside.model.GsonTools.ConflictStrategy;
-import com.windhoverlabs.cfside.model.GsonTools.JsonObjectExtensionConflictExeception;
 /** 
  * 
  * Helper class for projects
@@ -57,75 +47,7 @@ public class ProjectUtils {
 	private final static String PATH_OBJECT_B = "/home/vagrant/development/airliner/apps/sch/fsw/for_build/design.json";
 	private final static String PATH_OBJECT_C = "/home/vagrant/development/airliner/config/bebop2/sitl/target/prebuild.json";
 	
-	public static void doDeepMerge() {
-		deepMerge("sch");
-	}
 	
-	public static void deepMerge(String module) {
-		JsonObject base = createSkeletonConfig(module);
-		JsonObject objA = createJsonObjectFromFile(PATH_OBJECT_A);
-		System.out.println(objA.toString());
-		writeToFile("/home/vagrant/development/testA.json", objA);
-		JsonObject objB = createJsonObjectFromFile(PATH_OBJECT_B);
-		writeToFile("/home/vagrant/development/testB.json", objB);
-		System.out.println(objB.toString());
-		
-		JsonObject module1 = objA.get("modules").getAsJsonObject();
-		JsonObject moduleObj = module1.get(module).getAsJsonObject();
-		
-		try {
-			GsonTools.extendJsonObject(objB, ConflictStrategy.PREFER_SECOND_OBJECT, moduleObj);
-		} catch (JsonObjectExtensionConflictExeception e) {
-			e.printStackTrace();
-		}
-		base.add(module, objB);
-		JsonObject ret = new JsonObject();
-		ret.add("modules", base);
-		System.out.println(ret.toString());
-		writeToFile("/home/vagrant/development/testC.json", ret);
-
-	}
-	
-	private static void writeToFile(String path, JsonObject obj) {
-		File file = new File(path);
-		if (!file.exists()) {
-			try {
-				file.createNewFile();
-				FileOutputStream fos = new FileOutputStream(file, false);
-				byte[] strToBytes = obj.toString().getBytes();
-				fos.write(strToBytes);
-				fos.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		
-	}
-	
-	private static JsonObject createSkeletonConfig(String module) {
-		JsonObject skeleton = new JsonObject();
-		skeleton.add(module, new JsonObject());
-		return skeleton;
-	}
-	
-	private static JsonObject createJsonObjectFromFile(String filePath) {
-		//file parameter is not being used, using hard coded static paths for testing.
-		JsonObject jsonObj = null;
-		
-		try {
-			String jsonString = Files.readString(Paths.get(filePath), StandardCharsets.US_ASCII);
-			JsonParser jp = new JsonParser();
-			JsonElement je = jp.parse(jsonString);
-			JsonObject jo = je.getAsJsonObject();
-			
-			return jo;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return jsonObj;
-	}
 	/**
 	 * Finds and returns the given project for a selected portion
 	 * @return IProject

@@ -11,8 +11,8 @@
 		</category>
 		<command
 			categoryId="com.windhoverlabs.cfside.commands.cfs"
-			name="Add CFS XML..."
-			id="com.windhoverlabs.cfside.commands.addCFSFile">
+			name="Merge CFS File"
+			id="com.windhoverlabs.cfside.commands.mergeCFSFile">
 		</command>
 		<command
 			categoryId="com.windhoverlabs.cfside.commands.cfs"
@@ -33,7 +33,7 @@
 	<extension
 		point="org.eclipse.ui.bindings">
 			<key
-				commandId="com.windhoverlabs.cfside.commands.addCFSFile"
+				commandId="com.windhoverlabs.cfside.commands.mergeCFSFile"
 				schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
 				contextId="org.eclipse.ui.contexts.window"
 				sequence="M1+6">
@@ -44,8 +44,8 @@
 	<extension
 		point="org.eclipse.ui.handlers">
 		<handler
-			class="com.windhoverlabs.cfside.ui.handlers.CFSOpenHandler"
-			commandId="com.windhoverlabs.cfside.commands.addCFSFile">
+			class="com.windhoverlabs.cfside.ui.handlers.MergeCFSFiles"
+			commandId="com.windhoverlabs.cfside.commands.mergeCFSFile">
 		</handler>
 		<handler
 			class="com.windhoverlabs.cfside.ui.handlers.AddMessageIDHandler"
@@ -76,8 +76,8 @@
 				label="CFS Related"
 				mnemonic="M">
 				<command
-					commandId="com.windhoverlabs.cfside.commands.addCFSFile"
-					id="com.windhoverlabs.cfside.ui.menus.addCFSFile"
+					commandId="com.windhoverlabs.cfside.commands.mergeCFSFile"
+					id="com.windhoverlabs.cfside.ui.menus.mergeCFSFile"
 					mneomnic="S">
 				</command>
 				<command
@@ -93,8 +93,8 @@
 			<toolbar
 				id="com.windhoverlabs.cfside.toolbars.cfsFileToolbar">
 				<command
-					id="com.windhoverlabs.cfside.toolbars.addCFSFile"
-					commandId="com.windhoverlabs.cfside.commands.addCFSFile"
+					id="com.windhoverlabs.cfside.toolbars.mergeCFSFile"
+					commandId="com.windhoverlabs.cfside.commands.mergeCFSFile"
 					tooltip="Add CFS XML...">
 				</command>
 				<command
@@ -156,6 +156,7 @@
             </visibleWhen>
          </command>
       </menuContribution>
+  
 	</extension>
 	
 <!-- Wizards EXTENSIONS -->

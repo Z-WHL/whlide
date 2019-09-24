@@ -3,6 +3,8 @@ package com.windhoverlabs.cfside.ui.editors;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
@@ -104,7 +106,11 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	private BodyLayerStack bodyLayer2;
 
 	private String[] propertyNames;
+	private String[] propertyNames2;
+
 	private Map<String, String> propertyToLabels;
+	private Map<String, String> propertyToLabels2;
+
 	private IProject project;
 	private File file;
 	/** The Fields Set in page 1. */
@@ -112,7 +118,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	private String appNameInputString;
 	private Text pathDirectoryInput;
 	private String pathDirectoryInputString;
-	
+	private File tmpFile;
 	/** The text widget used in page 2. */
 	private StyledText text;
 	/**
@@ -131,8 +137,9 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	private void createPage0() {
 		try {
 			editor = new TextEditor();
+			
 			int index = addPage(editor, getEditorInput());
-		
+
 			setPageText(index, editor.getTitle());
 		} catch (PartInitException e) {
 			ErrorDialog.openError(
@@ -184,15 +191,16 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		GridLayout fl = new GridLayout();
 		composite.setLayout(fl);
 		
+		int index = addPage(composite);
+		setPageText(index, "Table2");
 		
-		
-		MessageConfigs currentMessageConfigs = new MessageConfigs();
+		MessageConfigs currentMessageConfigs = new MessageConfigs(tmpFile);
 		
 		List<Message> list = currentMessageConfigs.getMessageList();
 		
-		this.bodyDataProvider2 = new ListDataProvider<>(list, new ReflectiveColumnPropertyAccessor<Message>(this.propertyNames));
+		this.bodyDataProvider2 = new ListDataProvider<>(list, new ReflectiveColumnPropertyAccessor<Message>(this.propertyNames2));
 	
-		DefaultColumnHeaderDataProvider colHeaderDataProvider = new DefaultColumnHeaderDataProvider(this.propertyNames, this.propertyToLabels);
+		DefaultColumnHeaderDataProvider colHeaderDataProvider = new DefaultColumnHeaderDataProvider(this.propertyNames2, this.propertyToLabels2);
 		DefaultRowHeaderDataProvider rowHeaderDataProvider = new DefaultRowHeaderDataProvider(this.bodyDataProvider2);
 		this.bodyLayer2 = new BodyLayerStack(this.bodyDataProvider2);
 		ColumnHeaderLayerStack2 columnHeaderLayer = new ColumnHeaderLayerStack2(colHeaderDataProvider);
@@ -206,23 +214,36 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 
 		FormData formData = new FormData(800, 600);
 		natTable.setLayoutData(formData);
-		
-		
-		int index = addPage(composite);
+
+		index = addPage(composite);
 		setPageText(index, "Table2");
+		
+
 	}
 	/**
 	 * Creates the pages of the multi-page editor.
 	 */
 	protected void createPages() {
 		createPage0();
+		IEditorInput input = editor.getEditorInput();
+		if (input instanceof FileEditorInput) {
+			try {
+				IFile file = ((FileEditorInput) input).getFile();
+				InputStream is = file.getContents();
+				tmpFile = File.createTempFile("temp", "json");
+				FileWriter fw = new FileWriter(tmpFile);
+				byte[] str = is.readAllBytes();
+				fw.write(str.toString());
+				fw.close();
+				is.close();
+			} catch(IOException | CoreException e) {
+				e.printStackTrace();
+			}
+		}
 		createPage1();
 		createPage2();
-		populate2();
 	}
-	private void populate2() {
-		
-	}
+	
 	/**
 	 * The <code>MultiPageEditorPart</code> implementation of this 
 	 * <code>IWorkbenchPart</code> method disposes all nested editors.
@@ -352,6 +373,15 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		this.propertyToLabels.put("description", "Description");
 		
 		this.propertyNames = new String[] { "miid", "identifier", "name", "type", "description" };
+		
+		this.propertyToLabels2 = new HashMap<>();
+		this.propertyToLabels2.put("miid", "MIID");
+		this.propertyToLabels2.put("identifier", "Identifier");
+		this.propertyToLabels2.put("name", "Name");
+		this.propertyToLabels2.put("type", "Type");
+		this.propertyToLabels2.put("description", "Description");
+		
+		this.propertyNames2 = new String[] { "miid", "identifier", "name", "type", "description" };
 	}
 	
 	public class BodyLayerStack extends AbstractLayerTransform {
