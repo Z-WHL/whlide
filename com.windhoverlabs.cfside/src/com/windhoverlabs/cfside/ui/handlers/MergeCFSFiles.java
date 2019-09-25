@@ -55,6 +55,8 @@ public class MergeCFSFiles extends AbstractHandler{
 			pathA = dia.pathOne();
 			pathB = dia.pathTwo();
 			pathSaved = dia.pathSaved();
+		} else if (dia.open() == Window.CANCEL) {
+			return null;
 		}
 		
 	

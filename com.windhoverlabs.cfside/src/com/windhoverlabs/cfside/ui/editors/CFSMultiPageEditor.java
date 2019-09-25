@@ -77,6 +77,7 @@ import org.eclipse.ui.ide.IDE;
 import com.windhoverlabs.cfside.core.projects.CFSProjectSupport;
 import com.windhoverlabs.cfside.model.Message;
 import com.windhoverlabs.cfside.model.MessageConfigs;
+import com.windhoverlabs.cfside.ui.composites.ConfigTableComposite;
 import com.windhoverlabs.cfside.ui.editors.CFSMultiPageEditor.ColumnHeaderLayerStack;
 import com.windhoverlabs.cfside.ui.editors.CFSMultiPageEditor.RowHeaderLayerStack;
 import com.windhoverlabs.cfside.utils.ProjectUtils;
@@ -158,7 +159,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		FormLayout fl = new FormLayout();
 		composite.getParent().setLayout(fl);
 		composite.setLayout(fl);
-		
+		/**
 		this.bodyDataProvider1 = setupBodyDataProvider();
 
 		DefaultColumnHeaderDataProvider colHeaderDataProvider = new DefaultColumnHeaderDataProvider(this.propertyNames, this.propertyToLabels);
@@ -176,7 +177,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		
 		
 		natTable.setLayoutData(formData);
-		
+		**/
 		int index = addPage(composite);
 		setPageText(index, "Table1");
 		
@@ -188,34 +189,13 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 */
 	private void createPage2() {
 		Composite composite = new Composite(getContainer(), SWT.FILL);
-		GridLayout fl = new GridLayout();
+		
+		
+		ConfigTableComposite table = new ConfigTableComposite(composite, SWT.FILL);
+		FillLayout fl = new FillLayout();
 		composite.setLayout(fl);
 		
 		int index = addPage(composite);
-		setPageText(index, "Table2");
-		
-		MessageConfigs currentMessageConfigs = new MessageConfigs(tmpFile);
-		
-		List<Message> list = currentMessageConfigs.getMessageList();
-		
-		this.bodyDataProvider2 = new ListDataProvider<>(list, new ReflectiveColumnPropertyAccessor<Message>(this.propertyNames2));
-	
-		DefaultColumnHeaderDataProvider colHeaderDataProvider = new DefaultColumnHeaderDataProvider(this.propertyNames2, this.propertyToLabels2);
-		DefaultRowHeaderDataProvider rowHeaderDataProvider = new DefaultRowHeaderDataProvider(this.bodyDataProvider2);
-		this.bodyLayer2 = new BodyLayerStack(this.bodyDataProvider2);
-		ColumnHeaderLayerStack2 columnHeaderLayer = new ColumnHeaderLayerStack2(colHeaderDataProvider);
-		RowHeaderLayerStack2 rowHeaderLayer = new RowHeaderLayerStack2(rowHeaderDataProvider);
-
-		DefaultCornerDataProvider cornerDataProvider = new DefaultCornerDataProvider(colHeaderDataProvider, rowHeaderDataProvider);
-		CornerLayer cornerLayer = new CornerLayer(new DataLayer(cornerDataProvider), rowHeaderLayer, columnHeaderLayer);
-		GridLayer gridLayer = new GridLayer(this.bodyLayer2, columnHeaderLayer, rowHeaderLayer, cornerLayer);
-		
-		NatTable natTable = new NatTable(composite, SWT.BORDER, gridLayer);
-
-		FormData formData = new FormData(800, 600);
-		natTable.setLayoutData(formData);
-
-		index = addPage(composite);
 		setPageText(index, "Table2");
 		
 

@@ -189,6 +189,11 @@
 			class="com.windhoverlabs.cfside.ui.editors.CFSMultiPageEditor"
 			contributorClass="com.windhoverlabs.cfside.ui.editors.CFSMultiPageEditorContributor">
 		</editor>
+  <editor
+        class="com.windhoverlabs.cfside.ui.composites.DisplayData"
+        id="com.windhoverlabs.cfside.ui.composites.DisplayData"
+        name="New MultiPageEditorPart">
+  </editor>
 	</extension>
 	
 <!-- PERSPECTIVE EXTENSIONS EXTENSIONS -->   
