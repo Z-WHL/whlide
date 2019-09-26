@@ -36,7 +36,7 @@
 				commandId="com.windhoverlabs.cfside.commands.mergeCFSFile"
 				schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
 				contextId="org.eclipse.ui.contexts.window"
-				sequence="M1+6">
+				sequence="M1+7">
 			</key>
 	</extension>
 
@@ -222,7 +222,32 @@
             class="com.windhoverlabs.cfside.preferences.PreferenceInitializer">
       	</initializer>
    	</extension>
+   	
+<!-- PERSPECTIVE EXTENSIONS -->
+    <extension
+          point="org.eclipse.ui.perspectives">
+       <perspective
+             class="com.windhoverlabs.cfside.ui.perspectives.ConfigPerspective"
+             id="com.windhoverlabs.cfside.configPerspective"
+             name="ConfigPerspective">
+       </perspective>
+    </extension>
 
+<!-- VIEW EXTENSIONS -->
+
+	<extension
+		point="org.eclipse.ui.views">
+		<category
+			id="com.windhoverlabs.cfside.viewCategory"
+			name="com.windhoverlabs.cfside.viewCategory.ConfigTreeView">
+		</category>
+		<view
+			category="com.windhoverlabs.cfside.viewCategory"
+			class="com.windhoverlabs.cfside.ui.views.FileTreeViewer"
+			id="com.windhoverlabs.cfside.ui.views.fileTreeViewer"
+			name="FTV">
+		</view>
+	</extension>
 
 <!-- NAVIGATOR EXTENSIONS  
   	<extension

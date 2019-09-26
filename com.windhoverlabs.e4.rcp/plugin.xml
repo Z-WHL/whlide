@@ -233,5 +233,14 @@
                class="com.windhoverlabs.e4.rcp.natures.ProjectNature">
          </run>
       </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="com.windhoverlabs.e4.rcp.perspectives.RelEngPerspective"
+            icon="icons/releng_gears.gif"
+            id="com.windhoverlabs.e4.rcp.perspectives.RelEngPerspective"
+            name="Release Engineering">
+      </perspective>
    </extension>	
 </plugin>
