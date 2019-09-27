@@ -9,12 +9,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import com.windhoverlabs.cfside.ui.views.ListFileForPackageTree;
+import com.windhoverlabs.cfside.ui.views.SingleProjectTreeViewer;
 
 public class StackedTreeViewers extends Composite {
 
 	private String[] projectArray;
-	private ListFileForPackageTree[] treeViewers;
+	private SingleProjectTreeViewer[] treeViewers;
 	StackLayout layout;
 	
 	public StackedTreeViewers(Composite parent, int style) {
@@ -36,10 +36,10 @@ public class StackedTreeViewers extends Composite {
 		layout = new StackLayout();
 		parent.setLayout(layout);
 		
-		treeViewers = new ListFileForPackageTree[projectList.size()];
+		treeViewers = new SingleProjectTreeViewer[projectList.size()];
 		
 		for (int i = 0; i < treeViewers.length; ++i) {
-			treeViewers[i] = new ListFileForPackageTree(parent, SWT.NONE, projectArray[i]);
+			treeViewers[i] = new SingleProjectTreeViewer(parent, SWT.NONE, projectArray[i]);
 		}		
 	}
 	

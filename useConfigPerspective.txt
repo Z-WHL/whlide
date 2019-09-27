@@ -1,0 +1,14 @@
+New Perspective can be accessed by
+window --> perspective --> open perspective --> other --> configPerspective
+
+Tree Viewer to the left of the perspective.
+Drop Down able to show list of projects.
+Button able to send which project was selected.
+Facing difficulty in changing the view to show the selected composite.
+It seems like the composite understands the change that has been made
+but it is invisible for some reason.
+Therefore Hard coded one tree viewer.
+double clicking on file opens message.
+Information can then be used for other things besides opening a dialog.
+
+

@@ -243,10 +243,15 @@
 		</category>
 		<view
 			category="com.windhoverlabs.cfside.viewCategory"
-			class="com.windhoverlabs.cfside.ui.views.FileTreeViewer"
+			class="com.windhoverlabs.cfside.ui.views.ProjectsTreeViewer"
 			id="com.windhoverlabs.cfside.ui.views.fileTreeViewer"
 			name="FTV">
 		</view>
+  <view
+        class="com.windhoverlabs.cfside.ui.views.TreeViewer"
+        id="com.windhoverlabs.cfside.ui.views.TreeViewer"
+        name="New ViewPart">
+  </view>
 	</extension>
 
 <!-- NAVIGATOR EXTENSIONS  

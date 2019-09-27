@@ -7,14 +7,22 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.part.ViewPart;
 
-public class ListFileForPackageTree extends Composite {
+public class SingleProjectTreeViewer extends Composite {
 
 	private TreeViewer treeViewer;
 	private Tree tree;
@@ -22,7 +30,7 @@ public class ListFileForPackageTree extends Composite {
 	private TreeColumn column1;
 	public String projectName;
 	
-	public ListFileForPackageTree(Composite parent, int style, String name) {	
+	public SingleProjectTreeViewer(Composite parent, int style, String name) {	
 		super(parent, style);
 		
 		IProject currentProj = null;
@@ -44,12 +52,37 @@ public class ListFileForPackageTree extends Composite {
 		treeViewer.setContentProvider(new TreeContentProvider());
 		treeViewer.setLabelProvider(new TreeLabelProvider());
 		treeViewer.setInput(new FolderNode(new File(pa)));
+		
+		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
+
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				TreeViewer viewer = (TreeViewer) event.getViewer();
+				IStructuredSelection thisSelection = (IStructuredSelection) event.getSelection();
+				
+				Object selectedNode = thisSelection.getFirstElement();
+				
+				if (selectedNode instanceof TreeNode) {
+					TreeNode tn = (TreeNode) selectedNode;
+					IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+
+					MessageDialog.openInformation(
+							window.getShell(),
+							"File",
+							"File " + tn.getName() + " has been double-clicked on");
+				}
+			}
+			
+		});
 	}
 	
 	public void refreshViewer() {
 		treeViewer.refresh();
 	}
 	
-
+	@Override
+	public String toString() {
+		return projectName;
+	}
 
 }
