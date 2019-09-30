@@ -18,6 +18,9 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -31,6 +34,8 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.layout.RowData;
 
 public class ProjectsTreeViewer extends ViewPart {
 	public ProjectsTreeViewer() {
@@ -46,42 +51,29 @@ public class ProjectsTreeViewer extends ViewPart {
 		private String[] projectArray;
 		private String currentProjectSelected;
 		private StackedTreeViewers stackofTrees;
+		
+		SingleProjectTreeViewer currentProject;
+		
 	@Override
 	public void createPartControl(Composite parent) {
 		
 		setProjectList();
-		Composite comp = new Composite(parent, SWT.FILL);
 		
-		setProjectSelectDropDown(comp);
+		setProjectSelectDropDown(parent);
 
 	}
 
 	private void setProjectSelectDropDown(Composite parent) {
-		parent.setLayout(new GridLayout(2, false));
 		
 		int countOfProjects = projectList.size();
 		//Drop-Down Composite - Creates
 		Combo projectCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
-		GridData gd_projectCombo = new GridData();
-		gd_projectCombo.widthHint = 361;
-		projectCombo.setLayoutData(gd_projectCombo);
+		GridLayout gridLayout = new GridLayout();
 		
-		Button btnNewButton = new Button(parent, SWT.PUSH);
-		
-		btnNewButton.setText("New Button");
-		//Composite holder = new Composite(parent, SWT.NONE);
-		final SingleProjectTreeViewer sptv1 = new SingleProjectTreeViewer(parent, SWT.NONE, projectArray[0]);
-
-		Composite allProjectComposite = new AllProjectTreeComposite(parent, SWT.NONE);
-
-		btnNewButton.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event e) {
-				System.out.println(currentProjectSelected + " was clicked and opened");
-				AllProjectTreeComposite comp = (AllProjectTreeComposite) allProjectComposite;
-				comp.changeControl(currentProjectSelected);
-				comp.layout();
-			}
-		});
+		parent.setLayout(gridLayout);
+		GridData gd = new GridData(SWT.FILL, SWT.NONE, true, false);
+		gd.heightHint = 20;
+		projectCombo.setLayoutData(gd);
 
 		//Array of Project Tree Viewers are created.
 		
@@ -92,26 +84,39 @@ public class ProjectsTreeViewer extends ViewPart {
 			public void widgetSelected(SelectionEvent event) {
 				Combo combo = ((Combo) event.widget);
 				System.out.println(combo.getText() + "was selected");
-				currentProjectSelected = combo.getText();
+				if (currentProjectSelected == null) {
+					currentProjectSelected = combo.getText();
+					createNewTreeViewer(currentProjectSelected, parent);
+					System.out.println("No currentProject");
+					parent.layout(true, true);	
+
+				} else {
+					currentProject.setNewProject(combo.getText());
+					System.out.println(parent.toString());
+					System.out.println(currentProject.toString());
+					currentProjectSelected = combo.getText();
+					//createNewTreeViewer(currentProjectSelected, parent, false);
+					System.out.println("currentProject");
+					parent.layout(true, true);	
+
+				}
 				
 			}
 		};
+		
 		//Listener and Items are added.
 		projectCombo.addSelectionListener(selectionListener);
 	}
 	
 	
-	private void createNewTreeViewer(String project, Composite parent, StackLayout stack) {
-		Composite newTreeViewer = new SingleProjectTreeViewer(parent, SWT.NONE, project);
-		GridData tempGridData = new GridData(SWT.FILL, SWT.FILL, true, true);
-		newTreeViewer.setLayoutData(tempGridData);
+	private void createNewTreeViewer(String project, Composite parent) {
 		
-		//projectCompositeNames.put(project, newTreeViewer);
-		gridData.put(newTreeViewer, tempGridData);
-		currentProjectSelected = project;
-		parent.pack();
-		parent.layout(true);
-		
+			SingleProjectTreeViewer newTreeViewer = new SingleProjectTreeViewer(parent, SWT.FILL, project);
+			this.currentProject = newTreeViewer;
+			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+			currentProject.setLayoutData(gd);
+			parent.layout(true, true);	
+			
 		System.out.println("Tree Was Created)");
 	}
 	
@@ -180,4 +185,5 @@ public class ProjectsTreeViewer extends ViewPart {
 		// TODO Auto-generated method stub
 		
 	}
+
 }

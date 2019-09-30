@@ -252,23 +252,19 @@
         id="com.windhoverlabs.cfside.ui.views.TreeViewer"
         name="New ViewPart">
   </view>
+  <view
+        class="org.eclipse.ui.navigator.CommonNavigator"
+        icon="icons/sample.png"
+        id="com.windhoverlabs.cfside.navigator"
+        name="CFS Project Navigator">
+  </view>
 	</extension>
 
-<!-- NAVIGATOR EXTENSIONS  
-  	<extension
-        point="org.eclipse.ui.views">
-        
-      	<view
-            class="org.eclipse.ui.navigator.CommonNavigator"
-            icon="icons/sample.png"
-            id="com.windloverlabs.cfside.navigator"
-            name="CFS Project Navigator">
-      	</view>
-   	</extension>
+
    	<extension
         point="org.eclipse.ui.navigator.viewer">
       	<viewerActionBinding
-            viewerId="com.windloverlabs.cfside.navigator">
+            viewerId="com.windhoverlabs.cfside.navigator">
         	<includes>
             	<actionExtension
                 	pattern="org.eclipse.ui.navigator.resources.*">
@@ -276,7 +272,7 @@
          	</includes>
       	</viewerActionBinding>
       	<viewerContentBinding
-        	viewerId="com.windloverlabs.cfside.navigator">
+        	viewerId="com.windhoverlabs.cfside.navigator">
          	<includes>
             	<contentExtension
                 	pattern="org.eclipse.ui.navigator.resourceContent">
@@ -295,7 +291,7 @@
    	</extension>
 
    
-   	
+   <!--	
    	<extension
    		point="org.eclipse.core.expressions.definitions">
    		<definition id="com.windhoverlabs.cfside.cnf.cfsFileSelected">

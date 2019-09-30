@@ -45,7 +45,7 @@ public class SingleProjectTreeViewer extends Composite {
 		tree.setHeaderVisible(true);
 		
 		column0 = new TreeColumn(tree, SWT.NONE);
-		column0.setText("Label");
+		column0.setText("Project : " + projectName);
 		column0.setWidth(200);
 		
 		treeViewer = new TreeViewer(tree);
@@ -74,6 +74,18 @@ public class SingleProjectTreeViewer extends Composite {
 			}
 			
 		});
+	}
+	
+	public void setNewProject(String input) {
+		IProject currentProj = null;
+		IWorkspace ws = ResourcesPlugin.getWorkspace();
+		currentProj = ws.getRoot().getProject(input);
+		String pa = currentProj.getLocation().toString();
+		this.treeViewer.setInput(new FolderNode(new File(pa)));
+		projectName = input;
+		this.column0.setText("Project : " + projectName);
+		refreshViewer();
+		getParent().pack(true);
 	}
 	
 	public void refreshViewer() {

@@ -47,8 +47,9 @@ public class AllProjectTreeComposite extends Composite {
 	}
 	
 	public void changeControl(String project) {
-		Composite temp = projectCompositeNames.get(project);
-		stackLayout.topControl = temp;
+		Composite temp = this.projectCompositeNames.get(project);
+		StackLayout layout = (StackLayout) temp.getParent().getLayout();
+		layout.topControl = temp;
 		setVisible(true);
 		this.layout();
 		System.out.println(stackLayout.topControl+"control");
