@@ -15,6 +15,8 @@ public class ConfigPerspective implements IPerspectiveFactory {
 	@Override
 	public void createInitialLayout(IPageLayout factory) {		
 		this.factory = factory;
+		factory.setEditorAreaVisible(true);
+		
 		addViews();
 		addActionSets();
 		addViewShortcuts();
@@ -28,11 +30,30 @@ public class ConfigPerspective implements IPerspectiveFactory {
 				factory.createFolder(
 						"topLeft",
 						IPageLayout.LEFT,
-						0.25f,
+						0.15f,
 						factory.getEditorArea());
 		
-		topLeft.addView("com.windhoverlabs.cfside.ui.views.fileTreeViewer"); 
-	
+		topLeft.addView("com.windhoverlabs.cfside.ui.views.projectTreeViewer"); 
+		
+		IFolderLayout bottomLeft =
+				factory.createFolder(
+						"bottomLeft",
+						IPageLayout.BOTTOM,
+						0.75f,
+						"topLeft");
+		
+		bottomLeft.addView("com.windhoverlabs.cfside.ui.views.fileMergeView");
+		IFolderLayout bottom =
+				factory.createFolder(
+						"bottom",
+						IPageLayout.BOTTOM,
+						0.75f,
+						factory.getEditorArea());
+				
+		bottom.addView("com.windhoverlabs.cfside.ui.views.errorViewer");
+		
+		
+
 	}
 	
 	private void addActionSets() {

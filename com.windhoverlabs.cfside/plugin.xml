@@ -66,7 +66,9 @@
       	</runtime>
    	</extension>	
 
-<!-- MENU CONTRIBUTION EXTENSIONS -->
+<!-- MENU 
+
+BUTION EXTENSIONS -->
 	<extension
 		point="org.eclipse.ui.menus">
 		<menuContribution
@@ -244,14 +246,21 @@
 		<view
 			category="com.windhoverlabs.cfside.viewCategory"
 			class="com.windhoverlabs.cfside.ui.views.ProjectsTreeViewer"
-			id="com.windhoverlabs.cfside.ui.views.fileTreeViewer"
-			name="FTV">
+			id="com.windhoverlabs.cfside.ui.views.projectTreeViewer"
+			name="Project Viewer">
 		</view>
-  <view
-        class="com.windhoverlabs.cfside.ui.views.TreeViewer"
-        id="com.windhoverlabs.cfside.ui.views.TreeViewer"
-        name="New ViewPart">
-  </view>
+		<view
+			category="com.windhoverlabs.cfside.viewCategory"
+			class="com.windhoverlabs.cfside.ui.views.FileMergeView"
+			id="com.windhoverlabs.cfside.ui.views.fileMergeView"
+			name="Merge File">
+		</view>
+		<view
+			category="com.windhoverlabs.cfside.viewCategory"
+			class="com.windhoverlabs.cfside.ui.views.ErrorViewer"
+			id="com.windhoverlabs.cfside.ui.views.errorViewer"
+			name="Problems">
+		</view>
   <view
         class="org.eclipse.ui.navigator.CommonNavigator"
         icon="icons/sample.png"

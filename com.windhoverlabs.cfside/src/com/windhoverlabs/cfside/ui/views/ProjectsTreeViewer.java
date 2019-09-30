@@ -38,22 +38,24 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.layout.RowData;
 
 public class ProjectsTreeViewer extends ViewPart {
+	
+	public static final String ID = "com.windhoverlabs.cfside.ui.views.projectTreeViewer";
+
+	private List<String> projectList = new ArrayList<String>();
+	private List<Composite> openedProjects = new ArrayList<Composite>();
+	private Map<String, SingleProjectTreeViewer> projectCompositeNames = new HashMap<String, SingleProjectTreeViewer>();
+	private Map<Composite, GridData> gridData = new HashMap<Composite, GridData>();
+	private SingleProjectTreeViewer[] projectComposites;
+	
+	private String[] projectArray;
+	private String currentProjectSelected;
+	private StackedTreeViewers stackofTrees;
+	
+	SingleProjectTreeViewer currentProject;
+		
+		
 	public ProjectsTreeViewer() {
 	}
-	public static final String ID = "com.windhoverlabs.cfside.ui.views.fileTreeViewer";
-
-		private List<String> projectList = new ArrayList<String>();
-		private List<Composite> openedProjects = new ArrayList<Composite>();
-		private Map<String, SingleProjectTreeViewer> projectCompositeNames = new HashMap<String, SingleProjectTreeViewer>();
-		private Map<Composite, GridData> gridData = new HashMap<Composite, GridData>();
-		private SingleProjectTreeViewer[] projectComposites;
-		
-		private String[] projectArray;
-		private String currentProjectSelected;
-		private StackedTreeViewers stackofTrees;
-		
-		SingleProjectTreeViewer currentProject;
-		
 	@Override
 	public void createPartControl(Composite parent) {
 		
@@ -88,8 +90,6 @@ public class ProjectsTreeViewer extends ViewPart {
 					currentProjectSelected = combo.getText();
 					createNewTreeViewer(currentProjectSelected, parent);
 					System.out.println("No currentProject");
-					parent.layout(true, true);	
-
 				} else {
 					currentProject.setNewProject(combo.getText());
 					System.out.println(parent.toString());
@@ -97,7 +97,6 @@ public class ProjectsTreeViewer extends ViewPart {
 					currentProjectSelected = combo.getText();
 					//createNewTreeViewer(currentProjectSelected, parent, false);
 					System.out.println("currentProject");
-					parent.layout(true, true);	
 
 				}
 				
@@ -106,6 +105,7 @@ public class ProjectsTreeViewer extends ViewPart {
 		
 		//Listener and Items are added.
 		projectCombo.addSelectionListener(selectionListener);
+		
 	}
 	
 	
@@ -115,8 +115,7 @@ public class ProjectsTreeViewer extends ViewPart {
 			this.currentProject = newTreeViewer;
 			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 			currentProject.setLayoutData(gd);
-			parent.layout(true, true);	
-			
+			parent.pack();
 		System.out.println("Tree Was Created)");
 	}
 	

@@ -127,9 +127,6 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 */
 	public CFSMultiPageEditor() {
 		super();
-		setUpPropertyLabels();
-		project = ProjectUtils.getProjectSelection();
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 	}
 	/**
 	 * Creates page 0 of the multi-page editor,
@@ -137,6 +134,8 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 */
 	private void createPage0() {
 		try {
+			setUpPropertyLabels();
+			
 			editor = new TextEditor();
 			
 			int index = addPage(editor, getEditorInput());

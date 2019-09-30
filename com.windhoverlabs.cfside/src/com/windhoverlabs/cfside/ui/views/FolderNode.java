@@ -21,6 +21,15 @@ public class FolderNode extends TreeNode {
 		return fFolder.getName();
 	}
 	
+	public String getFullName() {
+		return fFolder.getAbsolutePath().concat("/");
+	}
+	
+	public String getRelativeName() {
+		return fFolder.getName();
+	}
+	
+	
 	@Override
 	protected void createChildren(List children) {
 		File[] childFiles = fFolder.listFiles();
