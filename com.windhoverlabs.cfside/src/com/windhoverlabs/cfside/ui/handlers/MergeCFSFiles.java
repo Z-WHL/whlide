@@ -1,6 +1,7 @@
 package com.windhoverlabs.cfside.ui.handlers;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -53,13 +54,13 @@ public class MergeCFSFiles extends AbstractHandler{
 
 		if(dia.open() == Window.OK) {
 			pathA = dia.pathOne();
-			pathB = dia.pathTwo();
-			pathSaved = dia.pathSaved();
+			//pathB = dia.pathTwo();
+			//pathSaved = dia.pathSaved();
 		} else if (dia.open() == Window.CANCEL) {
 			return null;
 		}
 		
-	
+		/**
 		if (JsonObjectsUtil.deepMerge(pathA, pathB, pathSaved)) {
 			MessageDialog.openInformation(
 					window.getShell(),
@@ -71,7 +72,9 @@ public class MergeCFSFiles extends AbstractHandler{
 					"Failure",
 					"An error occured. Your files were not merged");
 		}
+		**/
 			
+		JsonObjectsUtil.goMerge(new File(pathA));
 		return null;
 	}
 	

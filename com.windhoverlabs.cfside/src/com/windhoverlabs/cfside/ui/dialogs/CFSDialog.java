@@ -46,7 +46,7 @@ public class CFSDialog extends Dialog {
         	String text = textWidget.getText();
         	pathOneName = text;
         });
-        
+        /**
         Label pathTwoLabel = new Label(container, SWT.NONE);
         pathTwoLabel.setText("Path for File 2:");
         
@@ -72,7 +72,7 @@ public class CFSDialog extends Dialog {
         	String text = textWidget.getText();
         	pathSavedName = text;
         });
-
+		**/
         return container;        
 	}
 	
@@ -90,8 +90,8 @@ public class CFSDialog extends Dialog {
 	@Override
 	protected void okPressed() {
 		pathOneName = pathOne.getText();
-		pathTwoName = pathTwo.getText();
-		pathSavedName = pathSaved.getText();
+		//pathTwoName = pathTwo.getText();
+		//pathSavedName = pathSaved.getText();
 		super.okPressed();
 	}
 	
