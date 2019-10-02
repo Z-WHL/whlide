@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
@@ -34,6 +36,7 @@ import org.osgi.service.event.EventAdmin;
 
 public class SingleProjectTreeViewer extends Composite {
 
+	
 	private TreeViewer treeViewer;
 	private Tree tree;
 	private TreeColumn column0;
@@ -86,7 +89,6 @@ public class SingleProjectTreeViewer extends Composite {
 					String pathStr = tn.getRelativeName();
 					System.out.println(pathStr);
 					
-
 					String aa = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
 					String path = tn.getFullName().substring(aa.length()+projectName.length()+2);
 					IPath iPath = new Path(path);
@@ -116,6 +118,10 @@ public class SingleProjectTreeViewer extends Composite {
 			}
 			
 		});
+	}
+	
+	public TreeViewer getTreeViewer() {
+		return this.treeViewer;
 	}
 	
 	public void setNewProject(String input) {

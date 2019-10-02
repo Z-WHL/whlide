@@ -1,6 +1,9 @@
 package com.windhoverlabs.cfside.ui.trees;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
 
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -13,6 +16,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.windhoverlabs.cfside.ui.composites.ConfigTableComposite;
 import com.windhoverlabs.cfside.ui.tables.KeyValueTable;
@@ -58,7 +62,7 @@ public class ConfigComposite extends Composite {
 		objectChildrenCount.setText("Count");
 		objectChildrenCount.setWidth(100);
 			
-		/**
+		
 		Reader rd = null;
 		try {
 			rd = new FileReader(new File(currentFilePath));
@@ -66,10 +70,8 @@ public class ConfigComposite extends Composite {
 			e.printStackTrace();
 		}
 		JsonElement jsonElement = jsonParser.parse(rd);
-		JsonObject jsonObject = jsonElement.getAsJsonObject();
 		
-		**/
-		JsonElement jsonElement = JsonObjectsUtil.goMerge(new File("/home/vagrant/development/airliner/config/bebop2/config.json"));
+		//JsonElement jsonElement = JsonObjectsUtil.goMerge(new File("/home/vagrant/development/airliner/config/bebop2/config.json"));
 		treeViewer = new TreeViewer(this.tree);
 		treeViewer.setContentProvider(new JsonContentProvider());
 		treeViewer.setLabelProvider(new JsonLabelProvider());

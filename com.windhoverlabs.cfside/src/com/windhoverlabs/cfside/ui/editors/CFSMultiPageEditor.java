@@ -4,9 +4,7 @@ package com.windhoverlabs.cfside.ui.editors;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -18,8 +16,8 @@ import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
 import org.eclipse.nebula.widgets.nattable.data.ListDataProvider;
 import org.eclipse.nebula.widgets.nattable.data.ReflectiveColumnPropertyAccessor;
@@ -34,8 +32,6 @@ import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
@@ -44,26 +40,20 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 
 import com.windhoverlabs.cfside.model.Message;
 import com.windhoverlabs.cfside.model.MessageConfigs;
 import com.windhoverlabs.cfside.ui.composites.ConfigTableComposite;
 import com.windhoverlabs.cfside.ui.trees.ConfigComposite;
 import com.windhoverlabs.cfside.utils.FileUtils;
-import com.windhoverlabs.cfside.utils.JsonObjectsUtil;
 import com.windhoverlabs.cfside.utils.ProjectUtils;
 
 /**
@@ -103,11 +93,17 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	private File tmpFile;
 	/** The text widget used in page 2. */
 	private StyledText text;
+	
+	String pathName;
+	
+	ISelectionListener selectionListener;
+	
 	/**
 	 * Creates a multi-page editor example.
 	 */
 	public CFSMultiPageEditor() {
 		super();
+		
 	}
 	/**
 	 * Creates page 0 of the multi-page editor,
@@ -116,11 +112,14 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	private void createPage0() {
 		try {
 			setUpPropertyLabels();
-			
 			editor = new TextEditor();
-			
 			int index = addPage(editor, getEditorInput());
-
+			
+			IEditorInput editorInput = getEditorInput();
+			IPathEditorInput path = (IPathEditorInput) editorInput;
+			File f = new File(path.getPath().toOSString());
+			pathName = f.getAbsolutePath();
+			
 			setPageText(index, editor.getTitle());
 		} catch (PartInitException e) {
 			ErrorDialog.openError(
@@ -135,65 +134,24 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 * which allows you to change the font used in page 2.
 	 */
 	private void createPage1() {
-		Composite composite = new Composite(getContainer(), SWT.NONE
-				);
+		Composite composite = new Composite(getContainer(), SWT.NONE);
 		FillLayout fl = new FillLayout(SWT.HORIZONTAL);
 		composite.setLayout(fl);
-		/**
-		BundleContext ctx = FrameworkUtil.getBundle(CFSMultiPageEditor.class).getBundleContext();
-		EventHandler handler = new EventHandler() {
-			@Override
-			public void handleEvent(Event event) {
-				if (composite.getDisplay().getThread() == Thread.currentThread()) {
-					appNameInputString = event.getProperty("file").toString();
-				} else {
-					composite.getDisplay().syncExec(new Runnable() {
-						public void run() {
-							appNameInputString = event.getProperty("file").toString();
-						}
-					});
-				}
-				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
-				MessageDialog.openInformation(
-						window.getShell(),
-						"File",
-						"File " + appNameInputString);
-			}
-		};
-		
-		Dictionary<String, String> properties = new Hashtable<String, String>();
-		properties.put(EventConstants.EVENT_TOPIC, "/viewcommunication/*");
-		ctx.registerService(EventHandler.class, handler, properties);
-		
-		**/
-		ConfigComposite body = new ConfigComposite(composite, SWT.FILL, "");
-		
-		
-		/**
-		this.bodyDataProvider1 = setupBodyDataProvider();
-
-		DefaultColumnHeaderDataProvider colHeaderDataProvider = new DefaultColumnHeaderDataProvider(this.propertyNames, this.propertyToLabels);
-		DefaultRowHeaderDataProvider rowHeaderDataProvider = new DefaultRowHeaderDataProvider(this.bodyDataProvider1);
-		this.bodyLayer1 = new BodyLayerStack(this.bodyDataProvider1);
-		ColumnHeaderLayerStack columnHeaderLayer = new ColumnHeaderLayerStack(colHeaderDataProvider);
-		RowHeaderLayerStack rowHeaderLayer = new RowHeaderLayerStack(rowHeaderDataProvider);
-		
-		DefaultCornerDataProvider cornerDataProvider = new DefaultCornerDataProvider(colHeaderDataProvider, rowHeaderDataProvider);
-		CornerLayer cornerLayer = new CornerLayer(new DataLayer(cornerDataProvider), rowHeaderLayer, columnHeaderLayer);
-		GridLayer gridLayer = new GridLayer(this.bodyLayer1, columnHeaderLayer, rowHeaderLayer, cornerLayer);
-		NatTable natTable = new NatTable(composite, SWT.BORDER, gridLayer);
-		
-		FormData formData = new FormData(800, 600);
-		
-		
-		natTable.setLayoutData(formData);
-		**/
+		if (pathName != null) {
+	
+			ConfigComposite body = new ConfigComposite(composite, SWT.FILL, pathName);
+		}
 		int index = addPage(composite);
 		setPageText(index, "Table1");
 		
 		
 	}
+	
+	private void setPathName(String path) {
+		this.pathName = path;
+	}
+
 	/**
 	 * Creates page 2 of the multi-page editor,
 	 * which shows the sorted text.
@@ -292,6 +250,8 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 			});
 		}
 	}
+	
+
 	/**
 	 * Saves the information.
 	 */
