@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
@@ -18,6 +16,7 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
@@ -52,7 +51,7 @@ public class SingleProjectTreeViewer extends Composite {
 			
 		IWorkspace ws = ResourcesPlugin.getWorkspace();
 		currentProj = ws.getRoot().getProject(name);
-				
+		
 		String pa = currentProj.getLocation().toString();
 		System.out.println(pa);
 		projectName = name;
@@ -62,7 +61,7 @@ public class SingleProjectTreeViewer extends Composite {
 		column0 = new TreeColumn(tree, SWT.NONE);
 		column0.setText("Project : " + projectName);
 		column0.setWidth(200);
-		
+		tree.setLayout(new FillLayout());
 		treeViewer = new TreeViewer(tree);
 		treeViewer.setContentProvider(new TreeContentProvider());
 		treeViewer.setLabelProvider(new TreeLabelProvider());

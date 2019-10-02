@@ -106,10 +106,8 @@ public class ProjectsTreeViewer extends ViewPart {
 			SingleProjectTreeViewer newTreeViewer = new SingleProjectTreeViewer(parent, SWT.FILL, project);
 			this.currentProject = newTreeViewer;
 			getSite().setSelectionProvider(this.currentProject.getTreeViewer());
-
 			
-			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-			currentProject.setLayoutData(gd);
+			currentProject.setLayout(new FillLayout());
 			parent.pack();
 		    System.out.println("Tree Was Created)");
 	}
