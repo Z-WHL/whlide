@@ -31,7 +31,7 @@ public class JsonObjectsUtil {
 	static Gson gson = new Gson();
 	static JsonParser jp = new JsonParser();
 	
-	public static void goMerge(File pathToConfig) {
+	public static JsonElement goMerge(File pathToConfig) {
 		//Load file into reader.
 		Reader rd = null;
 		try {
@@ -79,6 +79,7 @@ public class JsonObjectsUtil {
 		localConfigElm = mergeParentConfig(localConfigElm, basePath, pathLocalConfig);
 		
 		System.out.println(beautifyJson(localConfigElm.toString()));
+		return localConfigElm;
 		
 	}
 	

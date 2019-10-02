@@ -1,43 +1,36 @@
 package com.windhoverlabs.cfside.ui.views;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.ui.IEditorRegistry;
-import org.eclipse.ui.IPageLayout;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.swt.SWT;
-import java.nio.file.Paths;
-import java.util.HashMap;
-
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.part.ViewPart;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 
 public class SingleProjectTreeViewer extends Composite {
 
@@ -92,26 +85,25 @@ public class SingleProjectTreeViewer extends Composite {
 			
 					String pathStr = tn.getRelativeName();
 					System.out.println(pathStr);
-					IPath iPath = new Path(pathStr);
-					IFile fileToOpen = currentProj.getFile(iPath);
-					/**
-					IWorkbench wb = PlatformUI.getWorkbench();
-					IWorkbenchWindow ww = wb.getActiveWorkbenchWindow();
-					IWorkbenchPage wp = ww.getActivePage();
 					
-					HashMap map = new HashMap();
-					map.put(IMarker.LINE_NUMBER, 1);
-					map.put(IWorkbenchPage.EDITOR_ID_ATTR, "com.windhoverlabs.cfside.editors.CFSMultiPageEditorContributor");
-					IMarker marker;
-					try {
-						marker = fileToOpen.createMarker(IMarker.TEXT);
-						marker.setAttributes(map);
-						IDE.openEditor(wp, marker);
 
-					} catch (CoreException e) {
-						e.printStackTrace();
-					}
-**/
+					String aa = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+					String path = tn.getFullName().substring(aa.length()+projectName.length()+2);
+					IPath iPath = new Path(path);
+					IFile fileToOpen = currentProj.getFile(iPath);
+					
+					BundleContext ctx = FrameworkUtil.getBundle(SingleProjectTreeViewer.class).getBundleContext();
+					ServiceReference<EventAdmin> ref = ctx.getServiceReference(EventAdmin.class);
+					EventAdmin eventAdmin = ctx.getService(ref);
+					Map<String, String> properties = new HashMap<String, String>();
+					properties.put("file", tn.getFullName());
+					
+					Event ev = new Event("viewcommunication/syncEvent", properties);
+					eventAdmin.sendEvent(ev);
+					
+					ev = new Event("viewcommunication/asyncEvent", properties);
+					eventAdmin.postEvent(ev);
+					
 					IWorkbenchPage[] pages = window.getPages();
 				
 					try {

@@ -3,6 +3,7 @@ package com.windhoverlabs.cfside.ui.views;
 import java.util.List;
 
 public class FileNode extends TreeNode {
+	
 	private String name;
 	private String fullName;
 	private String relativeName;

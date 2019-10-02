@@ -1,50 +1,29 @@
 package com.windhoverlabs.cfside.ui.editors;
 
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.net.URI;
-import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.StringTokenizer;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.nebula.widgets.nattable.NatTable;
-import org.eclipse.nebula.widgets.nattable.data.IColumnPropertyAccessor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
 import org.eclipse.nebula.widgets.nattable.data.ListDataProvider;
 import org.eclipse.nebula.widgets.nattable.data.ReflectiveColumnPropertyAccessor;
-import org.eclipse.nebula.widgets.nattable.grid.data.DefaultColumnHeaderDataProvider;
-import org.eclipse.nebula.widgets.nattable.grid.data.DefaultCornerDataProvider;
-import org.eclipse.nebula.widgets.nattable.grid.data.DefaultRowHeaderDataProvider;
 import org.eclipse.nebula.widgets.nattable.grid.layer.ColumnHeaderLayer;
-import org.eclipse.nebula.widgets.nattable.grid.layer.CornerLayer;
-import org.eclipse.nebula.widgets.nattable.grid.layer.GridLayer;
 import org.eclipse.nebula.widgets.nattable.grid.layer.RowHeaderLayer;
 import org.eclipse.nebula.widgets.nattable.hideshow.ColumnHideShowLayer;
 import org.eclipse.nebula.widgets.nattable.layer.AbstractLayerTransform;
@@ -54,36 +33,38 @@ import org.eclipse.nebula.widgets.nattable.selection.SelectionLayer;
 import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.*;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextEditor;
-import org.eclipse.ui.handlers.IHandlerService;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
-import org.eclipse.ui.ide.IDE;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 
-import com.windhoverlabs.cfside.core.projects.CFSProjectSupport;
 import com.windhoverlabs.cfside.model.Message;
 import com.windhoverlabs.cfside.model.MessageConfigs;
 import com.windhoverlabs.cfside.ui.composites.ConfigTableComposite;
-import com.windhoverlabs.cfside.ui.editors.CFSMultiPageEditor.ColumnHeaderLayerStack;
-import com.windhoverlabs.cfside.ui.editors.CFSMultiPageEditor.RowHeaderLayerStack;
-import com.windhoverlabs.cfside.utils.ProjectUtils;
+import com.windhoverlabs.cfside.ui.trees.ConfigComposite;
 import com.windhoverlabs.cfside.utils.FileUtils;
-import com.windhoverlabs.cfside.utils.MessageService;
-import com.windhoverlabs.cfside.model.BodyLayerStack;
+import com.windhoverlabs.cfside.utils.JsonObjectsUtil;
+import com.windhoverlabs.cfside.utils.ProjectUtils;
 
 /**
  * An example showing how to create a multi-page editor.
@@ -154,10 +135,41 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 * which allows you to change the font used in page 2.
 	 */
 	private void createPage1() {
-		Composite composite = new Composite(getContainer(), SWT.BORDER);
-		FormLayout fl = new FormLayout();
-		composite.getParent().setLayout(fl);
+		Composite composite = new Composite(getContainer(), SWT.NONE
+				);
+		FillLayout fl = new FillLayout(SWT.HORIZONTAL);
 		composite.setLayout(fl);
+		/**
+		BundleContext ctx = FrameworkUtil.getBundle(CFSMultiPageEditor.class).getBundleContext();
+		EventHandler handler = new EventHandler() {
+			@Override
+			public void handleEvent(Event event) {
+				if (composite.getDisplay().getThread() == Thread.currentThread()) {
+					appNameInputString = event.getProperty("file").toString();
+				} else {
+					composite.getDisplay().syncExec(new Runnable() {
+						public void run() {
+							appNameInputString = event.getProperty("file").toString();
+						}
+					});
+				}
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+
+				MessageDialog.openInformation(
+						window.getShell(),
+						"File",
+						"File " + appNameInputString);
+			}
+		};
+		
+		Dictionary<String, String> properties = new Hashtable<String, String>();
+		properties.put(EventConstants.EVENT_TOPIC, "/viewcommunication/*");
+		ctx.registerService(EventHandler.class, handler, properties);
+		
+		**/
+		ConfigComposite body = new ConfigComposite(composite, SWT.FILL, "");
+		
+		
 		/**
 		this.bodyDataProvider1 = setupBodyDataProvider();
 
@@ -188,8 +200,6 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 */
 	private void createPage2() {
 		Composite composite = new Composite(getContainer(), SWT.FILL);
-		
-		
 		ConfigTableComposite table = new ConfigTableComposite(composite, SWT.FILL);
 		FillLayout fl = new FillLayout();
 		composite.setLayout(fl);
@@ -204,21 +214,6 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 */
 	protected void createPages() {
 		createPage0();
-		IEditorInput input = editor.getEditorInput();
-		if (input instanceof FileEditorInput) {
-			try {
-				IFile file = ((FileEditorInput) input).getFile();
-				InputStream is = file.getContents();
-				tmpFile = File.createTempFile("temp", "json");
-				FileWriter fw = new FileWriter(tmpFile);
-				byte[] str = is.readAllBytes();
-				fw.write(str.toString());
-				fw.close();
-				is.close();
-			} catch(IOException | CoreException e) {
-				e.printStackTrace();
-			}
-		}
 		createPage1();
 		createPage2();
 	}

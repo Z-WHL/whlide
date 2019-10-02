@@ -50,7 +50,6 @@ public class ConfigTableComposite extends Composite {
 		super(parent, style);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
 		createViewer();
-		
 		viewer.refresh();
 	}
 
@@ -69,6 +68,8 @@ public class ConfigTableComposite extends Composite {
 		viewer.setContentProvider(new ConfigContentProvider());
 		viewer.setLabelProvider(new ConfigLabelProvider());
 		viewer.setInput(list);
+		
+		
 		
 		createColumns(this, viewer);
 		Table table = viewer.getTable();

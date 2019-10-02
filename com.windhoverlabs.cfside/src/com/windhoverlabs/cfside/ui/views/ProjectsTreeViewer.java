@@ -53,16 +53,13 @@ public class ProjectsTreeViewer extends ViewPart {
 	
 	SingleProjectTreeViewer currentProject;
 		
-		
 	public ProjectsTreeViewer() {
 	}
+	
 	@Override
 	public void createPartControl(Composite parent) {
-		
-		setProjectList();
-		
+		setProjectList();		
 		setProjectSelectDropDown(parent);
-
 	}
 
 	private void setProjectSelectDropDown(Composite parent) {
@@ -97,18 +94,13 @@ public class ProjectsTreeViewer extends ViewPart {
 					currentProjectSelected = combo.getText();
 					//createNewTreeViewer(currentProjectSelected, parent, false);
 					System.out.println("currentProject");
-
-				}
-				
+				}				
 			}
-		};
-		
+		};		
 		//Listener and Items are added.
-		projectCombo.addSelectionListener(selectionListener);
-		
+		projectCombo.addSelectionListener(selectionListener);	
 	}
-	
-	
+		
 	private void createNewTreeViewer(String project, Composite parent) {
 		
 			SingleProjectTreeViewer newTreeViewer = new SingleProjectTreeViewer(parent, SWT.FILL, project);
@@ -163,22 +155,15 @@ public class ProjectsTreeViewer extends ViewPart {
 
 	private void setProjectList() {
 		IProject projects[] = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		for (IProject project : projects) {
-			
+		for (IProject project : projects) {	
 			projectList.add(project.getName());
 		}
-		
 		projectArray = projectList.parallelStream().toArray(String[]::new);
-		/**
-		for (int i = 0; i < projectList.size(); i++) {
-			String temp = projectList.get(i).toString();
-			projectArray[i] = temp;
-		}
-		**/
 		System.out.println(projectList.toString());
 		System.out.println(projectArray);
 
 	}
+	
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub
