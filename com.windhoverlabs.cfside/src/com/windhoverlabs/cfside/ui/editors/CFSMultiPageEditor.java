@@ -2,40 +2,19 @@ package com.windhoverlabs.cfside.ui.editors;
 
 
 import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
-import org.eclipse.nebula.widgets.nattable.data.ListDataProvider;
-import org.eclipse.nebula.widgets.nattable.data.ReflectiveColumnPropertyAccessor;
-import org.eclipse.nebula.widgets.nattable.grid.layer.ColumnHeaderLayer;
-import org.eclipse.nebula.widgets.nattable.grid.layer.RowHeaderLayer;
-import org.eclipse.nebula.widgets.nattable.hideshow.ColumnHideShowLayer;
-import org.eclipse.nebula.widgets.nattable.layer.AbstractLayerTransform;
-import org.eclipse.nebula.widgets.nattable.layer.DataLayer;
-import org.eclipse.nebula.widgets.nattable.reorder.ColumnReorderLayer;
-import org.eclipse.nebula.widgets.nattable.selection.SelectionLayer;
-import org.eclipse.nebula.widgets.nattable.viewport.ViewportLayer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
@@ -49,12 +28,9 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
-import com.windhoverlabs.cfside.model.Message;
-import com.windhoverlabs.cfside.model.MessageConfigs;
 import com.windhoverlabs.cfside.ui.composites.ConfigTableComposite;
 import com.windhoverlabs.cfside.ui.trees.ConfigComposite;
 import com.windhoverlabs.cfside.utils.FileUtils;
-import com.windhoverlabs.cfside.utils.ProjectUtils;
 
 /**
  * An example showing how to create a multi-page editor.
@@ -71,29 +47,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	private TextEditor editor;
 	HashMap<String, Group> messageIDWidgets = new HashMap<String, Group>();
 
-	private IDataProvider bodyDataProvider1;
-	private IDataProvider bodyDataProvider2;
-
-	private BodyLayerStack bodyLayer1;
-	private BodyLayerStack bodyLayer2;
-
-	private String[] propertyNames;
-	private String[] propertyNames2;
-
-	private Map<String, String> propertyToLabels;
-	private Map<String, String> propertyToLabels2;
-
-	private IProject project;
-	private File file;
-	/** The Fields Set in page 1. */
-	private Text appNameInput;
-	private String appNameInputString;
-	private Text pathDirectoryInput;
-	private String pathDirectoryInputString;
-	private File tmpFile;
 	/** The text widget used in page 2. */
-	private StyledText text;
-	
 	String pathName;
 	
 	ISelectionListener selectionListener;
@@ -111,7 +65,6 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 */
 	private void createPage0() {
 		try {
-			setUpPropertyLabels();
 			editor = new TextEditor();
 			int index = addPage(editor, getEditorInput());
 			
@@ -134,22 +87,15 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 * which allows you to change the font used in page 2.
 	 */
 	private void createPage1() {
-		Composite composite = new Composite(getContainer(), SWT.NONE);
+		final Composite composite = new Composite(getContainer(), SWT.NONE);
 		FillLayout fl = new FillLayout(SWT.HORIZONTAL);
 		composite.setLayout(fl);
-
-		if (pathName != null) {
 	
-			ConfigComposite body = new ConfigComposite(composite, SWT.FILL, pathName);
-		}
+		final ConfigComposite body = new ConfigComposite(composite, SWT.NONE, pathName);
+		body.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
 		int index = addPage(composite);
 		setPageText(index, "Table1");
-		
-		
-	}
-	
-	private void setPathName(String path) {
-		this.pathName = path;
 	}
 
 	/**
@@ -164,8 +110,6 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		
 		int index = addPage(composite);
 		setPageText(index, "Table2");
-		
-
 	}
 	/**
 	 * Creates the pages of the multi-page editor.
@@ -266,106 +210,4 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		System.out.println(str);
 		FileUtils.writeToRoot("someinfo.txt", str);
 	}
-		
-	private IDataProvider setupBodyDataProvider() {
-		
-		final List<Message> list = setUpTestMessagesList();
-		
-		return new ListDataProvider<>(list, new ReflectiveColumnPropertyAccessor<Message>(this.propertyNames));
-	}
-	
-	private IDataProvider setUpBodyDataProviderWithFile() {
-		IProject project = ProjectUtils.getProjectSelection();
-		IFolder folder = project.getFolder("parent");
-		IFile file = folder.getFile("exampleMessageConfig.xml");
-		URI rui = file.getLocationURI();
-		File messageConfigFile = new File(rui.getPath());
-		MessageConfigs currentMessageConfigs = new MessageConfigs(messageConfigFile);
-		
-		final List<Message> list = currentMessageConfigs.getMessageList();
-		
-		return new ListDataProvider<>(list, new ReflectiveColumnPropertyAccessor<Message>(this.propertyNames));
-	}
-	
-	private List<Message> setUpTestMessagesList() {
-		List<Message> list = new ArrayList<Message>();
-		list.add(new Message(1, "SCH_CMD_MID", "MessageTest1", "CMD", "SCH Ground Commands Message ID"));
-		list.add(new Message(2, "SCH_UNUSED_MID", "MessageTest2", "CMD", "SCH MDT Unused Message Message ID"));
-		list.add(new Message(3, "SCH_SEND_HK_MID", "MessageTest3", "CMD", "SCH Send Houskeeping Message ID"));
-		list.add(new Message(4, "SCH_HK_TLM_MID", "MessageTest4", "TLM", "SCH Houskeeping Telemetry Message ID"));
-		list.add(new Message(5, "SCH_DIAG_TLM_MID", "MessageTest5", "TLM", "SCH Diagnostic Telemetry Message ID"));
-		
-		return list;
-	}
-	
-	private void setUpPropertyLabels() {
-		this.propertyToLabels = new HashMap<>();
-		this.propertyToLabels.put("miid", "MIID");
-		this.propertyToLabels.put("identifier", "Identifier");
-		this.propertyToLabels.put("name", "Name");
-		this.propertyToLabels.put("type", "Type");
-		this.propertyToLabels.put("description", "Description");
-		
-		this.propertyNames = new String[] { "miid", "identifier", "name", "type", "description" };
-		
-		this.propertyToLabels2 = new HashMap<>();
-		this.propertyToLabels2.put("miid", "MIID");
-		this.propertyToLabels2.put("identifier", "Identifier");
-		this.propertyToLabels2.put("name", "Name");
-		this.propertyToLabels2.put("type", "Type");
-		this.propertyToLabels2.put("description", "Description");
-		
-		this.propertyNames2 = new String[] { "miid", "identifier", "name", "type", "description" };
-	}
-	
-	public class BodyLayerStack extends AbstractLayerTransform {
-		private SelectionLayer selectionLayer;
-		
-		public BodyLayerStack(IDataProvider dataProvider) {
-			DataLayer bodyDataLayer = new DataLayer(dataProvider);
-			ColumnReorderLayer columnReorderLayer = new ColumnReorderLayer(bodyDataLayer);
-			ColumnHideShowLayer columnHideShowLayer = new ColumnHideShowLayer(columnReorderLayer);
-			this.selectionLayer = new SelectionLayer (columnHideShowLayer);
-			ViewportLayer viewportlayer = new ViewportLayer(this.selectionLayer);
-			setUnderlyingLayer(viewportlayer);
-		}
-		
-		public SelectionLayer getSelectionLayer() {
-			return this.selectionLayer;
-		}
-	}
-	
-	public class ColumnHeaderLayerStack extends AbstractLayerTransform {
-		public ColumnHeaderLayerStack(IDataProvider dataProvider) {
-			DataLayer dataLayer = new DataLayer(dataProvider);
-			ColumnHeaderLayer colHeaderLayer = new ColumnHeaderLayer(dataLayer, CFSMultiPageEditor.this.bodyLayer1, CFSMultiPageEditor.this.bodyLayer1.getSelectionLayer());
-			setUnderlyingLayer(colHeaderLayer);
-		}
-	}
-	
-	public class ColumnHeaderLayerStack2 extends AbstractLayerTransform {
-		public ColumnHeaderLayerStack2(IDataProvider dataProvider) {
-			DataLayer dataLayer = new DataLayer(dataProvider);
-			ColumnHeaderLayer colHeaderLayer = new ColumnHeaderLayer(dataLayer, CFSMultiPageEditor.this.bodyLayer2, CFSMultiPageEditor.this.bodyLayer2.getSelectionLayer());
-			setUnderlyingLayer(colHeaderLayer);
-		}
-	}
-	
-	public class RowHeaderLayerStack extends AbstractLayerTransform {
-		public RowHeaderLayerStack(IDataProvider dataProvider) {
-			DataLayer dataLayer = new DataLayer(dataProvider, 50, 20);
-			RowHeaderLayer rowHeaderLayer = new RowHeaderLayer(dataLayer, CFSMultiPageEditor.this.bodyLayer1, bodyLayer1.getSelectionLayer());
-			setUnderlyingLayer(rowHeaderLayer);
-		}
-	}
-	
-	public class RowHeaderLayerStack2 extends AbstractLayerTransform {
-		public RowHeaderLayerStack2(IDataProvider dataProvider) {
-			DataLayer dataLayer = new DataLayer(dataProvider, 50, 20);
-			RowHeaderLayer rowHeaderLayer = new RowHeaderLayer(dataLayer, CFSMultiPageEditor.this.bodyLayer2, bodyLayer2.getSelectionLayer());
-			setUnderlyingLayer(rowHeaderLayer);
-		}
-	}
-
-	
 }

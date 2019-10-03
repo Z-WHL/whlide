@@ -20,7 +20,6 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
-import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -35,17 +34,12 @@ import org.osgi.service.event.EventAdmin;
 
 public class SingleProjectTreeViewer extends Composite {
 
-	
 	private TreeViewer treeViewer;
 	private Tree tree;
 	private TreeColumn column0;
-	private TreeColumn column1;
 	public String projectName;
 	IProject currentProj;
-	
-	private IPageLayout factory;
-
-	
+		
 	public SingleProjectTreeViewer(Composite parent, int style, String name) {	
 		super(parent, style);
 			

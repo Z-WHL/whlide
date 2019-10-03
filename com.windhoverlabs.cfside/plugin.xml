@@ -187,7 +187,7 @@ BUTION EXTENSIONS -->
 		<editor
 			id="com.windhoverlabs.cfside.editors.CFSMultiPageEditor"
 			name="CFS Multi-page Editor"
-			extensions="xml"
+			extensions="json"
 			class="com.windhoverlabs.cfside.ui.editors.CFSMultiPageEditor"
 			contributorClass="com.windhoverlabs.cfside.ui.editors.CFSMultiPageEditorContributor">
 		</editor>
@@ -261,12 +261,6 @@ BUTION EXTENSIONS -->
 			id="com.windhoverlabs.cfside.ui.views.errorViewer"
 			name="Problems">
 		</view>
-  <view
-        class="org.eclipse.ui.navigator.CommonNavigator"
-        icon="icons/sample.png"
-        id="com.windhoverlabs.cfside.navigator"
-        name="CFS Project Navigator">
-  </view>
 	</extension>
 
 

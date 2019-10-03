@@ -10,7 +10,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 public class AllProjectTreeComposite extends Composite {
@@ -43,7 +42,6 @@ public class AllProjectTreeComposite extends Composite {
 		
 		setLayout(stackLayout);
 		stackLayout.topControl = projectCompositeNames.get(projectArray[0]);
-
 	}
 	
 	public void changeControl(String project) {

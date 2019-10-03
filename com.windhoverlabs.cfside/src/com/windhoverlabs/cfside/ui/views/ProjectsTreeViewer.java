@@ -1,55 +1,30 @@
 package com.windhoverlabs.cfside.ui.views;
 
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.part.ViewPart;
 
-import com.windhoverlabs.cfside.ui.composites.StackedTreeViewers;
-
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.layout.RowData;
 
 public class ProjectsTreeViewer extends ViewPart {
 	
 	public static final String ID = "com.windhoverlabs.cfside.ui.views.projectTreeViewer";
 
 	private List<String> projectList = new ArrayList<String>();
-	private List<Composite> openedProjects = new ArrayList<Composite>();
-	private Map<String, SingleProjectTreeViewer> projectCompositeNames = new HashMap<String, SingleProjectTreeViewer>();
-	private Map<Composite, GridData> gridData = new HashMap<Composite, GridData>();
-	private SingleProjectTreeViewer[] projectComposites;
-	
 	private String[] projectArray;
 	private String currentProjectSelected;
-	private StackedTreeViewers stackofTrees;
 	
 	SingleProjectTreeViewer currentProject;
 		
@@ -64,7 +39,6 @@ public class ProjectsTreeViewer extends ViewPart {
 
 	private void setProjectSelectDropDown(Composite parent) {
 		
-		int countOfProjects = projectList.size();
 		//Drop-Down Composite - Creates
 		Combo projectCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
 		GridLayout gridLayout = new GridLayout();
@@ -112,48 +86,6 @@ public class ProjectsTreeViewer extends ViewPart {
 		    System.out.println("Tree Was Created)");
 	}
 	
-	private void changeProjectTree(String project, Composite composite) {
-		
-		SingleProjectTreeViewer temp = projectCompositeNames.get(project);
-		StackLayout layout = (StackLayout) composite.getLayout();
-		layout.topControl = temp;
-		composite.layout();
-		/**
-		for (int i = 0; i < projectList.size(); ++i) {
-			SingleProjectTreeViewer temp = projectCompositeNames.get(project);
-			System.out.println(temp.toString());
-			if (temp.projectName.equals(project)) {
-				System.out.println(temp.projectName);
-				StackLayout layout = (StackLayout) composite.getLayout();
-				layout.topControl = projectComposites[i];
-				composite.layout();
-			}
-		}
-		**/
-	}
-	
-	private void hideProjectTree(String project, Composite parent) {
-		if (projectCompositeNames.containsKey(project)) {
-			Composite composite = (Composite) projectCompositeNames.get(project);
-			GridData gd = (GridData) gridData.get(composite);
-			gd.exclude = !gd.exclude;
-			composite.setVisible(!gd.exclude);			
-			parent.pack();
-			parent.layout(true);
-
-		}
-	}
-	
-	private void revealProject(String project, Composite parent, StackLayout stack) {
-		if (projectCompositeNames.containsKey(project)) {
-			Composite composite = (Composite) projectCompositeNames.get(project);
-			GridData gd = (GridData) gridData.get(composite);
-	
-			parent.pack();
-			parent.layout(true);
-		}
-	}
-
 	private void setProjectList() {
 		IProject projects[] = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		for (IProject project : projects) {	
@@ -167,8 +99,6 @@ public class ProjectsTreeViewer extends ViewPart {
 	
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
 		
 	}
-
 }

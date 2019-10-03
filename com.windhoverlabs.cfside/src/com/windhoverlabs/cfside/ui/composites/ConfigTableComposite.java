@@ -3,44 +3,28 @@ package com.windhoverlabs.cfside.ui.composites;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.ui.part.ViewPart;
 
 import com.windhoverlabs.cfside.model.Message;
-import com.windhoverlabs.cfside.model.MessageConfigs;
 
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Label;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.layout.FillLayout;
-import swing2swt.layout.FlowLayout;
-import swing2swt.layout.BoxLayout;
 
 public class ConfigTableComposite extends Composite {
-	private static class ContentProvider implements IStructuredContentProvider {
-		public Object[] getElements(Object inputElement) {
-			return new Object[0];
-		}
-		public void dispose() {
-		}
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		}
-	}
+
 
 	private TableViewer viewer;
+	
 	/**
 	 * Create the composite.
 	 * @param parent
@@ -52,7 +36,6 @@ public class ConfigTableComposite extends Composite {
 		createViewer();
 		viewer.refresh();
 	}
-
 	
 	public void createViewer() {
 		
