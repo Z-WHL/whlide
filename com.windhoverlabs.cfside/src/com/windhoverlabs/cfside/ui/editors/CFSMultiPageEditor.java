@@ -28,9 +28,10 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
-import com.windhoverlabs.cfside.ui.composites.ConfigTableComposite;
+import com.google.gson.JsonElement;
 import com.windhoverlabs.cfside.ui.trees.ConfigComposite;
 import com.windhoverlabs.cfside.utils.FileUtils;
+import com.windhoverlabs.cfside.utils.JsonObjectsUtil;
 
 /**
  * An example showing how to create a multi-page editor.
@@ -87,11 +88,13 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 * which allows you to change the font used in page 2.
 	 */
 	private void createPage1() {
-		final Composite composite = new Composite(getContainer(), SWT.NONE);
+		final Composite composite = new Composite(getContainer(), SWT.FILL);
 		FillLayout fl = new FillLayout(SWT.HORIZONTAL);
 		composite.setLayout(fl);
 	
-		final ConfigComposite body = new ConfigComposite(composite, SWT.NONE, pathName);
+		JsonElement mergedJsonElement = JsonObjectsUtil.goMerge(new File(pathName));
+		
+		final ConfigComposite body = new ConfigComposite(composite, SWT.FILL, mergedJsonElement);
 		body.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		int index = addPage(composite);
@@ -103,12 +106,15 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 * which shows the sorted text.
 	 */
 	private void createPage2() {
-		Composite composite = new Composite(getContainer(), SWT.FILL);
-		ConfigTableComposite table = new ConfigTableComposite(composite, SWT.FILL);
-		FillLayout fl = new FillLayout();
-		composite.setLayout(fl);
+		final Composite composite2 = new Composite(getContainer(), SWT.FILL);
+		FillLayout fl = new FillLayout(SWT.HORIZONTAL);
+		composite2.setLayout(fl);
+	
+		// Build you custom composite here
+		// Example ex1 = new Example(composite2, style, etc...)
 		
-		int index = addPage(composite);
+		
+		int index = addPage(composite2);
 		setPageText(index, "Table2");
 	}
 	/**
@@ -175,7 +181,6 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	protected void pageChange(int newPageIndex) {
 		super.pageChange(newPageIndex);
 		if (newPageIndex == 2) {
-			saveInfo("hi", "ok");
 		}
 	}
 	/**

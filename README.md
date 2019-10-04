@@ -99,7 +99,7 @@ Build Plugin :
         Browse and choose the whlplugin git repo or anywhere else.
         Optional : Push whlplugin git repo
 
-Required Plugins : 
+Plugins : 
 NatTable
     Help --> Install New Software...
     Add site  http://download.eclipse.org/nattable/releases/1.5.0/repository/ (1.5 or newest)
@@ -108,3 +108,27 @@ Gson jar
 https://repo1.maven.org/maven2/com/google/code/gson/gson/2.8.5/
 Download and add jar to build path.
 Right click project --> build path --> configure --> add library --> choose jar
+
+WindowBuilder
+WindowBuilder XWT Support
+
+
+Error during plugin test run
+Validation : The following problems were detected:
+    org.eclipse.epp.logging.aeri.ide
+
+Solutions : 
+    1) Remove the bugged plugin from run configurations
+        Right Click plugin project --> Run as --> Run configurations
+        Click Plug-ins tab
+        Change Launch "all workspace and enabled target plug-ins" to "plug-ins selected below only"
+        Search org.eclipse.epp.logging
+        Uncheck the plugin "org.eclipse.epp.logging.aeri.ide (2.0.7.v20180504-0806)"
+        All plugin's should still be marked.
+    
+OR 
+    Not recommended
+    2) Turn off validate plug-ins automatically prior to launching
+        Right click plugin project --> Run as --> Run configurations
+        Click Plug-ins tab
+        Uncheck Validate Plug-ins automatically prior to launching

@@ -26,8 +26,9 @@ public class KeyValueTable extends Composite {
 	
 	public KeyValueTable(Composite parent, int style, JsonElement jsonObject) {
 		super(parent, style);
-		setLayout(new FillLayout(SWT.HORIZONTAL));
 		createTable(jsonObject);
+		setLayout(new FillLayout(SWT.HORIZONTAL));
+		
 		tableViewer.refresh();
 	}
 	
