@@ -120,16 +120,12 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 * which allows you to change the font used in page 2.
 	 */
 	private void createPage1() {
-		final CfsConfigTree composite = new CfsConfigTree(getContainer(), SWT.FILL);
-		//FillLayout fl = new FillLayout(SWT.HORIZONTAL);
-		//composite.setLayout(fl);
-	
-		//JsonElement mergedJsonElement = JsonObjectsUtil.goMerge(new File(pathName));
 		
-		//final ConfigComposite body = new ConfigComposite(composite, SWT.FILL, mergedJsonElement);
-		//body.setLayout(new FillLayout(SWT.HORIZONTAL));
+		JsonElement mergedJsonElement = JsonObjectsUtil.goMerge(new File(pathName));
 		
-		int index = addPage(composite);
+		final ConfigComposite body = new ConfigComposite(getContainer(), SWT.FILL, mergedJsonElement);
+		
+		int index = addPage(body);
 		setPageText(index, "Table1");
 	}
 
@@ -144,7 +140,6 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	
 		// Build you custom composite here
 		// Example ex1 = new Example(composite2, style, etc...)
-		
 		
 		int index = addPage(composite2);
 		setPageText(index, "Table2");
