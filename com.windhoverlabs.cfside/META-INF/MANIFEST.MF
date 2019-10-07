@@ -24,7 +24,10 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.113.0",
  org.eclipse.e4.ui.di;bundle-version="1.2.600",
  org.eclipse.equinox.event;bundle-version="1.5.100",
  org.eclipse.swt,
- org.eclipse.ui.forms;bundle-version="3.8.0"
+ org.eclipse.ui.forms;bundle-version="3.8.0",
+ org.eclipse.wb.swt;bundle-version="1.9.1",
+ org.eclipse.wb.swt.widgets.baseline;bundle-version="1.9.1",
+ org.eclipse.wb.core;bundle-version="1.10.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: com.windhoverlabs.cfside
 Bundle-ActivationPolicy: lazy

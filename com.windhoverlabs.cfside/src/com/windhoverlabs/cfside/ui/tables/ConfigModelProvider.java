@@ -1,0 +1,34 @@
+package com.windhoverlabs.cfside.ui.tables;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.windhoverlabs.cfside.ui.trees.NamedObject;
+
+public class ConfigModelProvider {
+	
+	private List<NamedObject> jsonElements;
+	
+	
+	public ConfigModelProvider(JsonElement json) {
+		jsonElements = new ArrayList<NamedObject>();
+		for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
+				if (entry.getValue().isJsonObject()) {
+					JsonElement tempJe = entry.getValue();
+					JsonObject tempJo = tempJe.getAsJsonObject();
+					
+					NamedObject toAdd = new NamedObject();
+					toAdd.setName(entry.getKey());
+					toAdd.setObject(tempJo);
+					jsonElements.add(toAdd);
+			}
+		}
+	}
+	
+	public List<NamedObject> getJsons() {
+		return jsonElements;
+	}
+}

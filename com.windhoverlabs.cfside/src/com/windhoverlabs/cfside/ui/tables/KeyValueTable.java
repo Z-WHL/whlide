@@ -26,13 +26,13 @@ public class KeyValueTable extends Composite {
 	
 	public KeyValueTable(Composite parent, int style, JsonElement jsonObject) {
 		super(parent, style);
-		createTable(jsonObject);
+		createTable(jsonObject, parent);
 		setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		tableViewer.refresh();
 	}
 	
-	public void createTable(JsonElement jsonEle) {
+	public void createTable(JsonElement jsonEle, Composite parent) {
 		JsonObject currentObject = jsonEle.getAsJsonObject();
 		for (Map.Entry<String, JsonElement> entry : currentObject.entrySet()) {
 			if (!entry.getValue().isJsonObject()) {

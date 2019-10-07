@@ -28,10 +28,19 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
+import java.util.*;
+
+import com.google.gson.JsonObject;
 import com.google.gson.JsonElement;
-import com.windhoverlabs.cfside.ui.trees.ConfigComposite;
+import com.windhoverlabs.cfside.ui.trees.CfsConfigTree;
 import com.windhoverlabs.cfside.utils.FileUtils;
 import com.windhoverlabs.cfside.utils.JsonObjectsUtil;
+
+import com.windhoverlabs.cfside.ui.editors.CfeConfigEditor;
+import com.windhoverlabs.cfside.ui.editors.ModuleConfigEditor;
+
+import com.windhoverlabs.cfside.ui.trees.JsonContentProvider;
+import com.windhoverlabs.cfside.ui.trees.JsonLabelProvider;
 
 /**
  * An example showing how to create a multi-page editor.
@@ -60,6 +69,28 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		super();
 		
 	}
+
+	/**
+	 * Add the CFE page of the multi-page editor.
+	 */
+	private void addCFEPage() {
+		final CfeConfigEditor composite = new CfeConfigEditor(getContainer(), SWT.FILL);
+		
+		int index = addPage(composite);
+		setPageText(index, "Core");
+	}
+
+	/**
+	 * Add the CFE page of the multi-page editor.
+	 */
+	private void addModulePage(String name, JsonObject moduleConfig, JsonObject fullConfig) {
+		final ModuleConfigEditor composite = new ModuleConfigEditor(getContainer(), SWT.FILL, moduleConfig, fullConfig);
+		
+		int index = addPage(composite);
+		setPageText(index, name);
+	}
+	
+	
 	/**
 	 * Creates page 0 of the multi-page editor,
 	 * which contains a text editor.
@@ -91,7 +122,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		
 		JsonElement mergedJsonElement = JsonObjectsUtil.goMerge(new File(pathName));
 		
-		final ConfigComposite body = new ConfigComposite(getContainer(), SWT.FILL, mergedJsonElement);
+		final Composite body = new Composite(getContainer(), SWT.FILL);
 		
 		int index = addPage(body);
 		setPageText(index, "Table1");
@@ -116,6 +147,50 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 * Creates the pages of the multi-page editor.
 	 */
 	protected void createPages() {
+		/* Collapse the configuration into a single object. */
+		IEditorInput editorInput = getEditorInput();
+		IPathEditorInput path = (IPathEditorInput) editorInput;
+		File f = new File(path.getPath().toOSString());
+		pathName = f.getAbsolutePath();
+        JsonObject config = JsonObjectsUtil.goMerge(new File(pathName));
+        
+        /* Add the CFE page. */
+		addCFEPage();
+        
+		/* Iterate through the modules and add pages for them. */
+        JsonObject modules = config.get("modules").getAsJsonObject();        
+        for (Map.Entry<String,JsonElement> entry : modules.entrySet()) {
+        	String moduleKey = entry.getKey();
+        	String moduleName = moduleKey.toUpperCase();
+        	JsonObject module = modules.get(moduleKey).getAsJsonObject();
+        	
+        	addModulePage(moduleKey, module, config);
+        } 
+        
+        //config.get(memberName)
+        
+        
+        
+        
+        
+        //System.out.print(config);
+        
+        
+        
+		
+		/* Now iterate through the modules and create their configuration page. */
+		//System.out.print(mergedJsonElement);
+
+		//final CfsConfigTree composite = new CfsConfigTree(getContainer(), SWT.FILL);
+		//FillLayout fl = new FillLayout(SWT.HORIZONTAL);
+		//composite.setLayout(fl);
+	
+		//JsonElement mergedJsonElement = JsonObjectsUtil.goMerge(new File(pathName));
+		
+		//final ConfigComposite body = new ConfigComposite(composite, SWT.FILL, mergedJsonElement);
+		//body.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
+		//addModulePage();
 		createPage0();
 		createPage1();
 		createPage2();
@@ -207,7 +282,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		data.append("\r\n");
 		String str = data.toString();
 		
-		System.out.println(str);
+		//System.out.println(str);
 		FileUtils.writeToRoot("someinfo.txt", str);
 	}
 }
