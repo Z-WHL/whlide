@@ -60,14 +60,14 @@ public class ProjectsTreeViewer extends ViewPart {
 				if (currentProjectSelected == null) {
 					currentProjectSelected = combo.getText();
 					createNewTreeViewer(currentProjectSelected, parent);
-					System.out.println("No currentProject");
+					//System.out.println("No currentProject");
 				} else {
 					currentProject.setNewProject(combo.getText());
-					System.out.println(parent.toString());
-					System.out.println(currentProject.toString());
+					//System.out.println(parent.toString());
+					//System.out.println(currentProject.toString());
 					currentProjectSelected = combo.getText();
 					//createNewTreeViewer(currentProjectSelected, parent, false);
-					System.out.println("currentProject");
+					//System.out.println("currentProject");
 				}				
 			}
 		};		
@@ -83,7 +83,7 @@ public class ProjectsTreeViewer extends ViewPart {
 			
 			currentProject.setLayout(new FillLayout());
 			parent.pack();
-		    System.out.println("Tree Was Created)");
+		    //System.out.println("Tree Was Created)");
 	}
 	
 	private void setProjectList() {
@@ -92,8 +92,8 @@ public class ProjectsTreeViewer extends ViewPart {
 			projectList.add(project.getName());
 		}
 		projectArray = projectList.parallelStream().toArray(String[]::new);
-		System.out.println(projectList.toString());
-		System.out.println(projectArray);
+		//System.out.println(projectList.toString());
+		//System.out.println(projectArray);
 
 	}
 	

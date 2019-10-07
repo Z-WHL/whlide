@@ -31,7 +31,7 @@ public class JsonObjectsUtil {
 	static Gson gson = new Gson();
 	static JsonParser jp = new JsonParser();
 	
-	public static JsonElement goMerge(File pathToConfig) {
+	public static JsonObject goMerge(File pathToConfig) {
 		//Load file into reader.
 		Reader rd = null;
 		try {
@@ -78,8 +78,8 @@ public class JsonObjectsUtil {
 		
 		localConfigElm = mergeParentConfig(localConfigElm, basePath, pathLocalConfig);
 		
-		System.out.println(beautifyJson(localConfigElm.toString()));
-		return localConfigElm;
+		//System.out.println(beautifyJson(localConfigElm.toString()));
+		return localConfigElm.getAsJsonObject();
 		
 	}
 	
@@ -144,9 +144,9 @@ public class JsonObjectsUtil {
 		String module = "sch";
 		JsonObject base = JsonObjectsUtil.createSkeletonConfig(module);
 		JsonObject objA = JsonObjectsUtil.createJsonObjectFromFile(pathA);
-		System.out.println(objA.toString());
+		//System.out.println(objA.toString());
 		JsonObject objB = JsonObjectsUtil.createJsonObjectFromFile(pathb);
-		System.out.println(objB.toString());
+		//System.out.println(objB.toString());
 		
 		JsonObject module1 = objA.get("modules").getAsJsonObject();
 		JsonObject moduleObj = module1.get(module).getAsJsonObject();
@@ -159,7 +159,7 @@ public class JsonObjectsUtil {
 		base.add(module, objB);
 		JsonObject ret = new JsonObject();
 		ret.add("modules", base);
-		System.out.println(ret.toString());
+		//System.out.println(ret.toString());
 		if (!JsonObjectsUtil.writeToFile(pathSaved, ret)) return false;
 		
 		return true;
@@ -170,9 +170,9 @@ public class JsonObjectsUtil {
 		String module = "sch";
 		JsonObject base = JsonObjectsUtil.createSkeletonConfig(module);
 		JsonObject objA = JsonObjectsUtil.createJsonObjectFromFile(pathA);
-		System.out.println(objA.toString());
+		//System.out.println(objA.toString());
 		JsonObject objB = JsonObjectsUtil.createJsonObjectFromFile(pathb);
-		System.out.println(objB.toString());
+		//System.out.println(objB.toString());
 		
 		JsonObject module1 = objA.get("modules").getAsJsonObject();
 		JsonObject moduleObj = module1.get(module).getAsJsonObject();
@@ -184,7 +184,7 @@ public class JsonObjectsUtil {
 		base.add(module, objB);
 		JsonObject ret = new JsonObject();
 		ret.add("modules", base);
-		System.out.println(ret.toString());
+		//System.out.println(ret.toString());
 		JsonObjectsUtil.writeToFile(pathSaved, ret);
 		
 		return ret.getAsString();

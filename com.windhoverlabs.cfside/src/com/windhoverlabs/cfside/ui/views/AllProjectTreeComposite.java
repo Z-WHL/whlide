@@ -37,7 +37,7 @@ public class AllProjectTreeComposite extends Composite {
 			SingleProjectTreeViewer comp = new SingleProjectTreeViewer(compoTree, SWT.FILL, projectList.get(i));
 			comp.setLayoutData(tempGridData);
 			projectCompositeNames.put(projectList.get(i), compoTree);
-			System.out.println(projectList.get(i) + " created.");
+			//System.out.println(projectList.get(i) + " created.");
 		}
 		
 		setLayout(stackLayout);
@@ -50,7 +50,7 @@ public class AllProjectTreeComposite extends Composite {
 		layout.topControl = temp;
 		setVisible(true);
 		this.layout();
-		System.out.println(stackLayout.topControl+"control");
+		//System.out.println(stackLayout.topControl+"control");
 	}
 
 }

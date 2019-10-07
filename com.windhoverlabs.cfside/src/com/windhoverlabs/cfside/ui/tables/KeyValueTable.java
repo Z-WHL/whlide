@@ -37,11 +37,11 @@ public class KeyValueTable extends Composite {
 		for (Map.Entry<String, JsonElement> entry : currentObject.entrySet()) {
 			if (!entry.getValue().isJsonObject()) {
 				keyValueEntries.add(new KeyValueEntry(entry.getKey(), entry.getValue().getAsString()));
-				System.out.println(entry.toString());
+				//System.out.println(entry.toString());
 			}
 		}
 		
-		System.out.println(keyValueEntries.toString());
+		//System.out.println(keyValueEntries.toString());
 		
 		tableViewer = new TableViewer(this, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		tableViewer.setContentProvider(new KeyValueContentProvider());
@@ -63,7 +63,7 @@ public class KeyValueTable extends Composite {
 		for (Map.Entry<String, JsonElement> entry : asJsonObject.entrySet()) {
 			if (!entry.getValue().isJsonObject()) {
 				keyValueEntries.add(new KeyValueEntry(entry.getKey(), entry.getValue().getAsString()));
-				System.out.println(entry.toString());
+				//System.out.println(entry.toString());
 			}
 		}
 		

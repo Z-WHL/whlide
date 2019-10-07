@@ -30,8 +30,8 @@ public class StackedTreeViewers extends Composite {
 		
 		projectArray = projectList.parallelStream().toArray(String[]::new);
 
-		System.out.println(projectList.toString());
-		System.out.println(projectArray);
+		//System.out.println(projectList.toString());
+		//System.out.println(projectArray);
 		
 		layout = new StackLayout();
 		parent.setLayout(layout);

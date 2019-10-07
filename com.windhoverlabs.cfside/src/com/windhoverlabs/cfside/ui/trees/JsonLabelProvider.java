@@ -1,22 +1,40 @@
 package com.windhoverlabs.cfside.ui.trees;
 
 import org.eclipse.jface.viewers.BaseLabelProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.graphics.Image;
 
-public class JsonLabelProvider extends BaseLabelProvider implements ITableLabelProvider {
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
+
+public class JsonLabelProvider extends BaseLabelProvider implements ILabelProvider {
 
 	@Override
-	public Image getColumnImage(Object element, int columnIndex) {
+	public Image getImage(Object element) {
 		return null;
 	}
-	
+
 	@Override
-	public String getColumnText(Object element, int columnIndex) {
-		if (columnIndex == 0) {
-			return ((IJsonTreeNode) element).getName();
+	public String getText(Object element) {
+		NamedObject namedObject = (NamedObject) element;
+		JsonElement jsonElem = (JsonElement) namedObject.getObject();
+		String name = namedObject.getName();
+		
+		if(jsonElem.isJsonArray()) {
+			JsonArray jsonArray = (JsonArray) jsonElem.getAsJsonArray();
+			
+			return name;
+		} else if(jsonElem.isJsonObject() ) {
+			JsonObject jsonObject = (JsonObject) jsonElem.getAsJsonObject();
+			
+			return name;
+		} else if(jsonElem.isJsonNull() ) {
+			return "<NULL>";
+		} else if(jsonElem.isJsonPrimitive() ) {
+			return name;
 		} else {
-			return Integer.toString(((IJsonTreeNode) element).getChildren().size());
+			return "<UNKNOWN>";
 		}
 	}
 }

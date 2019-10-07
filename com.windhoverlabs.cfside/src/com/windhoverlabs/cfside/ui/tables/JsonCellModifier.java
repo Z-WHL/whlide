@@ -51,7 +51,7 @@ public class JsonCellModifier implements ICellModifier {
 	// Assume no validation.
 	public void modify(Object element, String property, Object value) {
 		int columnIndex = tableViewerInstance.getColumnNames().indexOf(property);
-		System.out.println("columnIndex" + columnIndex);
+		//System.out.println("columnIndex" + columnIndex);
 		TableItem item = (TableItem) element;
 		SingleJsonObject jsonObj = (SingleJsonObject) item.getData();
 		String valueString;
@@ -67,8 +67,8 @@ public class JsonCellModifier implements ICellModifier {
 					if (counter == columnIndex) {
 						valueString = entry.getValue().getAsString().trim();
 						object.addProperty(entry.getKey(), valueString);
-						System.out.println("valueString"+valueString);
-						System.out.println("key"+entry.getKey());
+						//System.out.println("valueString"+valueString);
+						//System.out.println("key"+entry.getKey());
 
 						break;
 					} else {

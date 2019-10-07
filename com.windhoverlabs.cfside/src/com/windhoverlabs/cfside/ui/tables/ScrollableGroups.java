@@ -112,7 +112,7 @@ public class ScrollableGroups extends Composite {
 		tableViewer.setColumnProperties(strarray);
 		
 		List<String> columns = getColumnNames();
-		System.out.println(columns.toString());
+		//System.out.println(columns.toString());
 		CellEditor[] editors = new CellEditor[columns.size()];
 		
 		// This is also where we can add verify listeners. For now, no verification	
@@ -157,13 +157,13 @@ public class ScrollableGroups extends Composite {
 		
 		if (properties.length > 0) {
 			col = createTableViewerColumn(properties[0], 150, 1, groupLabel);
-			System.out.println(properties.length + "properties length");
+			//System.out.println(properties.length + "properties length");
 			col.setLabelProvider(new ColumnLabelProvider() {
 				@Override
 				public String getText(Object element) {
 					SingleJsonObject singleJsonObject = (SingleJsonObject) element;
-					System.out.println(singleJsonObject.toString());
-					System.out.println(singleJsonObject.getJsonObject().toString());
+					//System.out.println(singleJsonObject.toString());
+					//System.out.println(singleJsonObject.getJsonObject().toString());
 					for (Map.Entry<String, JsonElement> ent : singleJsonObject.getJsonObject().entrySet()) {
 						if (!ent.getValue().isJsonObject()) {
 							return ent.getValue().getAsString();
@@ -358,7 +358,7 @@ public class ScrollableGroups extends Composite {
 		if (!selectedGroup.contains("Label")) {
 			selectedGroup.add(0, "Label");
 		}
-		System.out.println(selectedGroup.toString());
+		//System.out.println(selectedGroup.toString());
 		return selectedGroup;
 	}
 	

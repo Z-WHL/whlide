@@ -47,7 +47,7 @@ public class SingleProjectTreeViewer extends Composite {
 		currentProj = ws.getRoot().getProject(name);
 		
 		String pa = currentProj.getLocation().toString();
-		System.out.println(pa);
+		//System.out.println(pa);
 		projectName = name;
 		tree = new Tree(parent, SWT.MULTI);
 		tree.setHeaderVisible(true);
@@ -80,7 +80,7 @@ public class SingleProjectTreeViewer extends Composite {
 							"File " + tn.getName() + " has been double-clicked on. Full Path : " + tn.getFullName() + " relative name : " + tn.getRelativeName());
 			
 					String pathStr = tn.getRelativeName();
-					System.out.println(pathStr);
+					//System.out.println(pathStr);
 					
 					String aa = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
 					String path = tn.getFullName().substring(aa.length()+projectName.length()+2);
