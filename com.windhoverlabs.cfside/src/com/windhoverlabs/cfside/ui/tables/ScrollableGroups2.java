@@ -2,10 +2,8 @@ package com.windhoverlabs.cfside.ui.tables;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
@@ -39,7 +37,7 @@ public class ScrollableGroups2 extends Composite {
 	String currentGroup;
 	Table jsonTable;
 	TableViewer viewer;
-	Set<String> currentGroupLabels = new HashSet<String>();
+	List<String> currentGroupLabels = new ArrayList<String>();
 	
 	public ScrollableGroups2(Composite scrollableHolder, int style, JsonElement current, String currentConfigName) {
 		super(scrollableHolder, style);
@@ -48,18 +46,7 @@ public class ScrollableGroups2 extends Composite {
 		int countOfTables = commonGroups.size();
 		this.currentGroup = currentConfigName;
 		createViewer(scrollableHolder, current);
-		setLayout(new FillLayout(SWT.HORIZONTAL));
-
-		/**
-		commonGroups.forEach((groupLabel, jsonObject) -> {
-			createTable(groupLabel, jsonObject);
-		});
-		
-		tableViewerMaps.forEach((label, viewer) -> {
-			viewer.refresh();
-		});
-		**/
-		
+		setLayout(new FillLayout(SWT.HORIZONTAL));	
 	}
 	
 	private void createViewer(Composite parent, JsonElement current) {
@@ -78,31 +65,49 @@ public class ScrollableGroups2 extends Composite {
 	}
 	
 	private void createColumns(final Composite parent, final TableViewer viewer) {
-		TableViewerColumn col = createTableViewerColumn("Key", 150, 0);
+		TableViewerColumn col = createTableViewerColumn("Label", 150, 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				return ((NamedObject) element).getName();
 			}
 		});
+		col.setEditingSupport(new GenericColumnEditingSupport(viewer, 0, "Label"));
 		
+		if (currentGroupLabels.size() > 0) {
+			col = createTableViewerColumn(currentGroupLabels.get(0), 150, 1);
+			col.setLabelProvider(new ColumnLabelProvider() {
+				@Override
+				public String getText(Object element) {
+					NamedObject namedObj = (NamedObject) element;
+					JsonObject jsonOjbect = (JsonObject) namedObj.getObject();
+					for (Map.Entry<String, JsonElement> ent : jsonOjbect.entrySet()) {
+						if (!ent.getValue().isJsonObject()) {
+							return ent.getValue().getAsString();
+						}
+					}
+					return null;
+				}
+			});
+			col.setEditingSupport(new GenericColumnEditingSupport(viewer, 1, currentGroupLabels.get(0)));
+		}
 		
-		
-		
-	}
-	
-	private void addFirstColumn(TableViewerColumn col, String title, int bound, final int colNum, String groupLabel) {
-		
+		if (currentGroupLabels.size() > 1) {
+			for (int j = 1; j < currentGroupLabels.size(); j++) {
+				addColumn(col, currentGroupLabels.get(j), 150, j);
+			}
+		}
 	}
 	
 	private void addColumn(TableViewerColumn col, String title, int bound, final int colNum) {
-		col = createTableViewerColumn(title, bound, colNum, groupLabel);
+		col = createTableViewerColumn(title, bound, colNum);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				int tempCounter = 0;
-				SingleJsonObject singleJsonObject = (SingleJsonObject) element;
-				for (Map.Entry<String, JsonElement> entry : singleJsonObject.getJsonObject().entrySet()) {
+				NamedObject namedObj = (NamedObject) element;
+				JsonObject singleJsonObject = (JsonObject) namedObj.getObject();
+				for (Map.Entry<String, JsonElement> entry : singleJsonObject.entrySet()) {
 					if (!entry.getValue().isJsonObject()) {
 						if (tempCounter != colNum) {
 							tempCounter++;
@@ -114,11 +119,11 @@ public class ScrollableGroups2 extends Composite {
 				return null;
 			}
 		});
+		col.setEditingSupport(new GenericColumnEditingSupport(viewer, colNum, title));
 	}
 	
 	private TableViewerColumn createTableViewerColumn(String title, int bound, final int colNum) {
-		TableViewer temp = tableViewerMaps.get(groupLabel);
-		final TableViewerColumn viewerColumn = new TableViewerColumn(temp, SWT.NONE);
+		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
 		final TableColumn column = viewerColumn.getColumn();
 		column.setText(title);
 		column.setWidth(bound);
@@ -129,78 +134,7 @@ public class ScrollableGroups2 extends Composite {
 	
 	
 	
-	
-	private void goCreate(Composite composite, String groupLabel, JsonObject currentObject) {
-		
-		createTable(this, groupLabel, currentObject);
-		
-		//TableViewer temp = new TableViewer(this, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL |SWT.FULL_SELECTION);
-		//tableViewerMaps.put(groupLabel, temp);
-		
-		
-		createTableViewer();
-		/**
-		Table table = temp.getTable();
-		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
-		
-		createColumns(this, temp, groupLabel);
-	**/
-		
-		
-		tableViewer.setContentProvider(new JsonTableContentProvider());
-		tableViewer.setLabelProvider(new JsonLabelProvider());
-		jsonList = new GroupedJsonList(currentObject, groupLabel);
-		tableViewer.setInput(jsonList);
-		
-		tableMaps.put(groupLabel, jsonTable);
-		
-		tableViewer.refresh();
-	}
-	
-	private void createTable(Composite composite, String groupLabel, JsonObject currentObject) {
-		jsonTable = new Table(this, SWT.NONE);
-		jsonTable.setHeaderVisible(true);
-		jsonTable.setLinesVisible(true);
-		
-		TableColumn column = new TableColumn(jsonTable, SWT.LEFT, 0);
-		column.setText("Label");
-		column.setWidth(150);
-		
-		List<String> columns = getColumnNames();
-		for (int i = 1; i < columns.size(); i++) {
-			column = new TableColumn(jsonTable, SWT.LEFT, i);
-			column.setText(columns.get(i));
-			column.setWidth(150);
-		}
-	}
-	
-	private void createTableViewer() {
-		tableViewer = new TableViewer(jsonTable);
-		Object[] obj = getColumnNames().toArray();
-		String[] strarray = new String[obj.length];
-		for (int i = 0; i < obj.length; i++) {
-			strarray[i] = (String) obj[i];
-		}
-		
-		tableViewer.setColumnProperties(strarray);
-		
-		List<String> columns = getColumnNames();
-		System.out.println(columns.toString());
-		CellEditor[] editors = new CellEditor[columns.size()];
-		
-		// This is also where we can add verify listeners. For now, no verification	
-		for (int i = 0; i < columns.size(); i++) {
-			TextCellEditor textEditor = new TextCellEditor(jsonTable);
-			((Text) textEditor.getControl()).setTextLimit(150);
-			editors[i] = textEditor;
-		}
-		
-		tableViewer.setCellEditors(editors);
-		JsonCellModifier mod = new JsonCellModifier(this);
-		tableViewer.setCellModifier(mod);	
-		tableViewerMaps.put(currentGroup, tableViewer);
-	}
+
 	
 	private ArrayList<SingleJsonObject> createSingleJsonObjectList(JsonObject currentObject) {
 		ArrayList<SingleJsonObject> list = new ArrayList<SingleJsonObject>();
@@ -289,18 +223,18 @@ public class ScrollableGroups2 extends Composite {
 
 		@Override
 		public void addConfig(SingleJsonObject singleObject) {
-			tableViewer.add(singleObject);
+			viewer.add(singleObject);
 		}
 
 		@Override
 		public void removeConfig(SingleJsonObject singleObject) {
-			tableViewer.remove(singleObject);			
+			viewer.remove(singleObject);			
 		}
 
 		@Override
 		public void updateConfig(SingleJsonObject singleObject) {
-			tableViewer.update(singleObject, null);		
-			tableViewer.refresh();
+			viewer.update(singleObject, null);		
+			viewer.refresh();
 		}
 	}
 	

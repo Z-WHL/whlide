@@ -41,6 +41,9 @@ public class JsonContentProvider implements ITreeContentProvider {
 		        	outNamedObject.setName(entry.getKey());
 		        	outNamedObject.setObject(entry.getValue());
 		        	outArray[i] = outNamedObject;
+		        	if (i % 3 == 0) {
+		        		outNamedObject.setOverritten(true);
+		        	}
 		        	i = i + 1;
 		        } 
 				
@@ -84,6 +87,9 @@ public class JsonContentProvider implements ITreeContentProvider {
 		        	outNamedObject.setObject(entry.getValue());
 		        	
 		        	outArray[i] = outNamedObject;
+		        	if (i % 3 == 0) {
+		        		outNamedObject.setOverritten(true);
+		        	}
 		        	i = i + 1;
 		        } 
 				

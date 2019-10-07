@@ -5,6 +5,15 @@ public class NamedObject {
 	
 	private String name;
 	private Object object;
+	private boolean overwritten;
+	
+	public void setOverritten(boolean input) {
+		this.overwritten = input;
+	}
+	
+	public boolean getOverwritten() {
+		return this.overwritten;
+	}
 	
 	public void setName(String name) {
 		this.name = name;

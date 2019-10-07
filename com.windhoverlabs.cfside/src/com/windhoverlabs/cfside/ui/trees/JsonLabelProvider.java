@@ -1,14 +1,24 @@
 package com.windhoverlabs.cfside.ui.trees;
 
-import org.eclipse.jface.viewers.BaseLabelProvider;
+import org.eclipse.jface.viewers.DecoratingLabelProvider;
+import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ITableColorProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonArray;
 
-public class JsonLabelProvider extends BaseLabelProvider implements ILabelProvider {
+public class JsonLabelProvider extends LabelProvider implements ILabelProvider, ITableColorProvider {
+	
+	ILabelProvider provider;
+	ILabelDecorator decorator;
+	
 
 	@Override
 	public Image getImage(Object element) {
@@ -36,5 +46,21 @@ public class JsonLabelProvider extends BaseLabelProvider implements ILabelProvid
 		} else {
 			return "<UNKNOWN>";
 		}
+		
+		
+	}
+
+	@Override
+	public Color getForeground(Object element, int columnIndex) {
+		return null;
+	}
+
+	@Override
+	public Color getBackground(Object element, int columnIndex) {
+		NamedObject namedObj = (NamedObject) element;
+		if (namedObj.getOverwritten()) {
+			return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+		}
+		return  Display.getCurrent().getSystemColor(SWT.COLOR_BLUE);
 	}
 }

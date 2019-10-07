@@ -48,7 +48,7 @@ public class ConfigTableComposite extends Composite {
 		
 		viewer = new TableViewer(this, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.NONE);
 
-		viewer.setContentProvider(new ConfigContentProvider());
+		///viewer.setContentProvider(new ConfigContentProvider());
 		viewer.setLabelProvider(new ConfigLabelProvider());
 		viewer.setInput(list);
 		

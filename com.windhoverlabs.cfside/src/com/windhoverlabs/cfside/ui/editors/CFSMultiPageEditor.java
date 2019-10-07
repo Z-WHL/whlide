@@ -167,16 +167,6 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
         	addModulePage(moduleKey, module, config);
         } 
         
-        //config.get(memberName)
-        
-        
-        
-        
-        
-        //System.out.print(config);
-        
-        
-        
 		
 		/* Now iterate through the modules and create their configuration page. */
 		//System.out.print(mergedJsonElement);
