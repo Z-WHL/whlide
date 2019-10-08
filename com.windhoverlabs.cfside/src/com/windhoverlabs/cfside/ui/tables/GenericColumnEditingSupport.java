@@ -78,7 +78,7 @@ public class GenericColumnEditingSupport extends EditingSupport {
 			ConfigTableEditor cf = (ConfigTableEditor) viewer.getTable().getParent().getParent();
 			cf.goDoSomeCoolSaving(namedObj);
 			System.out.println("This needs to happen Third!" + property + index +  jsonObject.toString()+ namedObj.getName());
-
+			System.out.println(namedObj.getPath());
 			viewer.update(namedObj, null);
 			viewer.refresh();
 			

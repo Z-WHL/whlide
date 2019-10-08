@@ -40,12 +40,12 @@ public class ScrollableGroups2 extends Composite {
 	CfsConfig cfsConfigPointer;
 	NamedObject namedObject;
 	
-	public ScrollableGroups2(Composite scrollableHolder, int style, JsonElement current , String currentConfigName) {
+	public ScrollableGroups2(Composite scrollableHolder, int style, JsonElement current , String currentConfigName, NamedObject namedObject) {
 		super(scrollableHolder, style);
 		//this.cfsConfigPointer = cfsConfig;
 		
 		if (current.isJsonObject()) {
-			
+			this.namedObject = namedObject;
 			doLabeling(currentConfigName, current.getAsJsonObject());
 			int countOfTables = commonGroups.size();
 			this.currentGroup = currentConfigName;
@@ -80,7 +80,7 @@ public class ScrollableGroups2 extends Composite {
 
 		viewer.setContentProvider(new ArrayContentProvider());
 		
-		viewer.setInput(new ConfigModelProvider(current.getAsJsonObject()).getJsons());
+		viewer.setInput(new ConfigModelProvider(current.getAsJsonObject(), namedObject).getJsons());
 		
 		
 		
@@ -142,7 +142,7 @@ public class ScrollableGroups2 extends Composite {
 						if (tempCounter != (colNum)) {
 							tempCounter++;
 						} else {
-							System.out.println("This needs to happen Fourth after getValue which is called after setvalue!!" + singleJsonObject.toString());
+							System.out.println("This needs to happen Fourth after getValue which is called after setvalue!!" + singleJsonObject.toString() + "\n" + namedObj.getPath());
 							return entry.getValue().getAsString();
 							
 						}

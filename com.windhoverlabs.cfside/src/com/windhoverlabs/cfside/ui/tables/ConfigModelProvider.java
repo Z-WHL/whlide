@@ -13,7 +13,7 @@ public class ConfigModelProvider {
 	private List<NamedObject> jsonElements;
 	
 	
-	public ConfigModelProvider(JsonElement json) {
+	public ConfigModelProvider(JsonElement json, NamedObject nameObj) {
 		jsonElements = new ArrayList<NamedObject>();
 		for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
 				if (entry.getValue().isJsonObject()) {
@@ -23,6 +23,7 @@ public class ConfigModelProvider {
 					NamedObject toAdd = new NamedObject();
 					toAdd.setName(entry.getKey());
 					toAdd.setObject(tempJo);
+					toAdd.setPath(nameObj.getPath().concat("."+entry.getKey()));
 					jsonElements.add(toAdd);
 			}
 		}

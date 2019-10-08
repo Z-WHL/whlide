@@ -60,7 +60,8 @@ public class ConfigTreeViewer extends TreeViewer implements ISelectionChangedLis
 		System.out.println(namedObject.getName());
 		ModuleConfigEditor s = (ModuleConfigEditor) getTree().getParent();
 		if (selectedElem.isJsonObject()) {
-			s.goUpdate(namedObject.getName(), selectedElem);
+			System.out.println(namedObject.getPath());
+			s.goUpdate(namedObject.getName(), selectedElem, namedObject);
 			getTree().getParent().layout(true, true);
 		}
 		

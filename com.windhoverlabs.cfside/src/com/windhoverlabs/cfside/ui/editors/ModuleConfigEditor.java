@@ -41,7 +41,7 @@ public class ModuleConfigEditor extends SashForm {
 		
 		this.cfsConfig = cfsConfig;
 		treeViewer = new ConfigTreeViewer(this, SWT.BORDER, jsonPath, cfsConfig);
-		editor = new ConfigTableEditor(this, SWT.BORDER, cfsConfig.getFull());
+		editor = new ConfigTableEditor(this, SWT.BORDER, cfsConfig.getFull(), null, cfsConfig);
 		
 		/**
 		Composite composite = toolkit.createComposite(this, SWT.NONE);
@@ -52,9 +52,9 @@ public class ModuleConfigEditor extends SashForm {
 		**/
 	}
 	
-	public void goUpdate(String name, JsonElement newInput) {
+	public void goUpdate(String name, JsonElement newInput, NamedObject namedObj) {
 		editor.dispose();
-		editor = new ConfigTableEditor(this, SWT.BORDER, newInput);
+		editor = new ConfigTableEditor(this, SWT.BORDER, newInput, namedObj, cfsConfig);
 		layout(true, true);
 	}
 }

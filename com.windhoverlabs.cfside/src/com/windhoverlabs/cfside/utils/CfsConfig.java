@@ -97,7 +97,30 @@ public class CfsConfig {
 	}
 	
 	public void setNamedObject(NamedObject namedObj) {
-		
+		String[] parts = namedObj.getPath().split("\\.|\\[|\\]");
+	    JsonElement result = this.local;
+
+	    for (String key : parts) {
+
+	        key = key.trim();
+	        if (key.isEmpty())
+	            continue;
+
+	        if (result == null){
+	            result = JsonNull.INSTANCE;
+	            break;
+	        }
+
+	        if (result.isJsonObject()){
+	           ((JsonObject)result).add(key, (JsonElement) namedObj.getObject());
+	           System.out.println(result.toString());
+	        }
+	        else if (result.isJsonArray()){
+	            int ix = Integer.valueOf(key) - 1;
+	            result = ((JsonArray)result).get(ix);
+	        }
+	        else break;
+	    }
 	}
 
 

@@ -19,22 +19,22 @@ public class ConfigTableEditor extends Composite {
 	CfsConfig cfsConfig;
 	NamedObject namedObject;
 	
-	public ConfigTableEditor(Composite parent, int style, JsonElement jsonElement) {
+	public ConfigTableEditor(Composite parent, int style, JsonElement jsonElement, NamedObject nameObj, CfsConfig cfsConfig) {
 		super(parent, style);
 		setLayout(new FillLayout(SWT.VERTICAL));
-		
+		this.cfsConfig = cfsConfig;
 		sashForm = new SashForm(this, SWT.VERTICAL);
 		keyValueTable = new KeyValueTable(sashForm, SWT.FILL, jsonElement);
-		scrollableGroups = new ScrollableGroups2(sashForm, SWT.FILL, jsonElement, "Empty");
+		scrollableGroups = new ScrollableGroups2(sashForm, SWT.FILL, jsonElement, "Empty", nameObj);
 	}
 	
 
 	public void goDoSomeCoolSaving(NamedObject namedObj) {
 		System.out.println("I HAVE SVAED I HAVE SAVED SAVED SAVED SAVED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		//JsonObject js = (JsonObject) namedObj.getObject();
-		
+		System.out.println(namedObj.getPath());
 		//System.out.println(js);
-		//cfsConfig.save(namedObj);
+		cfsConfig.save(namedObj);
 		System.out.println("YEAH BABY I HAVE BEEN SAVED!");
 	}
 	
