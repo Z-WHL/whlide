@@ -58,12 +58,15 @@ public class KeyValueTable extends Composite {
 	
 	public void setNewConfig(JsonElement changeJson) {
 		keyValueEntries = new ArrayList<KeyValueEntry>();
-		JsonObject asJsonObject = changeJson.getAsJsonObject();
-		
-		for (Map.Entry<String, JsonElement> entry : asJsonObject.entrySet()) {
-			if (!entry.getValue().isJsonObject()) {
-				keyValueEntries.add(new KeyValueEntry(entry.getKey(), entry.getValue().getAsString()));
-				System.out.println(entry.toString());
+	
+		if (changeJson.isJsonObject()) {
+			JsonObject asJsonObject = changeJson.getAsJsonObject();
+			
+			for (Map.Entry<String, JsonElement> entry : asJsonObject.entrySet()) {
+				if (!entry.getValue().isJsonObject()) {
+					keyValueEntries.add(new KeyValueEntry(entry.getKey(), entry.getValue().getAsString()));
+					System.out.println(entry.toString());
+				}
 			}
 		}
 		

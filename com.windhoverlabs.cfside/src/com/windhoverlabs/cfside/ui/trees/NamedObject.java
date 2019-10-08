@@ -44,6 +44,11 @@ public class NamedObject {
 	public String getPath() {
 		return this.path;
 	}
+
+	public void save() {
+		System.out.println(getPath());
+		
+	}
 	
 	
 }

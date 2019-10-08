@@ -6,14 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -21,11 +19,12 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.Text;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.windhoverlabs.cfside.ui.trees.JsonContentProvider;
 import com.windhoverlabs.cfside.ui.trees.NamedObject;
+import com.windhoverlabs.cfside.utils.CfsConfig;
 
 public class ScrollableGroups2 extends Composite {
 	
@@ -38,25 +37,52 @@ public class ScrollableGroups2 extends Composite {
 	Table jsonTable;
 	TableViewer viewer;
 	List<String> currentGroupLabels = new ArrayList<String>();
+	CfsConfig cfsConfigPointer;
+	NamedObject namedObject;
 	
-	public ScrollableGroups2(Composite scrollableHolder, int style, JsonElement current, String currentConfigName) {
+	public ScrollableGroups2(Composite scrollableHolder, int style, JsonElement current , String currentConfigName) {
 		super(scrollableHolder, style);
+		//this.cfsConfigPointer = cfsConfig;
 		
-		doGrouping(currentConfigName, current.getAsJsonObject());
-		int countOfTables = commonGroups.size();
-		this.currentGroup = currentConfigName;
-		createViewer(scrollableHolder, current);
-		setLayout(new FillLayout(SWT.HORIZONTAL));	
+		if (current.isJsonObject()) {
+			
+			doLabeling(currentConfigName, current.getAsJsonObject());
+			int countOfTables = commonGroups.size();
+			this.currentGroup = currentConfigName;
+			if (currentGroupLabels.size() > 0) {
+				createViewer(scrollableHolder, current, currentConfigName);
+			}
+			setLayout(new FillLayout(SWT.HORIZONTAL));	
+		}
 	}
 	
-	private void createViewer(Composite parent, JsonElement current) {
+	private void setLabels(JsonElement jsonElement, String label) {
+		if (!currentGroupLabels.contains("Label")) {
+			currentGroupLabels.add("Label");
+		}
+		if (jsonElement.isJsonObject()) {
+			for (Map.Entry<String, JsonElement> entry : jsonElement.getAsJsonObject().entrySet()) {
+				
+				if (!entry.getValue().isJsonObject() && !currentGroupLabels.contains(entry.getKey())) {
+					currentGroupLabels.add(entry.getKey());
+				}
+			}
+		}
+	}
+	
+	private void createViewer(Composite parent, JsonElement current, String currentConfigName) {
 		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 		createColumns(parent, viewer);
 		final Table table = viewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
+		
+
 		viewer.setContentProvider(new ArrayContentProvider());
-		viewer.setInput(new ConfigModelProvider(current).getJsons());
+		
+		viewer.setInput(new ConfigModelProvider(current.getAsJsonObject()).getJsons());
+		
+		
 		
 	}
 	
@@ -65,6 +91,7 @@ public class ScrollableGroups2 extends Composite {
 	}
 	
 	private void createColumns(final Composite parent, final TableViewer viewer) {
+		/**
 		TableViewerColumn col = createTableViewerColumn("Label", 150, 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -72,8 +99,9 @@ public class ScrollableGroups2 extends Composite {
 				return ((NamedObject) element).getName();
 			}
 		});
-		col.setEditingSupport(new GenericColumnEditingSupport(viewer, 0, "Label"));
+		col.setEditingSupport(new LabelColumnEditingSupport(viewer));
 		
+	
 		if (currentGroupLabels.size() > 0) {
 			col = createTableViewerColumn(currentGroupLabels.get(0), 150, 1);
 			col.setLabelProvider(new ColumnLabelProvider() {
@@ -91,10 +119,12 @@ public class ScrollableGroups2 extends Composite {
 			});
 			col.setEditingSupport(new GenericColumnEditingSupport(viewer, 1, currentGroupLabels.get(0)));
 		}
-		
-		if (currentGroupLabels.size() > 1) {
-			for (int j = 1; j < currentGroupLabels.size(); j++) {
+		**/
+		TableViewerColumn col = null;
+		if (currentGroupLabels.size() > 0) {
+			for (int j = 0; j < currentGroupLabels.size(); j++) {
 				addColumn(col, currentGroupLabels.get(j), 150, j);
+				System.out.println("added a column");
 			}
 		}
 	}
@@ -109,10 +139,12 @@ public class ScrollableGroups2 extends Composite {
 				JsonObject singleJsonObject = (JsonObject) namedObj.getObject();
 				for (Map.Entry<String, JsonElement> entry : singleJsonObject.entrySet()) {
 					if (!entry.getValue().isJsonObject()) {
-						if (tempCounter != colNum) {
+						if (tempCounter != (colNum)) {
 							tempCounter++;
 						} else {
+							System.out.println("This needs to happen Fourth after getValue which is called after setvalue!!" + singleJsonObject.toString());
 							return entry.getValue().getAsString();
+							
 						}
 					}
 				}
@@ -131,10 +163,6 @@ public class ScrollableGroups2 extends Composite {
 		column.setMoveable(false);
 		return viewerColumn;
 	}
-	
-	
-	
-
 	
 	private ArrayList<SingleJsonObject> createSingleJsonObjectList(JsonObject currentObject) {
 		ArrayList<SingleJsonObject> list = new ArrayList<SingleJsonObject>();
@@ -161,8 +189,7 @@ public class ScrollableGroups2 extends Composite {
 	 * Stores in a HashMap.
 	 * @param inputJson
 	 */
-	private void doGrouping(String currentConfigName, JsonObject inputJson) {
-		groupLabels.put(currentConfigName, new ArrayList<String>());
+	private void doLabeling(String currentConfigName, JsonObject inputJson) {
 		// Iterate through the inputJson
 		for (Map.Entry<String, JsonElement> entry : inputJson.entrySet()) {
 			// If it is not an object, then it is a value and will be showned in the key-value table.
@@ -172,7 +199,6 @@ public class ScrollableGroups2 extends Composite {
 			int currentUnique = 1;
 			if (entry.getValue().isJsonObject()) {
 				// Let's add the keygrouping if it is not in the current.
-				
 				for (Map.Entry<String, JsonElement> innerElement : entry.getValue().getAsJsonObject().entrySet()) {
 					// If it is a label then add it to the property list for the particular type of group.
 					// However, we only want to add it if we don't have a mapping, so we must check.
@@ -182,14 +208,12 @@ public class ScrollableGroups2 extends Composite {
 						}
 					}
 				}
-				commonGroups.put(currentConfigName, entry.getValue().getAsJsonObject());
 			}
 		}
 	}
 
 	private boolean canAdd(String currentGroup, String keyElement) {
-		ArrayList<String> selectedGroup = groupLabels.get(currentGroup);
-		if (!selectedGroup.contains(keyElement)) {
+		if (!currentGroupLabels.contains(keyElement)) {
 			return true;
 		} else {
 			return false;
@@ -232,10 +256,11 @@ public class ScrollableGroups2 extends Composite {
 		}
 
 		@Override
-		public void updateConfig(SingleJsonObject singleObject) {
+		public void updateConfig(NamedObject singleObject) {
 			viewer.update(singleObject, null);		
 			viewer.refresh();
 		}
+
 	}
 	
 	private class JsonLabelProvider implements ITableLabelProvider {
@@ -299,5 +324,9 @@ public class ScrollableGroups2 extends Composite {
 	
 	public GroupedJsonList getJsonList() {
 		return this.jsonList;
+	}
+
+	public void goDoSomeCoolSaving(NamedObject namedObj) {
+		
 	}
 }

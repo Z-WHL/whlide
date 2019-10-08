@@ -8,27 +8,33 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.windhoverlabs.cfside.model.GsonTools;
-import com.windhoverlabs.cfside.model.GsonTools.ConflictStrategy;
-import com.windhoverlabs.cfside.model.GsonTools.JsonObjectExtensionConflictExeception;
 
 
 public class JsonObjectsUtil {
-	private final static String PATH_OBJECT_A = "/home/vagrant/development/airliner/config/config.json";
-	private final static String PATH_OBJECT_B = "/home/vagrant/development/airliner/apps/sch/fsw/for_build/design.json";
-	private final static String PATH_OBJECT_C = "/home/vagrant/development/airliner/config/bebop2/sitl/target/prebuild.json";
-
+	
+	public static enum ConflictStrategy {
+		THROW_EXCEPTION, PREFER_FIRST_OBJECT, PREFER_SECOND_OBJECT, PREFER_NON_NULL;
+	}
+	
+	
+	public static class JsonObjectExtensionConflictExeception extends Exception {
+		public JsonObjectExtensionConflictExeception(String message) {
+			super(message);
+		}
+	}
+	
 	static Gson gson = new Gson();
 	static JsonParser jp = new JsonParser();
 	
@@ -158,7 +164,7 @@ public class JsonObjectsUtil {
 		JsonObject moduleObj = module1.get(module).getAsJsonObject();
 		
 		try {
-			GsonTools.extendJsonObject(objB, ConflictStrategy.PREFER_SECOND_OBJECT, moduleObj);
+			extendJsonObject(objB, ConflictStrategy.PREFER_SECOND_OBJECT, moduleObj);
 		} catch (JsonObjectExtensionConflictExeception e) {
 			return false;
 		}
@@ -184,7 +190,7 @@ public class JsonObjectsUtil {
 		JsonObject moduleObj = module1.get(module).getAsJsonObject();
 		
 		try {
-			GsonTools.extendJsonObject(objB, ConflictStrategy.PREFER_SECOND_OBJECT, moduleObj);
+			extendJsonObject(objB, ConflictStrategy.PREFER_SECOND_OBJECT, moduleObj);
 		} catch (JsonObjectExtensionConflictExeception e) {
 		}
 		base.add(module, objB);
@@ -207,7 +213,7 @@ public class JsonObjectsUtil {
 		JsonObject moduleObj = module1.get(module).getAsJsonObject();
 		
 		try {
-			GsonTools.extendJsonObject(objB, ConflictStrategy.PREFER_SECOND_OBJECT, moduleObj);
+			extendJsonObject(objB, ConflictStrategy.PREFER_SECOND_OBJECT, moduleObj);
 		} catch (JsonObjectExtensionConflictExeception e) {
 		}
 		base.add(module, objB);
@@ -271,6 +277,55 @@ public class JsonObjectsUtil {
 		}
 		
 		return jsonObj;
+	}
+	
+	
+	public static void extendJsonObject(JsonObject destinationObject, ConflictStrategy conflictResolutionStrategy, JsonObject ... objs) throws JsonObjectExtensionConflictExeception {
+		for (JsonObject obj : objs) {
+			extendJsonObject(destinationObject, obj, conflictResolutionStrategy);
+		}
+	}
+	
+	private static void extendJsonObject(JsonObject leftObj, JsonObject rightObj, ConflictStrategy conflictStrategy) throws JsonObjectExtensionConflictExeception {
+		for (Map.Entry<String, JsonElement> rightEntry : rightObj.entrySet()) {
+			String rightKey = rightEntry.getKey();
+			JsonElement rightVal = rightEntry.getValue();
+			if (leftObj.has(rightKey)) {
+				JsonElement leftVal = leftObj.get(rightKey);
+				if (leftVal.isJsonArray() && rightVal.isJsonArray()) {
+					JsonArray leftArr = leftVal.getAsJsonArray();
+					JsonArray rightArr = rightVal.getAsJsonArray();
+					for (int i = 0; i < rightArr.size(); i++) {
+						leftArr.add(rightArr.get(i));
+					}
+				} else if (leftVal.isJsonObject() && rightVal.isJsonObject()) {
+					extendJsonObject(leftVal.getAsJsonObject(), rightVal.getAsJsonObject(), conflictStrategy);
+				} else {
+					handleMergeConflict(rightKey, leftObj, leftVal, rightVal, conflictStrategy);
+				}
+			} else {
+				leftObj.add(rightKey,  rightVal);
+			}
+		}
+	}
+	
+	private static void handleMergeConflict(String key, JsonObject leftObj, JsonElement leftVal, JsonElement rightVal, ConflictStrategy conflictStrategy) throws JsonObjectExtensionConflictExeception {
+		switch (conflictStrategy) {
+			case PREFER_FIRST_OBJECT:
+				break;
+			case PREFER_SECOND_OBJECT:
+				leftObj.add(key, rightVal);
+				break;
+			case PREFER_NON_NULL:
+				if (leftVal.isJsonNull() && !rightVal.isJsonNull()) {
+					leftObj.add(key, rightVal);
+				}
+				break;
+			case THROW_EXCEPTION:
+				throw new JsonObjectExtensionConflictExeception("Key " + key + " exists in both objects and the conflict resolution strategy is " + conflictStrategy);
+			default:
+				throw new JsonObjectExtensionConflictExeception("The conflict resolution strategy " + conflictStrategy + " is unknown and cannot be processed");
+		}
 	}
 
 }

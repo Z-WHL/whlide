@@ -23,7 +23,6 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import com.windhoverlabs.cfside.ui.dialogs.CFSDialog;
 import com.windhoverlabs.cfside.utils.JsonObjectsUtil;
 import com.windhoverlabs.cfside.core.projects.CFSProjectSupport;
-import com.windhoverlabs.cfside.model.GsonTools;
 
 public class MergeCFSFiles extends AbstractHandler{
 	private IWorkbenchWindow window;

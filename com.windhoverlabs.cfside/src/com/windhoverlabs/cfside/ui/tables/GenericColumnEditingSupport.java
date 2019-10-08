@@ -6,6 +6,7 @@ import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.swt.widgets.Composite;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -23,7 +24,7 @@ public class GenericColumnEditingSupport extends EditingSupport {
 		this.viewer = viewer;
 		this.index = index;
 		this.property = property;
-		this.editor = new TextCellEditor(viewer.getTable());
+		this.editor = new TextCellEditor((Composite)getViewer().getControl());
 	}
 	
 	@Override
@@ -40,31 +41,50 @@ public class GenericColumnEditingSupport extends EditingSupport {
 	protected Object getValue(Object element) {
 		Object result = null;
 		NamedObject namedObj = (NamedObject) element;
-		if (index == 0) {
-			result = namedObj.getName();
-		} else {
-			int counter = 1;
+		
+			int counter = 0;
 			JsonObject jsonObject = ((JsonObject) namedObj.getObject());
 			for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+
 				if (!entry.getValue().isJsonObject()) {
-					if (counter == index) {
+					if (counter != index) {
+						counter++;
+					} else {
+						System.out.println("This needs to happen First" + counter + entry.getValue().getAsString()+ namedObj.getName());
 						result = entry.getValue().getAsString();
 						break;
-					} else {
-						counter++;
 					}
 				}
 			}
-		}
+		System.out.println(namedObj.getPath());
+		System.out.println("This needs to happen Second or after setValue!! " + jsonObject.toString());
 		return result;
 	}
 	
 	@Override
 	protected void setValue(Object element, Object userInputValue) {
+		System.out.println("user INput : " + String.valueOf(userInputValue));
 		NamedObject namedObj = (NamedObject) element;
-		JsonObject jsonObject = ((JsonObject) namedObj.getObject());
-		jsonObject.addProperty(property, String.valueOf(userInputValue));
-		namedObj.setObject(jsonObject);
-		viewer.update(namedObj, null);
+		System.out.println("NamedObject : " + namedObj.getName());
+		JsonElement je = (JsonElement) namedObj.getObject();
+		
+		JsonObject jsonObject = jsonObject = je.getAsJsonObject();
+			System.out.println("Content : " + jsonObject.toString());
+
+		
+		if (jsonObject != null) {
+			jsonObject.addProperty(property, String.valueOf(userInputValue));
+			namedObj.setObject(jsonObject);
+			ConfigTableEditor cf = (ConfigTableEditor) viewer.getTable().getParent().getParent();
+			cf.goDoSomeCoolSaving(namedObj);
+			System.out.println("This needs to happen Third!" + property + index +  jsonObject.toString()+ namedObj.getName());
+
+			viewer.update(namedObj, null);
+			viewer.refresh();
+			
+		
+		}
+
+		
 	}
 }

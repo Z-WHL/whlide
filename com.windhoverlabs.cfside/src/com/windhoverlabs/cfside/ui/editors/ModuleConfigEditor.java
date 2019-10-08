@@ -8,14 +8,20 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.windhoverlabs.cfside.ui.tables.ConfigTableEditor;
+import com.windhoverlabs.cfside.ui.trees.ConfigTreeViewer;
+import com.windhoverlabs.cfside.ui.trees.NamedObject;
 import com.windhoverlabs.cfside.utils.CfsConfig;
 
 public class ModuleConfigEditor extends SashForm {
 
 	private final FormToolkit toolkit = new FormToolkit(Display.getCurrent());
-
+	private ConfigTreeViewer treeViewer;
+	private ConfigTableEditor editor;
+	private CfsConfig cfsConfig;
+	
 	/**
 	 * Create the composite.
 	 * @param parent
@@ -32,8 +38,10 @@ public class ModuleConfigEditor extends SashForm {
 		toolkit.paintBordersFor(this);
 		setLayout(null);
 		
-		ConfigTreeViewer treeViewer = new ConfigTreeViewer(this, SWT.BORDER, jsonPath, cfsConfig);
-		ConfigTableEditor editor = new ConfigTableEditor(this, SWT.BORDER, cfsConfig.getFull().getAsJsonObject());
+		
+		this.cfsConfig = cfsConfig;
+		treeViewer = new ConfigTreeViewer(this, SWT.BORDER, jsonPath, cfsConfig);
+		editor = new ConfigTableEditor(this, SWT.BORDER, cfsConfig.getFull());
 		
 		/**
 		Composite composite = toolkit.createComposite(this, SWT.NONE);
@@ -42,5 +50,11 @@ public class ModuleConfigEditor extends SashForm {
 		composite.setLayout(null);
 		setWeights(new int[] {137, 310});
 		**/
+	}
+	
+	public void goUpdate(String name, JsonElement newInput) {
+		editor.dispose();
+		editor = new ConfigTableEditor(this, SWT.BORDER, newInput);
+		layout(true, true);
 	}
 }

@@ -10,6 +10,7 @@ import java.util.Set;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.windhoverlabs.cfside.ui.trees.NamedObject;
 
 public class GroupedJsonList {
 
@@ -80,7 +81,7 @@ public class GroupedJsonList {
 		changeListeners.add(viewer);
 	}
 
-	public void jsonChanged(SingleJsonObject jsonObj) {
+	public void jsonChanged(NamedObject jsonObj) {
 		Iterator it = changeListeners.iterator();
 		while (it.hasNext()) {
 			((IConfigListViewer) it.next()).updateConfig(jsonObj);

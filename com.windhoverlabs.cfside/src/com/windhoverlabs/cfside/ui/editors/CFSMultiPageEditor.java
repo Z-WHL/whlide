@@ -32,7 +32,6 @@ import java.util.*;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonElement;
-import com.windhoverlabs.cfside.ui.trees.CfsConfigTree;
 import com.windhoverlabs.cfside.utils.CfsConfig;
 import com.windhoverlabs.cfside.utils.FileUtils;
 import com.windhoverlabs.cfside.utils.JsonObjectsUtil;
@@ -111,12 +110,13 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		JsonObject fullConfig = cfsConfig.getFull().getAsJsonObject();
         JsonObject modules = fullConfig.get("modules").getAsJsonObject();        
         for (Map.Entry<String,JsonElement> entry : modules.entrySet()) {
-        	String moduleKey = entry.getKey();
-        	String moduleName = moduleKey.toUpperCase();
-        	JsonObject module = modules.get(moduleKey).getAsJsonObject();
-        	String jsonPath = "modules." + moduleKey;
-        	
-        	addModulePage(moduleKey, jsonPath, cfsConfig);
+        	if (entry.getValue().isJsonObject()) {
+	        	String moduleKey = entry.getKey();
+	        	String moduleName = moduleKey.toUpperCase();
+	        	JsonObject module = modules.get(moduleKey).getAsJsonObject();
+	        	String jsonPath = "modules." + moduleKey;
+	        	addModulePage(moduleKey, jsonPath, cfsConfig);
+        	}
         } 
 	}
 	

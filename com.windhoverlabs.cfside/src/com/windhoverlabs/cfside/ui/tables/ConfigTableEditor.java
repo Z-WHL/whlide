@@ -6,19 +6,36 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.windhoverlabs.cfside.ui.editors.ModuleConfigEditor;
+import com.windhoverlabs.cfside.ui.trees.NamedObject;
+import com.windhoverlabs.cfside.utils.CfsConfig;
 
 public class ConfigTableEditor extends Composite {
-	KeyValueTable keyValueTable;
-
-	ScrollableGroups2 scrollableGroups;
 	
-	public ConfigTableEditor(Composite parent, int style, JsonElement je) {
+	SashForm sashForm;
+	KeyValueTable keyValueTable;
+	ScrollableGroups2 scrollableGroups;
+	CfsConfig cfsConfig;
+	NamedObject namedObject;
+	
+	public ConfigTableEditor(Composite parent, int style, JsonElement jsonElement) {
 		super(parent, style);
 		setLayout(new FillLayout(SWT.VERTICAL));
 		
-		SashForm sashForm = new SashForm(this, SWT.VERTICAL);
-		keyValueTable = new KeyValueTable(sashForm, SWT.FILL, je);
-		
-		scrollableGroups = new ScrollableGroups2(sashForm, SWT.FILL, (JsonElement) je, "Empty");
+		sashForm = new SashForm(this, SWT.VERTICAL);
+		keyValueTable = new KeyValueTable(sashForm, SWT.FILL, jsonElement);
+		scrollableGroups = new ScrollableGroups2(sashForm, SWT.FILL, jsonElement, "Empty");
 	}
+	
+
+	public void goDoSomeCoolSaving(NamedObject namedObj) {
+		System.out.println("I HAVE SVAED I HAVE SAVED SAVED SAVED SAVED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		//JsonObject js = (JsonObject) namedObj.getObject();
+		
+		//System.out.println(js);
+		//cfsConfig.save(namedObj);
+		System.out.println("YEAH BABY I HAVE BEEN SAVED!");
+	}
+	
 }

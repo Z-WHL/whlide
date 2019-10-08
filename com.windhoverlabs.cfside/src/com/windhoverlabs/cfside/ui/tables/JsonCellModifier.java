@@ -7,13 +7,14 @@ import org.eclipse.swt.widgets.TableItem;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.windhoverlabs.cfside.ui.trees.NamedObject;
 
 public class JsonCellModifier implements ICellModifier {
 
-	private ScrollableGroups tableViewerInstance;
+	private ScrollableGroups2 tableViewerInstance;
 	private String[] columnNames;
 	
-	public JsonCellModifier(ScrollableGroups tableViewerInstance) {
+	public JsonCellModifier(ScrollableGroups2 tableViewerInstance) {
 		super();
 		this.tableViewerInstance = tableViewerInstance;
 	}
@@ -27,13 +28,17 @@ public class JsonCellModifier implements ICellModifier {
 	public Object getValue(Object element, String property) {
 		int columnIndex = tableViewerInstance.getColumnNames().indexOf(property);
 		Object result = null;
-		SingleJsonObject jsonObject = (SingleJsonObject) element;
+		NamedObject jsonObject = (NamedObject) element;
 		if (columnIndex == 0) {
-			result = jsonObject.getJsonObjectKey();
+			System.out.println("ColumIndex = 0" + jsonObject.getName());
+			result = jsonObject.getName();
 		} else {
-			int counter = 1;
-			JsonObject asJsonObject = jsonObject.getJsonObject();
+
+			int counter = 0;
+			JsonObject asJsonObject = (JsonObject) jsonObject.getObject();
 			for (Map.Entry<String, JsonElement> entry : asJsonObject.entrySet()) {
+				System.out.println("ColumIndex = " + counter + jsonObject.getName());
+
 				if (!entry.getValue().isJsonObject()) {
 					if (counter == columnIndex) {
 						result = entry.getValue().getAsString();
@@ -53,15 +58,15 @@ public class JsonCellModifier implements ICellModifier {
 		int columnIndex = tableViewerInstance.getColumnNames().indexOf(property);
 		System.out.println("columnIndex" + columnIndex);
 		TableItem item = (TableItem) element;
-		SingleJsonObject jsonObj = (SingleJsonObject) item.getData();
+		NamedObject jsonObj = (NamedObject) item.getData();
 		String valueString;
 		
 		if (columnIndex == 0) {
 			valueString = ((String) value).trim();
-			jsonObj.setJsonObjectKey(valueString);
+			jsonObj.setName(valueString);
 		} else {
 			int counter = 1;
-			JsonObject object = jsonObj.getJsonObject();
+			JsonObject object = (JsonObject) jsonObj.getObject();
 			for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
 				if (!entry.getValue().isJsonObject()) {
 					if (counter == columnIndex) {
@@ -69,7 +74,7 @@ public class JsonCellModifier implements ICellModifier {
 						object.addProperty(entry.getKey(), valueString);
 						System.out.println("valueString"+valueString);
 						System.out.println("key"+entry.getKey());
-
+						jsonObj.setObject(object);
 						break;
 					} else {
 						counter++;
