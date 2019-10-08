@@ -6,9 +6,23 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.windhoverlabs.cfside.utils.CfsConfig;
 import com.google.gson.JsonArray;
 
 public class JsonContentProvider implements ITreeContentProvider {
+	CfsConfig config;
+	
+	public JsonContentProvider(CfsConfig config) {
+		setCfsConfig(config);
+	}
+	
+	public void setCfsConfig(CfsConfig config) {
+		this.config = config;
+	}
+	
+	public CfsConfig getCfsConfig() {
+	    return this.config;
+	}
 
 	@Override
 	public Object[] getElements(Object parentObject) {
@@ -39,12 +53,26 @@ public class JsonContentProvider implements ITreeContentProvider {
 		        	NamedObject outNamedObject = new NamedObject();
 		        	
 		        	outNamedObject.setName(entry.getKey());
+
+		        	String newPath = "";
+		        	if(namedObject.getPath() != "") {
+		        		newPath = namedObject.getPath() + ".";
+		        	}
+		        	newPath = newPath + entry.getKey();
+		        	outNamedObject.setPath(newPath);
+		        	
 		        	outNamedObject.setObject(entry.getValue());
 		        	outArray[i] = outNamedObject;
 		        	if (i % 3 == 0) {
-		        		outNamedObject.setOverritten(true);
+		        		outNamedObject.setOverridden(true);
 		        	}
 		        	i = i + 1;
+		        	
+		        	if(this.config.isOverridden(newPath)) {
+		        		outNamedObject.setOverridden(true);
+		        	} else {
+		        		outNamedObject.setOverridden(false);
+		        	}
 		        } 
 				
 				return outArray;
@@ -84,13 +112,26 @@ public class JsonContentProvider implements ITreeContentProvider {
 		        	NamedObject outNamedObject = new NamedObject();
 		        	
 		        	outNamedObject.setName(entry.getKey());
+		        	String newPath = "";
+		        	if(namedObject.getPath() != "") {
+		        		newPath = namedObject.getPath() + ".";
+		        	}
+		        	newPath = newPath + entry.getKey();
+		        	outNamedObject.setPath(newPath);
+		        	
 		        	outNamedObject.setObject(entry.getValue());
 		        	
 		        	outArray[i] = outNamedObject;
 		        	if (i % 3 == 0) {
-		        		outNamedObject.setOverritten(true);
+		        		outNamedObject.setOverridden(true);
 		        	}
 		        	i = i + 1;
+		        	
+		        	if(this.config.isOverridden(newPath)) {
+		        		outNamedObject.setOverridden(true);
+		        	} else {
+		        		outNamedObject.setOverridden(false);
+		        	}
 		        } 
 				
 				return outArray;

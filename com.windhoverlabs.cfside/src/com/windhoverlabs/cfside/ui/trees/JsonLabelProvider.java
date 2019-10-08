@@ -58,7 +58,7 @@ public class JsonLabelProvider extends LabelProvider implements ILabelProvider, 
 	@Override
 	public Color getBackground(Object element, int columnIndex) {
 		NamedObject namedObj = (NamedObject) element;
-		if (namedObj.getOverwritten()) {
+		if (namedObj.getOverridden()) {
 			return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 		}
 		return  Display.getCurrent().getSystemColor(SWT.COLOR_BLUE);

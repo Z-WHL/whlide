@@ -23,6 +23,7 @@ import com.windhoverlabs.cfside.model.GsonTools;
 import com.windhoverlabs.cfside.model.GsonTools.ConflictStrategy;
 import com.windhoverlabs.cfside.model.GsonTools.JsonObjectExtensionConflictExeception;
 
+
 public class JsonObjectsUtil {
 	private final static String PATH_OBJECT_A = "/home/vagrant/development/airliner/config/config.json";
 	private final static String PATH_OBJECT_B = "/home/vagrant/development/airliner/apps/sch/fsw/for_build/design.json";
@@ -31,7 +32,7 @@ public class JsonObjectsUtil {
 	static Gson gson = new Gson();
 	static JsonParser jp = new JsonParser();
 	
-	public static JsonObject goMerge(File pathToConfig) {
+	public static CfsConfig goMerge(File pathToConfig) {
 		//Load file into reader.
 		Reader rd = null;
 		try {
@@ -39,10 +40,15 @@ public class JsonObjectsUtil {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+
+		CfsConfig cfsConfig = new CfsConfig();
 		
 		//Parse into jsonelement
 		JsonElement localConfigElm = jp.parse(rd);
 		JsonObject localConfigObj = localConfigElm.getAsJsonObject();
+		
+		cfsConfig.setLocal(localConfigElm.deepCopy());
+		
 		//Obtain jsonObject for 'modules'
 		JsonElement moduleConfigElm = localConfigObj.get("modules");
 		JsonObject moduleConfigObj = moduleConfigElm.getAsJsonObject();
@@ -78,9 +84,9 @@ public class JsonObjectsUtil {
 		
 		localConfigElm = mergeParentConfig(localConfigElm, basePath, pathLocalConfig);
 		
-		//System.out.println(beautifyJson(localConfigElm.toString()));
-		return localConfigElm.getAsJsonObject();
+		cfsConfig.setFull(localConfigElm);
 		
+		return cfsConfig;
 	}
 	
 	public static JsonElement mergeParentConfig(JsonElement mergedConfig, String absConfigBase, String absCurrentDir) {

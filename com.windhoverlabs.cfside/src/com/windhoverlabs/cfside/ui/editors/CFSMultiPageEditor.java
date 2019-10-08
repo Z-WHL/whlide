@@ -33,6 +33,7 @@ import java.util.*;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonElement;
 import com.windhoverlabs.cfside.ui.trees.CfsConfigTree;
+import com.windhoverlabs.cfside.utils.CfsConfig;
 import com.windhoverlabs.cfside.utils.FileUtils;
 import com.windhoverlabs.cfside.utils.JsonObjectsUtil;
 
@@ -62,6 +63,8 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	
 	ISelectionListener selectionListener;
 	
+	CfsConfig cfsConfig;
+	
 	/**
 	 * Creates a multi-page editor example.
 	 */
@@ -83,66 +86,13 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	/**
 	 * Add the CFE page of the multi-page editor.
 	 */
-	private void addModulePage(String name, JsonObject moduleConfig, JsonObject fullConfig) {
-		final ModuleConfigEditor composite = new ModuleConfigEditor(getContainer(), SWT.FILL, moduleConfig, fullConfig);
+	private void addModulePage(String name, String jsonPath, CfsConfig cfsConfig) {
+		final ModuleConfigEditor composite = new ModuleConfigEditor(getContainer(), SWT.FILL, jsonPath, cfsConfig);
 		
 		int index = addPage(composite);
 		setPageText(index, name);
 	}
-	
-	
-	/**
-	 * Creates page 0 of the multi-page editor,
-	 * which contains a text editor.
-	 */
-	private void createPage0() {
-		try {
-			editor = new TextEditor();
-			int index = addPage(editor, getEditorInput());
-			
-			IEditorInput editorInput = getEditorInput();
-			IPathEditorInput path = (IPathEditorInput) editorInput;
-			File f = new File(path.getPath().toOSString());
-			pathName = f.getAbsolutePath();
-			
-			setPageText(index, editor.getTitle());
-		} catch (PartInitException e) {
-			ErrorDialog.openError(
-				getSite().getShell(),
-				"Error creating nested text editor",
-				null,
-				e.getStatus());
-		}
-	}
-	/**
-	 * Creates page 1 of the multi-page editor,
-	 * which allows you to change the font used in page 2.
-	 */
-	private void createPage1() {
-		
-		JsonElement mergedJsonElement = JsonObjectsUtil.goMerge(new File(pathName));
-		
-		final Composite body = new Composite(getContainer(), SWT.FILL);
-		
-		int index = addPage(body);
-		setPageText(index, "Table1");
-	}
 
-	/**
-	 * Creates page 2 of the multi-page editor,
-	 * which shows the sorted text.
-	 */
-	private void createPage2() {
-		final Composite composite2 = new Composite(getContainer(), SWT.FILL);
-		FillLayout fl = new FillLayout(SWT.HORIZONTAL);
-		composite2.setLayout(fl);
-	
-		// Build you custom composite here
-		// Example ex1 = new Example(composite2, style, etc...)
-		
-		int index = addPage(composite2);
-		setPageText(index, "Table2");
-	}
 	/**
 	 * Creates the pages of the multi-page editor.
 	 */
@@ -152,38 +102,22 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		IPathEditorInput path = (IPathEditorInput) editorInput;
 		File f = new File(path.getPath().toOSString());
 		pathName = f.getAbsolutePath();
-        JsonObject config = JsonObjectsUtil.goMerge(new File(pathName));
+		cfsConfig = JsonObjectsUtil.goMerge(new File(pathName));
         
         /* Add the CFE page. */
 		addCFEPage();
         
 		/* Iterate through the modules and add pages for them. */
-        JsonObject modules = config.get("modules").getAsJsonObject();        
+		JsonObject fullConfig = cfsConfig.getFull().getAsJsonObject();
+        JsonObject modules = fullConfig.get("modules").getAsJsonObject();        
         for (Map.Entry<String,JsonElement> entry : modules.entrySet()) {
         	String moduleKey = entry.getKey();
         	String moduleName = moduleKey.toUpperCase();
         	JsonObject module = modules.get(moduleKey).getAsJsonObject();
+        	String jsonPath = "modules." + moduleKey;
         	
-        	addModulePage(moduleKey, module, config);
+        	addModulePage(moduleKey, jsonPath, cfsConfig);
         } 
-        
-		
-		/* Now iterate through the modules and create their configuration page. */
-		//System.out.print(mergedJsonElement);
-
-		//final CfsConfigTree composite = new CfsConfigTree(getContainer(), SWT.FILL);
-		//FillLayout fl = new FillLayout(SWT.HORIZONTAL);
-		//composite.setLayout(fl);
-	
-		//JsonElement mergedJsonElement = JsonObjectsUtil.goMerge(new File(pathName));
-		
-		//final ConfigComposite body = new ConfigComposite(composite, SWT.FILL, mergedJsonElement);
-		//body.setLayout(new FillLayout(SWT.HORIZONTAL));
-		
-		//addModulePage();
-		createPage0();
-		createPage1();
-		createPage2();
 	}
 	
 	/**

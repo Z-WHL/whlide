@@ -12,6 +12,9 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.wb.swt.SWTResourceManager;
+
+import com.windhoverlabs.cfside.utils.CfsConfig;
+
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.RowLayout;
@@ -30,7 +33,7 @@ public class CfsConfigTree extends SashForm {
 	 * @param parent
 	 * @param style
 	 */
-	public CfsConfigTree(Composite parent, int style) {
+	public CfsConfigTree(Composite parent, int style, CfsConfig cfsConfig) {
 		super(parent, style);
 		addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
@@ -46,7 +49,7 @@ public class CfsConfigTree extends SashForm {
 		tree.setBackground(SWTResourceManager.getColor(SWT.COLOR_INFO_FOREGROUND));
 		toolkit.paintBordersFor(tree);
 		treeViewer.setLabelProvider(new JsonLabelProvider());
-		treeViewer.setContentProvider(new JsonContentProvider());
+		treeViewer.setContentProvider(new JsonContentProvider(cfsConfig));
 		
 		Composite composite = toolkit.createComposite(this, SWT.NONE);
 		composite.setBackground(SWTResourceManager.getColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT));

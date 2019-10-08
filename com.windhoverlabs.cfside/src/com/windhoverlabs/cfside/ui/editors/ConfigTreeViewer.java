@@ -18,6 +18,7 @@ import com.google.gson.JsonObject;
 import com.windhoverlabs.cfside.ui.trees.JsonLabelProvider;
 import com.windhoverlabs.cfside.ui.trees.JsonContentProvider;
 import com.windhoverlabs.cfside.ui.trees.NamedObject;
+import com.windhoverlabs.cfside.utils.CfsConfig;
 
 public class ConfigTreeViewer extends TreeViewer implements ISelectionChangedListener {
 
@@ -26,7 +27,7 @@ public class ConfigTreeViewer extends TreeViewer implements ISelectionChangedLis
 	/**
 	 * @wbp.parser.entryPoint
 	 */
-	public ConfigTreeViewer(Composite parent, int style, JsonObject moduleConfig) {
+	public ConfigTreeViewer(Composite parent, int style, String jsonPath, CfsConfig cfsConfig) {
 		super(parent, style);
 		
 		NamedObject namedObject = new NamedObject();
@@ -35,10 +36,12 @@ public class ConfigTreeViewer extends TreeViewer implements ISelectionChangedLis
 		tree.setBackground(SWTResourceManager.getColor(SWT.COLOR_INFO_FOREGROUND));
 		toolkit.paintBordersFor(tree);
 		setLabelProvider(new JsonLabelProvider());
-		setContentProvider(new JsonContentProvider());
+		setContentProvider(new JsonContentProvider(cfsConfig));
 
 		namedObject.setName("ROOT");
-		namedObject.setObject(moduleConfig);
+		JsonObject module = cfsConfig.getJsonElement(jsonPath).getAsJsonObject();
+		namedObject.setObject(module);
+		namedObject.setPath(jsonPath);
 		setInput(namedObject);
 		
 		addSelectionChangedListener(this);

@@ -10,6 +10,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.google.gson.JsonObject;
 import com.windhoverlabs.cfside.ui.tables.ConfigTableEditor;
+import com.windhoverlabs.cfside.utils.CfsConfig;
 
 public class ModuleConfigEditor extends SashForm {
 
@@ -20,7 +21,7 @@ public class ModuleConfigEditor extends SashForm {
 	 * @param parent
 	 * @param style
 	 */
-	public ModuleConfigEditor(Composite parent, int style, JsonObject moduleConfig, JsonObject fullConfig) {
+	public ModuleConfigEditor(Composite parent, int style, String jsonPath, CfsConfig cfsConfig) {
 		super(parent, style);
 		addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
@@ -31,8 +32,8 @@ public class ModuleConfigEditor extends SashForm {
 		toolkit.paintBordersFor(this);
 		setLayout(null);
 		
-		ConfigTreeViewer treeViewer = new ConfigTreeViewer(this, SWT.BORDER, moduleConfig);
-		ConfigTableEditor eidtor = new ConfigTableEditor(this, SWT.BORDER, moduleConfig);
+		ConfigTreeViewer treeViewer = new ConfigTreeViewer(this, SWT.BORDER, jsonPath, cfsConfig);
+		ConfigTableEditor editor = new ConfigTableEditor(this, SWT.BORDER, cfsConfig.getFull().getAsJsonObject());
 		
 		/**
 		Composite composite = toolkit.createComposite(this, SWT.NONE);

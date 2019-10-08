@@ -5,14 +5,12 @@ public class NamedObject {
 	
 	private String name;
 	private Object object;
-	private boolean overwritten;
+	private String path;
+	private boolean overridden;
 	
-	public void setOverritten(boolean input) {
-		this.overwritten = input;
-	}
-	
-	public boolean getOverwritten() {
-		return this.overwritten;
+	public NamedObject() {
+		this.overridden = false;
+		this.path = "";
 	}
 	
 	public void setName(String name) {
@@ -30,4 +28,22 @@ public class NamedObject {
 	public Object getObject() {
 		return this.object;
 	}
+	
+	public void setOverridden(boolean overridden) {
+		this.overridden = overridden;
+	}
+	
+	public boolean getOverridden() {
+		return this.overridden;
+	}
+	
+	public void setPath(String path) {
+		this.path = path;
+	}
+	
+	public String getPath() {
+		return this.path;
+	}
+	
+	
 }
