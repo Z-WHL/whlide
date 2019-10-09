@@ -40,7 +40,7 @@ public class ConfigTreeViewer extends TreeViewer implements ISelectionChangedLis
 		setContentProvider(new JsonContentProvider(cfsConfig));
 
 		namedObject.setName("ROOT");
-		JsonObject module = cfsConfig.getJsonElement(jsonPath).getAsJsonObject();
+		JsonObject module = cfsConfig.fullGetElement(jsonPath).getAsJsonObject();
 		namedObject.setObject(module);
 		namedObject.setPath(jsonPath);
 		setInput(namedObject);

@@ -121,9 +121,6 @@ public class JsonContentProvider implements ITreeContentProvider {
 		        	outNamedObject.setObject(entry.getValue());
 		        	
 		        	outArray[i] = outNamedObject;
-		        	if (i % 3 == 0) {
-		        		outNamedObject.setOverridden(true);
-		        	}
 		        	i = i + 1;
 		        	
 		        	if(this.config.isOverridden(newPath)) {

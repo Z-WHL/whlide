@@ -31,7 +31,7 @@ public class CfsConfig {
 	}
 	
 	
-	public JsonElement getJsonElement(String path){
+	public JsonElement fullGetElement(String path){
 	    String[] parts = path.split("\\.|\\[|\\]");
 	    JsonElement result = this.full;
 
@@ -60,7 +60,7 @@ public class CfsConfig {
 	}
 	
 	
-	public JsonElement localContainsElement(String path) {
+	public JsonElement localGetElement(String path) {
 		String[] parts = path.split("\\.|\\[|\\]");
 	    JsonElement result = this.local;
 
@@ -89,7 +89,9 @@ public class CfsConfig {
 	}
 	
 	public boolean isOverridden(String path) {
-		if(localContainsElement(path) == null) {
+		JsonElement result = localGetElement(path);
+		
+		if((result == null) || (result == JsonNull.INSTANCE)) {
 			return false;
 		} else {
 			return true;
