@@ -3,16 +3,14 @@ package com.windhoverlabs.cfside.ui.editors;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.IEditorInput;
@@ -28,19 +26,12 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 
-import java.util.*;
-
-import com.google.gson.JsonObject;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.windhoverlabs.cfside.ui.trees.NamedObject;
 import com.windhoverlabs.cfside.utils.CfsConfig;
 import com.windhoverlabs.cfside.utils.FileUtils;
 import com.windhoverlabs.cfside.utils.JsonObjectsUtil;
-
-import com.windhoverlabs.cfside.ui.editors.CfeConfigEditor;
-import com.windhoverlabs.cfside.ui.editors.ModuleConfigEditor;
-
-import com.windhoverlabs.cfside.ui.trees.JsonContentProvider;
-import com.windhoverlabs.cfside.ui.trees.JsonLabelProvider;
 
 /**
  * An example showing how to create a multi-page editor.
@@ -86,7 +77,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 	 * Add the CFE page of the multi-page editor.
 	 */
 	private void addModulePage(String name, String jsonPath, CfsConfig cfsConfig) {
-		final ModuleConfigEditor composite = new ModuleConfigEditor(getContainer(), SWT.FILL, jsonPath, cfsConfig);
+		final ModuleConfigEditor composite = new ModuleConfigEditor(getContainer(), SWT.FILL, jsonPath, cfsConfig, name);
 		
 		int index = addPage(composite);
 		setPageText(index, name);
@@ -102,7 +93,7 @@ public class CFSMultiPageEditor extends MultiPageEditorPart implements IResource
 		File f = new File(path.getPath().toOSString());
 		pathName = f.getAbsolutePath();
 		cfsConfig = JsonObjectsUtil.goMerge(new File(pathName));
-        
+        cfsConfig.setPath(pathName);
         /* Add the CFE page. */
 		addCFEPage();
         

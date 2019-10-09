@@ -1,16 +1,18 @@
 package com.windhoverlabs.cfside.ui.trees;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.windhoverlabs.cfside.utils.CfsConfig;
-import com.google.gson.JsonArray;
 
 public class JsonContentProvider implements ITreeContentProvider {
 	CfsConfig config;
+	
 	
 	public JsonContentProvider(CfsConfig config) {
 		setCfsConfig(config);
@@ -26,10 +28,11 @@ public class JsonContentProvider implements ITreeContentProvider {
 
 	@Override
 	public Object[] getElements(Object parentObject) {
-		NamedObject namedObject = (NamedObject) parentObject;      
+		/* Iterate through the modules and add pages for them. */  
+		NamedObject namedObject = (NamedObject) parentObject;        
 		JsonElement configElem = (JsonElement) namedObject.getObject();
 		
-		System.out.println("getElements " + parentObject);
+		System.out.println("getChildren " + parentObject);
 		
 		if(hasChildren(parentObject)) {
 			if(configElem.isJsonArray()) {
@@ -44,40 +47,37 @@ public class JsonContentProvider implements ITreeContentProvider {
 				return outArray;
 
 			} else if(configElem.isJsonObject()) {
-				int i = 0;
 				JsonObject obj = configElem.getAsJsonObject();
 				
-				Object[] outArray = new Object[obj.size()];
+				ArrayList<Object> outArray = new ArrayList<Object>();
 
 		        for (Map.Entry<String,JsonElement> entry :  obj.entrySet()) {
-		        	NamedObject outNamedObject = new NamedObject();
-		        	
-		        	outNamedObject.setName(entry.getKey());
-
-		        	String newPath = "";
-		        	if(namedObject.getPath() != "") {
-		        		newPath = namedObject.getPath() + ".";
+		        	if (!(entry.getKey().charAt(0) == '_')) {
+			        	NamedObject outNamedObject = new NamedObject();
+			        	
+			        	outNamedObject.setName(entry.getKey());
+			        	String newPath = "";
+			        	if(namedObject.getPath() != "") {
+			        		newPath = namedObject.getPath() + ".";
+			        	}
+			        	newPath = newPath + entry.getKey();
+			        	outNamedObject.setPath(newPath);
+			        	
+			        	outNamedObject.setObject(entry.getValue());
+			        	
+			        	outArray.add(outNamedObject);
+			        	
+			        	if(this.config.isOverridden(newPath)) {
+			        		outNamedObject.setOverridden(true);
+			        	} else {
+			        		outNamedObject.setOverridden(false);
+			        	}
 		        	}
-		        	newPath = newPath + entry.getKey();
-		        	outNamedObject.setPath(newPath);
-		        	
-		        	outNamedObject.setObject(entry.getValue());
-		        	outArray[i] = outNamedObject;
-		        	
-		        	i = i + 1;
-		        	
-		   
-		        	if(this.config.isOverridden(newPath)) {
-		        		outNamedObject.setOverridden(true);
-		        	} else {
-		        		outNamedObject.setOverridden(false);
-		        	} 
 		        } 
 				
-				return outArray;
+				return outArray.toArray();
 			}
 		} 
-		
 		return null;
 	}
 
@@ -102,44 +102,53 @@ public class JsonContentProvider implements ITreeContentProvider {
 				return outArray;
 
 			} else if(configElem.isJsonObject()) {
-				int i = 0;
 				JsonObject obj = configElem.getAsJsonObject();
 				
-				Object[] outArray = new Object[obj.size()];
+				ArrayList<Object> outArray = new ArrayList<Object>();
 
 		        for (Map.Entry<String,JsonElement> entry :  obj.entrySet()) {
-		        	NamedObject outNamedObject = new NamedObject();
-		        	
-		        	outNamedObject.setName(entry.getKey());
-		        	String newPath = "";
-		        	if(namedObject.getPath() != "") {
-		        		newPath = namedObject.getPath() + ".";
-		        	}
-		        	newPath = newPath + entry.getKey();
-		        	outNamedObject.setPath(newPath);
-		        	
-		        	outNamedObject.setObject(entry.getValue());
-		        	
-		        	outArray[i] = outNamedObject;
-		        	i = i + 1;
-		        	
-		        	if(this.config.isOverridden(newPath)) {
-		        		outNamedObject.setOverridden(true);
-		        	} else {
-		        		outNamedObject.setOverridden(false);
+		        	if (!(entry.getKey().charAt(0) == '_')) {
+			        	NamedObject outNamedObject = new NamedObject();
+			        	
+			        	outNamedObject.setName(entry.getKey());
+			        	String newPath = "";
+			        	if(namedObject.getPath() != "") {
+			        		newPath = namedObject.getPath() + ".";
+			        	}
+			        	newPath = newPath + entry.getKey();
+			        	outNamedObject.setPath(newPath);
+			        	
+			        	outNamedObject.setObject(entry.getValue());
+			        	
+			        	outArray.add(outNamedObject);
+			        	
+			        	if(this.config.isOverridden(newPath)) {
+			        		outNamedObject.setOverridden(true);
+			        	} else {
+			        		outNamedObject.setOverridden(false);
+			        	}
 		        	}
 		        } 
 				
-				return outArray;
+				return outArray.toArray();
 			}
 		} 
-		
 		return null;
 	}
 
 	@Override
 	public Object getParent(Object element) {
-		return ((IJsonTreeNode) element).getParent();
+		NamedObject namedObj = (NamedObject) element;
+		String path = namedObj.getPath();
+	    String[] parts = path.split("\\.|\\[|\\]");
+
+	    StringBuilder sb = new StringBuilder();
+	    for (int i = 0 ; i < parts.length - 1; i++) {
+	    	sb.append(parts[i]);
+	    }
+	    JsonElement foundJsonElement = config.fullGetElement(sb.toString());
+	    
+		return foundJsonElement;
 	}
 
 	@Override

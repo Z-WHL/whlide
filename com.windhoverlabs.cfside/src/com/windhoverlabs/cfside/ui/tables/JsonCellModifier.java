@@ -11,10 +11,10 @@ import com.windhoverlabs.cfside.ui.trees.NamedObject;
 
 public class JsonCellModifier implements ICellModifier {
 
-	private ScrollableGroups2 tableViewerInstance;
+	private CommonGroup tableViewerInstance;
 	private String[] columnNames;
 	
-	public JsonCellModifier(ScrollableGroups2 tableViewerInstance) {
+	public JsonCellModifier(CommonGroup tableViewerInstance) {
 		super();
 		this.tableViewerInstance = tableViewerInstance;
 	}

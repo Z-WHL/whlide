@@ -1,15 +1,19 @@
 package com.windhoverlabs.cfside.utils;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.windhoverlabs.cfside.ui.trees.NamedObject;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonNull;
 
 public class CfsConfig {
 	JsonElement full;
 	JsonElement local;
-	
+	String path;
 	
 	public void setFull(JsonElement config) {
 		this.full = config;
@@ -30,6 +34,13 @@ public class CfsConfig {
 		return this.local;
 	}
 	
+	public void setPath(String path) {
+		this.path = path;
+	}
+	
+	public String getPath() {
+		return this.path;
+	}
 	
 	public JsonElement fullGetElement(String path){
 	    String[] parts = path.split("\\.|\\[|\\]");
@@ -55,7 +66,6 @@ public class CfsConfig {
 	        }
 	        else break;
 	    }
-
 	    return result;
 	}
 	
@@ -98,37 +108,75 @@ public class CfsConfig {
 		}
 	}
 	
-	public void setNamedObject(NamedObject namedObj) {
+	public void setNamedObjectLocal(NamedObject namedObj) {
 		String[] parts = namedObj.getPath().split("\\.|\\[|\\]");
-	    JsonElement result = this.local;
-
-	    for (String key : parts) {
-
-	        key = key.trim();
-	        if (key.isEmpty())
-	            continue;
-
-	        if (result == null){
-	            result = JsonNull.INSTANCE;
-	            break;
-	        }
-
-	        if (result.isJsonObject()){
-	           ((JsonObject)result).add(key, (JsonElement) namedObj.getObject());
-	           System.out.println(result.toString());
-	        }
-	        else if (result.isJsonArray()){
-	            int ix = Integer.valueOf(key) - 1;
-	            result = ((JsonArray)result).get(ix);
-	        }
-	        else break;
-	    }
+		int depth = parts.length;
+		JsonElement localPointer = this.local;
+		JsonObject localObject = localPointer.getAsJsonObject();
+		
+		for (int i = 0; i < depth; i++) {
+			// You are currently at the selected element
+			if (i + 1 == depth) {
+				JsonElement toUpdate = (JsonElement) namedObj.getObject();
+				localObject.add(namedObj.getName(), toUpdate);
+				break;
+			} 			
+			// Let's check if the path exists and if it does update the crawl to use the json object.
+			// If the path doesn't exist then create an empty object inside the current crawled object.
+			if (localObject.has(parts[i])) {
+				// Update the element to be crawled.
+				localObject = localObject.get(parts[i]).getAsJsonObject(); 
+			} else {
+				localObject.add(parts[i], new JsonObject());
+				localObject = localObject.get(parts[i]).getAsJsonObject();
+			}			
+		}
+		
+		this.local = localPointer;
+	}
+	
+	public void setNamedObjectFull(NamedObject namedObj) {
+		String[] parts = namedObj.getPath().split("\\.|\\[|\\]");
+		int depth = parts.length;
+		JsonElement localPointer = this.full;
+		JsonObject localObject = localPointer.getAsJsonObject();
+		
+		for (int i = 0; i < depth; i++) {
+			// You are currently at the selected element
+			if (i + 1 == depth) {
+				JsonElement toUpdate = (JsonElement) namedObj.getObject();
+				localObject.add(namedObj.getName(), toUpdate);
+				break;
+			} 			
+			// Let's check if the path exists and if it does update the crawl to use the json object.
+			// If the path doesn't exist then create an empty object inside the current crawled object.
+			if (localObject.has(parts[i])) {
+				// Update the element to be crawled.
+				localObject = localObject.get(parts[i]).getAsJsonObject(); 
+			} else {
+				localObject.add(parts[i], new JsonObject());
+				localObject = localObject.get(parts[i]).getAsJsonObject();
+			}			
+		}
+		this.full = localPointer;
 	}
 
-
 	public void save(NamedObject js) {
-		setNamedObject(js);
-		System.out.println("Here is the path we need to save to! " + js.getPath());
-		
+		// Update our in-memory object/representation
+		setNamedObjectLocal(js);
+		setNamedObjectFull(js);
+		// Now let's update the persistent representation. Can be file, database etc.
+		saveToFile(this.local);
+	}
+	
+	public void saveToFile(JsonElement json) {
+		String toBeSaved = JsonObjectsUtil.beautifyJson(json.getAsJsonObject().toString());
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(path));
+			writer.write(toBeSaved);
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

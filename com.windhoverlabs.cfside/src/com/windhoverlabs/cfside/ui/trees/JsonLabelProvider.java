@@ -1,5 +1,11 @@
 package com.windhoverlabs.cfside.ui.trees;
 
+import java.net.URL;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -10,15 +16,26 @@ import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.osgi.framework.Bundle;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class JsonLabelProvider extends StyledCellLabelProvider implements IColorProvider {
+	
+	Bundle bundle = Platform.getBundle("com.windhoverlabs.cfside");
+	final URL fullPathIconOne = FileLocator.find(bundle, new Path("icons/testjsonicon.png"), null);
+	ImageDescriptor imgDesc = ImageDescriptor.createFromURL(fullPathIconOne);
+	Image imgOne = imgDesc.createImage();
+	
+	final URL fullPathIconTwo = FileLocator.find(bundle, new Path("icons/testjsonicon2.png"), null);
+	ImageDescriptor imgDesc2 = ImageDescriptor.createFromURL(fullPathIconTwo);
+	Image imgTwo = imgDesc2.createImage();
 	
 	ILabelProvider provider;
 	ILabelDecorator decorator;
@@ -45,20 +62,16 @@ public class JsonLabelProvider extends StyledCellLabelProvider implements IColor
 			StyledString styledString = new StyledString(name, style);
 			cell.setText(styledString.toString());
 			cell.setStyleRanges(styledString.getStyleRanges());
+		}
+	
+		if(jsonElem.isJsonPrimitive()) {
+			cell.setText(name);
+			cell.setImage(imgTwo);
+			cell.setText(name);
 		} else {
-			if(jsonElem.isJsonArray()) {
-				JsonArray jsonArray = (JsonArray) jsonElem.getAsJsonArray();
-				cell.setText(name);
-			} else if(jsonElem.isJsonObject() ) {
-				JsonObject jsonObject = (JsonObject) jsonElem.getAsJsonObject();
-				cell.setText(name);
-			} else if(jsonElem.isJsonNull() ) {
-				cell.setText("<NULL>");
-			} else if(jsonElem.isJsonPrimitive() ) {
-				cell.setText(name);
-			} else {
-				cell.setText("<UNKNOWN>");
-			}
+			JsonObject jsonObject = (JsonObject) jsonElem.getAsJsonObject();
+			cell.setText(name);
+			cell.setImage(imgOne);
 		}
 		
 		super.update(cell);

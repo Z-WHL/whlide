@@ -26,7 +26,12 @@ import com.windhoverlabs.cfside.ui.trees.JsonContentProvider;
 import com.windhoverlabs.cfside.ui.trees.NamedObject;
 import com.windhoverlabs.cfside.utils.CfsConfig;
 
-public class ScrollableGroups2 extends Composite {
+// This class has been removed from the main implementation, but it can be used as a
+// composite which contains spreadsheet-like editing and saving capabilities for similar
+// grouped items. Currently, no labels are provided so rows cannot be identified.
+// TODO: Add column for key labels for ease of editing.
+
+public class CommonGroup extends Composite {
 	
 	HashMap<String, ArrayList<String>> groupLabels = new HashMap<String, ArrayList<String>>();
 	HashMap<String, JsonObject> commonGroups = new HashMap<String, JsonObject>();
@@ -40,7 +45,7 @@ public class ScrollableGroups2 extends Composite {
 	CfsConfig cfsConfigPointer;
 	NamedObject namedObject;
 	
-	public ScrollableGroups2(Composite scrollableHolder, int style, JsonElement current , String currentConfigName, NamedObject namedObject) {
+	public CommonGroup(Composite scrollableHolder, int style, JsonElement current , String currentConfigName, NamedObject namedObject) {
 		super(scrollableHolder, style);
 		//this.cfsConfigPointer = cfsConfig;
 		
@@ -76,14 +81,8 @@ public class ScrollableGroups2 extends Composite {
 		final Table table = viewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		
-
 		viewer.setContentProvider(new ArrayContentProvider());
-		
 		viewer.setInput(new ConfigModelProvider(current.getAsJsonObject(), namedObject).getJsons());
-		
-		
-		
 	}
 	
 	public TableViewer getViewer() {
@@ -91,35 +90,6 @@ public class ScrollableGroups2 extends Composite {
 	}
 	
 	private void createColumns(final Composite parent, final TableViewer viewer) {
-		/**
-		TableViewerColumn col = createTableViewerColumn("Label", 150, 0);
-		col.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				return ((NamedObject) element).getName();
-			}
-		});
-		col.setEditingSupport(new LabelColumnEditingSupport(viewer));
-		
-	
-		if (currentGroupLabels.size() > 0) {
-			col = createTableViewerColumn(currentGroupLabels.get(0), 150, 1);
-			col.setLabelProvider(new ColumnLabelProvider() {
-				@Override
-				public String getText(Object element) {
-					NamedObject namedObj = (NamedObject) element;
-					JsonObject jsonOjbect = (JsonObject) namedObj.getObject();
-					for (Map.Entry<String, JsonElement> ent : jsonOjbect.entrySet()) {
-						if (!ent.getValue().isJsonObject()) {
-							return ent.getValue().getAsString();
-						}
-					}
-					return null;
-				}
-			});
-			col.setEditingSupport(new GenericColumnEditingSupport(viewer, 1, currentGroupLabels.get(0)));
-		}
-		**/
 		TableViewerColumn col = null;
 		if (currentGroupLabels.size() > 0) {
 			for (int j = 0; j < currentGroupLabels.size(); j++) {
@@ -142,9 +112,7 @@ public class ScrollableGroups2 extends Composite {
 						if (tempCounter != (colNum)) {
 							tempCounter++;
 						} else {
-							System.out.println("This needs to happen Fourth after getValue which is called after setvalue!!" + singleJsonObject.toString() + "\n" + namedObj.getPath());
 							return entry.getValue().getAsString();
-							
 						}
 					}
 				}
@@ -177,31 +145,16 @@ public class ScrollableGroups2 extends Composite {
 		}
 		return list;
 	}
-	
-	
-	
-
-	
-
-	
 	/**
 	 * Function will take the input Json Object and group them based on their common labels.
 	 * Stores in a HashMap.
 	 * @param inputJson
 	 */
 	private void doLabeling(String currentConfigName, JsonObject inputJson) {
-		// Iterate through the inputJson
 		for (Map.Entry<String, JsonElement> entry : inputJson.entrySet()) {
-			// If it is not an object, then it is a value and will be showned in the key-value table.
-			// If it is, we need to retrieve the key labels of this. only keys that are value not an object though.
-			// We will assume all inner groups of an object will have consistent labeling, but is is extensible for
-			// inner groups that do not have the same key groups.
 			int currentUnique = 1;
 			if (entry.getValue().isJsonObject()) {
-				// Let's add the keygrouping if it is not in the current.
 				for (Map.Entry<String, JsonElement> innerElement : entry.getValue().getAsJsonObject().entrySet()) {
-					// If it is a label then add it to the property list for the particular type of group.
-					// However, we only want to add it if we don't have a mapping, so we must check.
 					if (!innerElement.getValue().isJsonObject()) {
 						if (canAdd(currentConfigName, innerElement.getKey())) {
 							currentGroupLabels.add(innerElement.getKey());
@@ -218,115 +171,5 @@ public class ScrollableGroups2 extends Composite {
 		} else {
 			return false;
 		}
-	}
-	
-	private class JsonTableContentProvider implements IStructuredContentProvider, IConfigListViewer {
-		private GroupedJsonList list;
-		private TableViewer viewer;
-		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-			this.viewer = (TableViewer) v;
-			if (list != null) {
-				((GroupedJsonList) list).removeChangeListener(this);
-			}
-			this.list = (GroupedJsonList) newInput;
-			if (list != null) {
-				((GroupedJsonList) list).addChangeListener(this);
-			}
-		}
-		
-		public void dispose() {
-			jsonList.removeChangeListener(this);
-		}
-		
-		
-		@Override
-		public Object[] getElements(Object inputElement) {
-			GroupedJsonList group = (GroupedJsonList) inputElement;
-			return (group.getArray());
-		}
-
-		@Override
-		public void addConfig(SingleJsonObject singleObject) {
-			viewer.add(singleObject);
-		}
-
-		@Override
-		public void removeConfig(SingleJsonObject singleObject) {
-			viewer.remove(singleObject);			
-		}
-
-		@Override
-		public void updateConfig(NamedObject singleObject) {
-			viewer.update(singleObject, null);		
-			viewer.refresh();
-		}
-
-	}
-	
-	private class JsonLabelProvider implements ITableLabelProvider {
-
-		@Override
-		public void addListener(ILabelProviderListener listener) {
-			
-		}
-
-		@Override
-		public void dispose() {
-			
-		}
-
-		@Override
-		public boolean isLabelProperty(Object element, String property) {
-			return false;
-		}
-
-		@Override
-		public void removeListener(ILabelProviderListener listener) {
-			
-		}
-
-		@Override
-		public Image getColumnImage(Object element, int columnIndex) {
-			return null;
-		}
-
-		@Override
-		public String getColumnText(Object element, int columnIndex) {
-			SingleJsonObject singleJsonObject = (SingleJsonObject) element;
-			JsonObject jsonObject = singleJsonObject.getJsonObject();
-			
-			if (columnIndex == 0) {
-				return singleJsonObject.getJsonObjectKey();
-			} else {
-				int counter = 1;
-				for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-					if (!entry.getValue().isJsonObject()) {
-						if (counter == columnIndex) {
-							return entry.getValue().getAsString();
-						} else {
-							counter++;
-						}
-					}
-				}
-			}
-			return null;
-		}
-	}
-
-	public List<String> getColumnNames() {
-		ArrayList<String> selectedGroup = groupLabels.get(currentGroup);
-		if (!selectedGroup.contains("Label")) {
-			selectedGroup.add(0, "Label");
-		}
-		System.out.println(selectedGroup.toString());
-		return selectedGroup;
-	}
-	
-	public GroupedJsonList getJsonList() {
-		return this.jsonList;
-	}
-
-	public void goDoSomeCoolSaving(NamedObject namedObj) {
-		
 	}
 }

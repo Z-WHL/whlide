@@ -50,41 +50,29 @@ public class GenericColumnEditingSupport extends EditingSupport {
 					if (counter != index) {
 						counter++;
 					} else {
-						System.out.println("This needs to happen First" + counter + entry.getValue().getAsString()+ namedObj.getName());
 						result = entry.getValue().getAsString();
 						break;
 					}
 				}
 			}
 		System.out.println(namedObj.getPath());
-		System.out.println("This needs to happen Second or after setValue!! " + jsonObject.toString());
 		return result;
 	}
 	
 	@Override
 	protected void setValue(Object element, Object userInputValue) {
-		System.out.println("user INput : " + String.valueOf(userInputValue));
 		NamedObject namedObj = (NamedObject) element;
-		System.out.println("NamedObject : " + namedObj.getName());
 		JsonElement je = (JsonElement) namedObj.getObject();
-		
 		JsonObject jsonObject = jsonObject = je.getAsJsonObject();
-			System.out.println("Content : " + jsonObject.toString());
 
-		
 		if (jsonObject != null) {
 			jsonObject.addProperty(property, String.valueOf(userInputValue));
 			namedObj.setObject(jsonObject);
 			ConfigTableEditor cf = (ConfigTableEditor) viewer.getTable().getParent().getParent();
 			cf.goDoSomeCoolSaving(namedObj);
-			System.out.println("This needs to happen Third!" + property + index +  jsonObject.toString()+ namedObj.getName());
-			System.out.println(namedObj.getPath());
+			System.out.println(namedObj.getPath() + " has been changed");
 			viewer.update(namedObj, null);
 			viewer.refresh();
-			
-		
 		}
-
-		
 	}
 }
