@@ -22,6 +22,7 @@ public class ModuleConfigEditor extends SashForm {
 	private ConfigTreeViewer treeViewer;
 	private ConfigTableEditor editor;
 	private CfsConfig cfsConfig;
+	private NamedObject currentObject;
 	
 	/**
 	 * Create the composite.
@@ -38,14 +39,12 @@ public class ModuleConfigEditor extends SashForm {
 		toolkit.adapt(this);
 		toolkit.paintBordersFor(this);
 		setLayout(null);
-		NamedObject startingNamedObject = new NamedObject();
-		startingNamedObject.setName(name);
-		startingNamedObject.setPath("modules." + name);
-		startingNamedObject.setObject(cfsConfig.getFull());
-
+		
 		this.cfsConfig = cfsConfig;
+		this.currentObject = getInitialNamedObject(name);
+		
 		treeViewer = new ConfigTreeViewer(this, SWT.BORDER, jsonPath, cfsConfig);
-		editor = new ConfigTableEditor(this, SWT.BORDER, cfsConfig.getFull(), startingNamedObject, cfsConfig);
+		editor = new ConfigTableEditor(this, SWT.BORDER, cfsConfig.getFull(), currentObject, cfsConfig);
 		
 		/**
 		Composite composite = toolkit.createComposite(this, SWT.NONE);
@@ -56,47 +55,35 @@ public class ModuleConfigEditor extends SashForm {
 		**/
 	}
 	
+	public NamedObject getInitialNamedObject(String name) {
+		NamedObject startingNamedObject = new NamedObject();
+		startingNamedObject.setName(name);
+		startingNamedObject.setPath("modules." + name);
+		startingNamedObject.setObject(cfsConfig.getFull());
+		
+		if(this.cfsConfig.isOverridden(startingNamedObject.getPath()))
+		{
+			startingNamedObject.setOverridden(true);
+    	} else {
+    		startingNamedObject.setOverridden(false);
+    	}
+		return startingNamedObject;
+	}
+	
 	public void goUpdate(String name, JsonElement newInput, NamedObject namedObj) {
 		editor.dispose();
 		editor = new ConfigTableEditor(this, SWT.BORDER | SWT.FILL, newInput, namedObj, cfsConfig);
+		this.currentObject = namedObj;
 	//	this.treeViewer.refreshTree
 		layout(true, true);
 	}
 	
+	public void setNewKeyValue(String name, String value, NamedObject parentObject) {
+		editor.updateKeyValue(name, value, parentObject);
+	}
+	
 	public void refreshTree() {
-		treeViewer.setComparer(new IElementComparer() {
-				@Override
-				public boolean equals(Object a, Object b) {
-					if (a == b) {
-						return true;
-					}
-					if (b == null) {
-						return false;
-					}
-					if (getClass() != b.getClass()) {
-						return false;
-					}
-					ConfigTreeViewer other = (ConfigTreeViewer) b;
-					if (toString() == null) {
-						if (other.toString() != null) {
-							return false;
-						}
-					} else if (!toString().contentEquals(other.toString())) {
-						return false;
-					}
-					return true;	
-				}
-
-				@Override
-				public int hashCode(Object element) {
-					final int prime = 31;
-					int result = 1;
-					result = prime * result + ((toString() == null) ? 0 : toString().hashCode());
-					return result;
-				}
-				
-			
-		});
-		treeViewer.refreshTreeViewer();
+		treeViewer.refresh(currentObject);
+	//	treeViewer.refreshTreeViewer();
 	}
 }

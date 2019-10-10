@@ -108,6 +108,46 @@ public class CfsConfig {
 		}
 	}
 	
+	public void setSingleRecord(NamedObject namedObj) {
+		String[] parts = namedObj.getPath().split("\\.|\\[|\\]");
+		int depth = parts.length;
+		JsonElement localPointer = this.local;
+		JsonObject localObject = localPointer.getAsJsonObject();
+		
+		JsonObject pointerToRecord = (JsonObject) namedObj.getObject();
+		
+		for (int i = 0; i < depth; i++) {
+			// You are currently at the selected element
+			if (i + 1 == depth) {
+				if (localObject.has(parts[i])) {
+					localObject = localObject.get(parts[i]).getAsJsonObject();
+					pointerToRecord = pointerToRecord.get(parts[i]).getAsJsonObject();
+					localObject.addProperty(namedObj.getName(), pointerToRecord.get(namedObj.getName()).getAsString() );
+					break;
+				} else {
+					localObject.add(parts[i], new JsonObject());
+					localObject = localObject.get(parts[i]).getAsJsonObject();
+					pointerToRecord = pointerToRecord.get(parts[i]).getAsJsonObject();
+					localObject.addProperty(namedObj.getName(), pointerToRecord.get(namedObj.getName()).getAsString() );
+					break;
+				}				
+			} 			
+			// Let's check if the path exists and if it does update the crawl to use the json object.
+			// If the path doesn't exist then create an empty object inside the current crawled object.
+			if (localObject.has(parts[i])) {
+				// Update the element to be crawled.
+				localObject = localObject.get(parts[i]).getAsJsonObject(); 
+				pointerToRecord = pointerToRecord.get(parts[i]).getAsJsonObject();
+			} else {
+				localObject.add(parts[i], new JsonObject());
+				localObject = localObject.get(parts[i]).getAsJsonObject();
+				pointerToRecord = pointerToRecord.get(parts[i]).getAsJsonObject();
+			}			
+		}
+		this.local = localPointer;
+		saveToFile(this.local);
+	}
+	
 	public void setNamedObjectLocal(NamedObject namedObj) {
 		String[] parts = namedObj.getPath().split("\\.|\\[|\\]");
 		int depth = parts.length;

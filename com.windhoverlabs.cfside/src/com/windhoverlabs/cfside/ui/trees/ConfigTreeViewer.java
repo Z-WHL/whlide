@@ -27,6 +27,7 @@ import com.windhoverlabs.cfside.utils.CfsConfig;
 public class ConfigTreeViewer extends TreeViewer implements ISelectionChangedListener {
 
 	private final FormToolkit toolkit = new FormToolkit(Display.getCurrent());
+	private JsonContentProvider jsonContentProvider;
 	/**
 	 * @wbp.parser.entryPoint
 	 */
@@ -43,7 +44,8 @@ public class ConfigTreeViewer extends TreeViewer implements ISelectionChangedLis
 		Font boldFont = new Font(Display.getCurrent(), boldFontData);
 		
 		setLabelProvider(new JsonLabelProvider(boldFont));
-		setContentProvider(new JsonContentProvider(cfsConfig));
+		jsonContentProvider = new JsonContentProvider(cfsConfig);
+		setContentProvider(jsonContentProvider);
 
 		namedObject.setName("ROOT");
 		JsonObject module = cfsConfig.fullGetElement(jsonPath).getAsJsonObject();
@@ -99,6 +101,10 @@ public class ConfigTreeViewer extends TreeViewer implements ISelectionChangedLis
 			if (selectedElem.isJsonObject()) {
 				s.goUpdate(namedObject.getName(), selectedElem, namedObject);
 				getTree().getParent().layout(true, true);
+			} else {
+				NamedObject parentObject = (NamedObject) jsonContentProvider.getEntryParent(namedObject);
+	
+				s.setNewKeyValue(namedObject.getName(), selectedElem.getAsString(), parentObject);
 			}
 		}
 	}
@@ -114,5 +120,9 @@ public class ConfigTreeViewer extends TreeViewer implements ISelectionChangedLis
 			styleData[i] = new FontData(base.getName(), base.getHeight(), base.getStyle() | additionalStyle);
 		}
 		return styleData;
+	}
+	
+	protected void createContextMenu(Viewer viewer) {
+		
 	}
 }

@@ -47,15 +47,27 @@ public class KeyValueEditingSupport extends EditingSupport {
 		// This is the column editor for label or key.
 		// Else it is the column editor for the value.
 		ConfigTableEditor cf = (ConfigTableEditor) viewer.getTable().getParent().getParent();
-		if (index == 0) {
-			String key = namedObj.getKey();
-			namedObj.setKey(String.valueOf(userInputValue));
-			cf.updateKey(key, namedObj);
+		if (cf.isNotPrimitive()) {
+			if (index == 0) {
+				String key = namedObj.getKey();
+				namedObj.setKey(String.valueOf(userInputValue));
+				cf.updateKey(key, namedObj);
+			} else {
+				namedObj.setValue(String.valueOf(userInputValue));
+				cf.updateValue(namedObj);
+			}
 		} else {
-			namedObj.setValue(String.valueOf(userInputValue));
-			cf.updateValue(namedObj);
+			if (index == 0) {
+				String oldKey = namedObj.getKey();
+				namedObj.setKey(String.valueOf(userInputValue));
+				cf.updateParentObjectKey(oldKey, namedObj);
+			} else {
+				namedObj.setValue(String.valueOf(userInputValue));
+				cf.updateParentObjectValue(namedObj);
+			}
 		}
 		viewer.update(namedObj, null);
+		viewer.refresh();
 		cf.reflectChangesOnTree();
 	}
 }

@@ -69,20 +69,12 @@ public class KeyValueTable extends Composite {
 		table.setLinesVisible(true);
 	}
 	
-	public void setNewConfig(JsonElement changeJson) {
+	public void setNewPair(String key, String value, NamedObject parentObject) {
 		keyValueEntries = new ArrayList<KeyValueEntry>();
-	
-		if (changeJson.isJsonObject()) {
-			JsonObject asJsonObject = changeJson.getAsJsonObject();
-			
-			for (Map.Entry<String, JsonElement> entry : asJsonObject.entrySet()) {
-				if (!entry.getValue().isJsonObject()) {
-					keyValueEntries.add(new KeyValueEntry(entry.getKey(), entry.getValue().getAsString()));
-					System.out.println(entry.toString());
-				}
-			}
-		}
+		keyValueEntries.add(new KeyValueEntry(key, value));
 		
+		JsonObject obj = (JsonObject) parentObject.getObject();
+		System.out.println("SetNewPair" + obj.toString());
 		tableViewer.setInput(keyValueEntries);
 		tableViewer.refresh();
 	}
@@ -174,7 +166,6 @@ public class KeyValueTable extends Composite {
         		}
         		cell.setText(keyValue.getValue());
 			}
-		
 			super.update(cell);
 		}
 		

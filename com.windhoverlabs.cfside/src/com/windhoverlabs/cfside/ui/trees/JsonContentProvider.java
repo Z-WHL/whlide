@@ -150,6 +150,31 @@ public class JsonContentProvider implements ITreeContentProvider {
 	    
 		return foundJsonElement;
 	}
+	
+	public Object getEntryParent(Object obj) {
+		NamedObject namedObj = (NamedObject) obj;
+		String path = namedObj.getPath();
+	    String[] parts = path.split("\\.|\\[|\\]");
+
+	    StringBuilder sb = new StringBuilder();
+	    for (int i = 0 ; i < parts.length - 1; i++) {
+	    	sb.append(parts[i]+".");
+	    }
+	    sb.deleteCharAt(sb.length() - 1);
+	    
+	    JsonElement foundJsonElement = config.fullGetElement(sb.toString());
+	    NamedObject ret = new NamedObject();
+	    ret.setPath(sb.toString());
+	    ret.setName(parts[parts.length-1]);
+	    System.out.println("parts at length : " + parts[parts.length-1] + "parts - 1 : " + parts[parts.length - 2] );
+	    if(this.config.isOverridden(sb.toString())) {
+	    	ret.setOverridden(true);
+    	} else {
+    		ret.setOverridden(false);
+    	}
+	    ret.setObject(foundJsonElement);
+		return ret;
+	}
 
 	@Override
 	public boolean hasChildren(Object element) {
