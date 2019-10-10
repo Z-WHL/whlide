@@ -2,6 +2,7 @@ package com.windhoverlabs.cfside.ui.dialogs;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.Dialog;
@@ -21,6 +22,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 
 public class CFSDialog extends Dialog {
@@ -28,13 +30,12 @@ public class CFSDialog extends Dialog {
 	private JsonElement jsonElement;
 	private String name;
 	private final FormToolkit formToolkit = new FormToolkit(Display.getDefault());
-	private Text txtNewText;
-	private Text txtNewText_1;
-	private Text txtNewText_2;
+	private Text nameValue;
 	
 	private HashMap<Text, Text> keyValueWidgets = new HashMap<Text, Text>();
 	private HashMap<String, String> keyvalues = new HashMap<String, String>();
 	private HashSet<Text> classesWidgets = new HashSet<Text>();
+	private Text txtNewText_3;
 	
 	public CFSDialog(Shell parentShell) {
 		super(parentShell);
@@ -53,21 +54,12 @@ public class CFSDialog extends Dialog {
         Label lblNewLabel = formToolkit.createLabel(scrldfrmNewScrolledform.getBody(), "Name", SWT.NONE);
         GridData gd_lblNewLabel = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
         gd_lblNewLabel.widthHint = 139;
-        lblNewLabel.setLayoutData(gd_lblNewLabel);
-        
-        Text nameWidget = formToolkit.createText(scrldfrmNewScrolledform.getBody(), "value", SWT.NONE);
-        nameWidget.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        new Label(scrldfrmNewScrolledform.getBody(), SWT.NONE);
-        
-        initialField = formToolkit.createText(scrldfrmNewScrolledform.getBody(), "field", SWT.NONE);
-        txtNewText_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        
-        txtNewText_2 = formToolkit.createText(scrldfrmNewScrolledform.getBody(), "value", SWT.NONE);
-        txtNewText_2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        new Label(scrldfrmNewScrolledform.getBody(), SWT.NONE);
-        
-   
+        lblNewLabel.setLayoutData(gd_lblNewLabel); 
 
+        nameValue = formToolkit.createText(scrldfrmNewScrolledform.getBody(), "value", SWT.NONE);
+        nameValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        new Label(scrldfrmNewScrolledform.getBody(), SWT.NONE);
+        
         scrldfrmNewScrolledform.getToolBarManager().add(new Action("Add Field") {
         	public void run() {
                 Text newField = formToolkit.createText(scrldfrmNewScrolledform.getBody(), "field", SWT.NONE);
@@ -77,15 +69,20 @@ public class CFSDialog extends Dialog {
                 value.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
                 new Label(scrldfrmNewScrolledform.getBody(), SWT.NONE);
                 keyValueWidgets.put(newField, value);
+                scrldfrmNewScrolledform.getBody().layout();
         	}
         });
         
         scrldfrmNewScrolledform.getToolBarManager().add(new Action("Add Class") {
         	public void run() {
-        		
+        		Text newClass = formToolkit.createText(scrldfrmNewScrolledform.getBody(), "New Text", SWT.NONE);
+        		newClass.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+        		classesWidgets.add(newClass);
+                scrldfrmNewScrolledform.getBody().layout();
+
         	}
         });
-        
+        scrldfrmNewScrolledform.updateToolBar();
         return container;        
 	}
 	
@@ -102,9 +99,15 @@ public class CFSDialog extends Dialog {
 	
 	@Override
 	protected void okPressed() {
-		pathOneName = pathOne.getText();
-		//pathTwoName = pathTwo.getText();
-		//pathSavedName = pathSaved.getText();
+		JsonObject newJson = new JsonObject();
+		for (Map.Entry<Text, Text> entry : keyValueWidgets.entrySet()) {
+			newJson.addProperty(entry.getKey().getText(), entry.getValue().getText());
+		}
+		for (Text entry : classesWidgets) {
+			newJson.add(entry.getText(), new JsonObject());
+		}
+		name = nameValue.getText();
+		jsonElement = newJson;
 		super.okPressed();
 	}
 	
