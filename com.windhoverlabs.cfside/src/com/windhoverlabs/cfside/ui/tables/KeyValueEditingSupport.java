@@ -47,16 +47,20 @@ public class KeyValueEditingSupport extends EditingSupport {
 		// This is the column editor for label or key.
 		// Else it is the column editor for the value.
 		ConfigTableEditor cf = (ConfigTableEditor) viewer.getTable().getParent().getParent();
-		if (cf.isNotPrimitive()) {
-			if (index == 0) {
+		NamedObject parentObj = null;
+		if (index == 0) {
+			if (!namedObj.getKey().equalsIgnoreCase(String.valueOf(userInputValue))) {
 				String key = namedObj.getKey();
 				namedObj.setKey(String.valueOf(userInputValue));
-				cf.updateKey(key, namedObj);
-			} else {
-				namedObj.setValue(String.valueOf(userInputValue));
-				cf.updateValue(namedObj);
+				parentObj = cf.updateKey(key, namedObj);
 			}
 		} else {
+			if (!namedObj.getValue().equalsIgnoreCase(String.valueOf(userInputValue))) {
+				namedObj.setValue(String.valueOf(userInputValue));
+				parentObj = cf.updateValue(namedObj);
+			}
+		}
+		/**
 			if (index == 0) {
 				String oldKey = namedObj.getKey();
 				namedObj.setKey(String.valueOf(userInputValue));
@@ -65,10 +69,13 @@ public class KeyValueEditingSupport extends EditingSupport {
 				namedObj.setValue(String.valueOf(userInputValue));
 				cf.updateParentObjectValue(namedObj);
 			}
+		} **/
+		if (parentObj != null) {
+			viewer.update(namedObj, null);
+			viewer.refresh();
+	
+			cf.reflectChangesOnTree(parentObj, cf.getcfsconfig());
 		}
-		viewer.update(namedObj, null);
-		viewer.refresh();
-		cf.reflectChangesOnTree();
 	}
 }
 

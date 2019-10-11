@@ -3,6 +3,7 @@ package com.windhoverlabs.cfside.ui.trees;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 
 import com.google.gson.JsonArray;
@@ -52,7 +53,7 @@ public class JsonContentProvider implements ITreeContentProvider {
 				ArrayList<Object> outArray = new ArrayList<Object>();
 
 		        for (Map.Entry<String,JsonElement> entry :  obj.entrySet()) {
-		        	if (!(entry.getKey().charAt(0) == '_')) {
+		        	if (!(entry.getKey().charAt(0) == '_') && entry.getValue().isJsonObject()) {
 			        	NamedObject outNamedObject = new NamedObject();
 			        	
 			        	outNamedObject.setName(entry.getKey());
@@ -107,7 +108,7 @@ public class JsonContentProvider implements ITreeContentProvider {
 				ArrayList<Object> outArray = new ArrayList<Object>();
 
 		        for (Map.Entry<String,JsonElement> entry :  obj.entrySet()) {
-		        	if (!(entry.getKey().charAt(0) == '_')) {
+		        	if (!(entry.getKey().charAt(0) == '_') && entry.getValue().isJsonObject()) {
 			        	NamedObject outNamedObject = new NamedObject();
 			        	
 			        	outNamedObject.setName(entry.getKey());
@@ -141,14 +142,16 @@ public class JsonContentProvider implements ITreeContentProvider {
 		NamedObject namedObj = (NamedObject) element;
 		String path = namedObj.getPath();
 	    String[] parts = path.split("\\.|\\[|\\]");
-
-	    StringBuilder sb = new StringBuilder();
-	    for (int i = 0 ; i < parts.length - 1; i++) {
-	    	sb.append(parts[i]);
-	    }
-	    JsonElement foundJsonElement = config.fullGetElement(sb.toString());
+	    int lastPart = namedObj.getName().length() + 1;
 	    
-		return foundJsonElement;
+	    if (path.length() - lastPart < 0) {
+	    	return null;
+	    }
+	    String parentPath = path.substring(0, path.length() - lastPart);
+	    System.out.println(parentPath);
+	    NamedObject parent = config.getObject(parentPath, "full", config);
+	    
+		return parent;
 	}
 	
 	public Object getEntryParent(Object obj) {
@@ -201,5 +204,4 @@ public class JsonContentProvider implements ITreeContentProvider {
 		
 		return false;
 	}
-
 }

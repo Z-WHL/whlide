@@ -8,30 +8,29 @@ import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IWorkbenchActionConstants;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.windhoverlabs.cfside.ui.dialogs.CFSDialog;
+import com.windhoverlabs.cfside.actions.TreeContextMenuActions;
+import com.windhoverlabs.cfside.ui.dialogs.AddObjectDialog;
 import com.windhoverlabs.cfside.ui.editors.ModuleConfigEditor;
 import com.windhoverlabs.cfside.utils.CfsConfig;
 
@@ -40,40 +39,48 @@ public class ConfigTreeViewer extends TreeViewer implements ISelectionChangedLis
 	private final FormToolkit toolkit = new FormToolkit(Display.getCurrent());
 	private JsonContentProvider jsonContentProvider;
 	private CfsConfig cfsConfig;
+	NamedObject namedObject;
+	String moduleName;
+	String jsonPath;
+	
 	/**
 	 * @wbp.parser.entryPoint
 	 */
-	public ConfigTreeViewer(Composite parent, int style, String jsonPath, CfsConfig cfsConfig) {
+	public ConfigTreeViewer(Composite parent, int style, String jsonPath, CfsConfig cfsConfig, String moduleName) {
 		super(parent, style);
 		this.cfsConfig = cfsConfig;
-		NamedObject namedObject = new NamedObject();
+		this.jsonPath = jsonPath;
+		this.moduleName = moduleName;
+
 		Tree tree = getTree();
 		tree.setBackground(SWTResourceManager.getColor(SWT.COLOR_INFO_FOREGROUND));
 		toolkit.paintBordersFor(tree);
-		
-
+	
 		FontData[] boldFontData = getModifiedFontData(tree.getFont().getFontData(), SWT.BOLD);
 		Font boldFont = new Font(Display.getCurrent(), boldFontData);
 		
 		setLabelProvider(new JsonLabelProvider(boldFont));
 		jsonContentProvider = new JsonContentProvider(cfsConfig);
 		setContentProvider(jsonContentProvider);
-
+		namedObject = new NamedObject();
 		namedObject.setName("ROOT");
+		JsonObject partial = new JsonObject();
+		JsonObject pointerToPartial = partial;
+		partial.add("modules", new JsonObject());
+		partial = partial.get("modules").getAsJsonObject();
 		JsonObject module = cfsConfig.fullGetElement(jsonPath).getAsJsonObject();
-		namedObject.setObject(module);
-		namedObject.setPath(jsonPath);
+		partial.add(moduleName, module);
+		namedObject.setObject(partial);
+		namedObject.setPath("modules");
 		
 		// Let's create columns for feauture extensibility. For now, just one column to display the names of the jsonObjects or primitives.
 		createLabelColumn(tree, "Label");
-		
-		
-		
+
 		setInput(namedObject);
 
 		addSelectionChangedListener(this);
 		createMenu(ConfigTreeViewer.this);
-		
+	
 	}
 
 	private void createLabelColumn(Tree currentTree, String columnLabel) {
@@ -95,18 +102,34 @@ public class ConfigTreeViewer extends TreeViewer implements ISelectionChangedLis
 			
 			ModuleConfigEditor s = (ModuleConfigEditor) getTree().getParent();
 			if (selectedElem.isJsonObject()) {
-				s.goUpdate(namedObject.getName(), selectedElem, namedObject);
+				s.goUpdate(namedObject.getName(), selectedElem, namedObject, cfsConfig);
 				getTree().getParent().layout(true, true);
-			} else {
-				NamedObject parentObject = (NamedObject) jsonContentProvider.getEntryParent(namedObject);
-	
-				s.setNewKeyValue(namedObject.getName(), selectedElem.getAsString(), parentObject);
 			}
 		}
 	}
 	
-	public void refreshTreeViewer() {
+	public void refreshTreeViewer(NamedObject namedObject, CfsConfig cfsConfig) {
+		this.cfsConfig = cfsConfig;
+		
+		/**
+		final Object[] expanded = getExpandedElements();
+		NamedObject[] named = new NamedObject[expanded.length];
+		TreePath[] expandedTreePath = getExpandedTreePaths();
+		final ISelection selection = getSelection();
+		
+		setInput(this.namedObject);
+		for (int i = 0; i < expanded.length; i++) {
+			NamedObject temp = (NamedObject) expanded[i];
+			named[i] = temp;
+			System.out.println(expanded[i].toString());
+		}
+		setExpandedElements(expanded);
+		setExpandedTreePaths(expandedTreePath);
+		setSelection(selection);
+			**/
 		refresh();
+		System.out.println("before refreshing, waht is the value of overriden " + namedObject.getOverridden());
+		
 	}
 	
 	private static FontData[] getModifiedFontData(FontData[] originalData, int additionalStyle) {
@@ -117,57 +140,13 @@ public class ConfigTreeViewer extends TreeViewer implements ISelectionChangedLis
 		}
 		return styleData;
 	}
+	
 	public void createMenu(Viewer viewer) {
-		final Action a = new Action("Add") {
-			@Override
-			public void run() {
-				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				Shell shell = window.getShell();
-				String fields = null;
-				
-				if (getSelection().isEmpty()) {
-					return;
-				}
-				if (getSelection() instanceof IStructuredSelection) {
-					IStructuredSelection selection = (IStructuredSelection) getSelection();
-					Object selectedNode = selection.getFirstElement();
-					
-					if (selectedNode != null) {
-						NamedObject namedObject = (NamedObject) selectedNode; 
-						JsonElement selectedElem = (JsonElement) namedObject.getObject();
-						ModuleConfigEditor s = (ModuleConfigEditor) getTree().getParent();
-						CFSDialog dialog = null;
-						if (selectedElem.isJsonObject()) {
-							/** restrictive or ease of use portion
-							Set<Entry<String, JsonElement>> temp = selectedElem.getAsJsonObject().entrySet();
-							if (temp.isEmpty()) {
-								HashMap<String, String> empty = new HashMap<String, String>();
-								dialog = new CFSDialog(shell, empty, true); 
-							} else {
-								Iterator it = temp.iterator();
-								HashMap<String, String> childrenKeysTypes = getKeys(it.next());
-								dialog = new CFSDialog(shell, childrenKeysTypes, false);
-							} **/
-							dialog = new CFSDialog(shell);
-							NamedObject addToConfig = new NamedObject();
-							JsonElement toAdd = null;
-							String name = null;
-							if (dialog.open() == Window.OK) {
-								toAdd = dialog.getJsonElement();
-								name = dialog.getName();
-								addToConfig.setName(name);
-								addToConfig.setPath(namedObject.getPath().concat("."+name));
-								addToConfig.setObject(toAdd);
-								addToConfig.setOverridden(true);
-							}
-							cfsConfig.save(addToConfig);
-							refresh(namedObject);
-						} 
-						
-					}
-				}
-			}
-		};
+		final Action addObject = TreeContextMenuActions.createActionAddObject(ConfigTreeViewer.this, cfsConfig);
+		final Action addArray = TreeContextMenuActions.createActionAddArray(ConfigTreeViewer.this, cfsConfig);
+		final Action delete = TreeContextMenuActions.createActionDelete(ConfigTreeViewer.this, cfsConfig);
+		final Action unoverride = TreeContextMenuActions.createActionUnoverride(ConfigTreeViewer.this, cfsConfig);
+
 		
 		MenuManager menumgr = new MenuManager();
 		Menu men = menumgr.createContextMenu(viewer.getControl());
@@ -175,11 +154,30 @@ public class ConfigTreeViewer extends TreeViewer implements ISelectionChangedLis
 		menumgr.addMenuListener(new IMenuListener() {
 			@Override
 			public void menuAboutToShow(IMenuManager mgr) {
-				a.setText("Add");
-				menumgr.add(a);
+				if (getSelection() instanceof IStructuredSelection) {
+					IStructuredSelection selection = (IStructuredSelection) getSelection();
+					Object selectedNode = selection.getFirstElement();
+					if (selectedNode != null) {
+						NamedObject namedObject = (NamedObject) selectedNode; 
+						JsonElement selectedElem = (JsonElement) namedObject.getObject();
+						ModuleConfigEditor s = (ModuleConfigEditor) getTree().getParent();
+						AddObjectDialog dialog = null;
+						if (selectedElem.isJsonObject() || selectedElem.isJsonArray()) {
+							addObject.setText("Add Object");
+							menumgr.add(addObject);
+							addArray.setText("Add Array");
+							menumgr.add(addArray);
+							delete.setText("Delete");
+							menumgr.add(delete);
+							if (namedObject.getOverridden()) {
+								unoverride.setText("Unoverride");
+								menumgr.add(unoverride);
+							}
+						}
+				}
 				ConfigTreeViewer.this.fillContextMenu(mgr);
 			}
-		});
+		}});
 		menumgr.setRemoveAllWhenShown(true);
 
 		viewer.getControl().setMenu(men);

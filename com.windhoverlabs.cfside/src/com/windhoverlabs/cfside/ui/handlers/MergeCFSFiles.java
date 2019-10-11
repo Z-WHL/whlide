@@ -52,7 +52,7 @@ public class MergeCFSFiles extends AbstractHandler{
 		String pathSaved = null;
 
 		if(dia.open() == Window.OK) {
-			pathA = dia.pathOne();
+			//pathA = dia.pathOne();
 			//pathB = dia.pathTwo();
 			//pathSaved = dia.pathSaved();
 		} else if (dia.open() == Window.CANCEL) {

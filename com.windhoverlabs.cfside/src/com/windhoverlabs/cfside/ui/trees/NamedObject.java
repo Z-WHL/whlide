@@ -1,5 +1,6 @@
 package com.windhoverlabs.cfside.ui.trees;
 
+import org.eclipse.jface.viewers.IElementComparer;
 
 public class NamedObject {
 	

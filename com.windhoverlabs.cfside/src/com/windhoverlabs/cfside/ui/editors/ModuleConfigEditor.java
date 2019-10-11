@@ -1,12 +1,23 @@
 package com.windhoverlabs.cfside.ui.editors;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import com.google.gson.JsonElement;
@@ -43,7 +54,7 @@ public class ModuleConfigEditor extends SashForm {
 		this.cfsConfig = cfsConfig;
 		this.currentObject = getInitialNamedObject(name);
 		
-		treeViewer = new ConfigTreeViewer(this, SWT.BORDER, jsonPath, cfsConfig);
+		treeViewer = new ConfigTreeViewer(this, SWT.BORDER, jsonPath, cfsConfig, name);
 		editor = new ConfigTableEditor(this, SWT.BORDER, cfsConfig.getFull(), currentObject, cfsConfig);
 		
 		/**
@@ -70,20 +81,21 @@ public class ModuleConfigEditor extends SashForm {
 		return startingNamedObject;
 	}
 	
-	public void goUpdate(String name, JsonElement newInput, NamedObject namedObj) {
+	public void goUpdate(String name, JsonElement newInput, NamedObject namedObj, CfsConfig newCfs) {
 		editor.dispose();
-		editor = new ConfigTableEditor(this, SWT.BORDER | SWT.FILL, newInput, namedObj, cfsConfig);
+		editor = new ConfigTableEditor(this, SWT.BORDER | SWT.FILL, newInput, namedObj, newCfs);
 		this.currentObject = namedObj;
+		this.treeViewer.refresh(namedObj);
 	//	this.treeViewer.refreshTree
 		layout(true, true);
+	}
+
+	public void refreshTree(NamedObject namedObj, CfsConfig cfsConfig2) {
+		treeViewer.refreshTreeViewer(namedObj, cfsConfig2);
 	}
 	
 	public void setNewKeyValue(String name, String value, NamedObject parentObject) {
 		editor.updateKeyValue(name, value, parentObject);
-	}
+	} 
 	
-	public void refreshTree() {
-		treeViewer.refresh(currentObject);
-	//	treeViewer.refreshTreeViewer();
-	}
 }

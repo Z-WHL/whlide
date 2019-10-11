@@ -9,8 +9,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.windhoverlabs.cfside.ui.trees.NamedObject;
 
-public class JsonCellModifier implements ICellModifier {
-
+public class JsonCellModifier {
+/**
 	private CommonGroup tableViewerInstance;
 	private String[] columnNames;
 	
@@ -26,7 +26,7 @@ public class JsonCellModifier implements ICellModifier {
 	}
 	
 	public Object getValue(Object element, String property) {
-		int columnIndex = tableViewerInstance.getColumnNames().indexOf(property);
+	//	int columnIndex = tableViewerInstance.getColumnNames().indexOf(property);
 		Object result = null;
 		NamedObject jsonObject = (NamedObject) element;
 		if (columnIndex == 0) {
@@ -84,5 +84,5 @@ public class JsonCellModifier implements ICellModifier {
 		}
 		
 		tableViewerInstance.getJsonList().jsonChanged(jsonObj);
-	}
+	}**/
 }

@@ -98,6 +98,43 @@ public class CfsConfig {
 	    return result;
 	}
 	
+	public NamedObject getObject(String path, String which, CfsConfig cfsConfig) {
+		String[] parts = path.split("\\.|\\[|\\]");
+		JsonElement toSearchElement = which.equalsIgnoreCase("local") ? this.local : this.full;
+		JsonObject toSearchObject = toSearchElement.getAsJsonObject();
+		
+		NamedObject theObject = new NamedObject();
+		theObject.setPath(path);
+		
+		for (int i = 0; i < parts.length; i++) {
+			if (i + 1 == parts.length) {
+				theObject.setName(parts[i]);
+				if (toSearchObject.has(parts[i])) {
+					toSearchObject = toSearchObject.get(parts[i]).getAsJsonObject();
+					theObject.setObject(toSearchObject);
+					if (which.equalsIgnoreCase("local")) {
+						theObject.setOverridden(true);
+					} else {
+						if(cfsConfig.isOverridden(path)) {
+							theObject.setOverridden(true);
+				    	} else {
+				    		theObject.setOverridden(false);
+				    	}
+					}
+					return theObject;
+				} else {
+					return null;
+				}
+			}
+			if (toSearchObject.has(parts[i])) {
+				toSearchObject = toSearchObject.get(parts[i]).getAsJsonObject();
+			} else {
+				return null;
+			}
+		}
+		return null;
+	}
+	
 	public boolean isOverridden(String path) {
 		JsonElement result = localGetElement(path);
 		
@@ -207,6 +244,15 @@ public class CfsConfig {
 		setNamedObjectFull(js);
 		// Now let's update the persistent representation. Can be file, database etc.
 		saveToFile(this.local);
+	}
+	
+	public void saveLocal(NamedObject localObject) {
+		setNamedObjectLocal(localObject);
+		saveToFile(this.local);
+	}
+	
+	public void saveFull(NamedObject fullObject) {
+		setNamedObjectFull(fullObject);
 	}
 	
 	public void saveToFile(JsonElement json) {
